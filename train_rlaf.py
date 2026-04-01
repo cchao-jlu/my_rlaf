@@ -13,8 +13,7 @@ from torch_geometric.seed import seed_everything
 from evaluate_guided_solver import load_checkpoint
 from src.data.dataset import DimacsCNFDataset, RLTrainingDataset
 from src.policy.evaluate import sample_var_params, compute_solver_stats
-from src.model.model import GNN, init_model
-from src.data.transform import AddNodeFeatures
+from src.model.model import GNN, init_model, init_transform
 
 from src.training.dpo import train_dpo
 from src.training.grpo import train_grpo, get_grpo_advantage
@@ -87,7 +86,7 @@ def main(cfg: DictConfig):
     if cfg.from_checkpoint is not None:
         model, transform, _ = load_checkpoint(cfg.from_checkpoint)
     else:
-        transform = AddNodeFeatures()
+        transform = init_transform(cfg)
         model = init_model(cfg, transform)
 
     dataset_train = DimacsCNFDataset(

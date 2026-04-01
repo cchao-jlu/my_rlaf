@@ -4,15 +4,27 @@ from torch.distributions import Distribution
 from torch_scatter import scatter_sum
 
 
+def _distribution_params(y_var: Tensor, scale_sigma: float) -> tuple[Tensor, Tensor, Tensor]:
+    if y_var.shape[-1] == 2:
+        rho, mu = y_var[:, 0], y_var[:, 1]
+        sigma = torch.full_like(mu, fill_value=scale_sigma)
+    elif y_var.shape[-1] == 3:
+        rho, mu, raw_sigma = y_var[:, 0], y_var[:, 1], y_var[:, 2]
+        sigma = scale_sigma * torch.exp(raw_sigma.clamp(-4.0, 4.0))
+    else:
+        raise ValueError(f"Expected policy output dimension 2 or 3, got {y_var.shape[-1]}")
+
+    return rho, mu, sigma
+
+
 def distributions(y_var: Tensor, scale_sigma: float = 0.1) -> tuple[Distribution, Distribution]:
-    rho, mu = y_var[:, 0], y_var[:, 1]
+    rho, mu, sigma = _distribution_params(y_var, scale_sigma)
 
     # clamp rho at |rho| == 8
     rho = rho.clamp(-8, 8)
-    #rho = 8.0 * torch.tanh(rho / 8.0)
 
     phase_dist = torch.distributions.Binomial(logits=rho, total_count=1)
-    scale_dist = torch.distributions.LogNormal(mu, scale_sigma)
+    scale_dist = torch.distributions.LogNormal(mu, sigma)
     return phase_dist, scale_dist
 
 

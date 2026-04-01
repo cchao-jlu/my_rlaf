@@ -12,7 +12,7 @@ from torchmetrics.functional import auroc, accuracy
 
 
 from src.data.dataset import LabeledDataset
-from src.model.model import GNN
+from src.model.model import GNN, init_transform
 from src.data.transform import AddNodeFeatures
 
 import warnings
@@ -131,14 +131,19 @@ def load_checkpoint(ckpt_path: str) -> tuple[GNN, AddNodeFeatures]:
     cfg_path = os.path.join(os.path.dirname(ckpt_path), "config.yaml")
     cfg = OmegaConf.load(cfg_path)
 
-    transform = AddNodeFeatures()
+    transform = init_transform(cfg)
 
     model = GNN(
         channels=cfg.model.channels,
-        feat_dim=transform.lit_dim(),
+        lit_feat_dim=transform.lit_dim(),
+        cls_feat_dim=transform.cls_dim(),
         num_layers=cfg.model.num_layers,
         aggr=OmegaConf.to_container(cfg.model.aggr),
+        feature_encoder=cfg.model.feature_encoder if "feature_encoder" in cfg.model else "mlp",
+        dropout=cfg.model.dropout if "dropout" in cfg.model else 0.0,
         var_output=False,
+        out_dim=1,
+        separate_encoders=bool(cfg.model.separate_encoders) if "separate_encoders" in cfg.model else False,
     )
 
     state_dict = torch.load(ckpt_path)
@@ -161,15 +166,19 @@ def main(cfg: DictConfig):
     if cfg.from_checkpoint is not None:
         model, transform = load_checkpoint(cfg.from_checkpoint)
     else:
-        transform = AddNodeFeatures()
+        transform = init_transform(cfg)
 
         model = GNN(
             channels=cfg.model.channels,
-            feat_dim=transform.lit_dim(),
+            lit_feat_dim=transform.lit_dim(),
+            cls_feat_dim=transform.cls_dim(),
             num_layers=cfg.model.num_layers,
             aggr=OmegaConf.to_container(cfg.model.aggr),
+            feature_encoder=cfg.model.feature_encoder if "feature_encoder" in cfg.model else "mlp",
+            dropout=cfg.model.dropout if "dropout" in cfg.model else 0.0,
             var_output=False,
             out_dim=1,
+            separate_encoders=bool(cfg.model.separate_encoders) if "separate_encoders" in cfg.model else False,
         )
 
     dataset_train = LabeledDataset(

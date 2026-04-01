@@ -42,6 +42,9 @@ model:
   aggr: [mean]
   feature_encoder: mlp
   dropout: 0.0
+  feature_set: rich
+  separate_encoders: True
+  learnable_sigma: True
 
 # this is the sigma parameter for the log-normal weight distributions
 scale_sigma: 0.1

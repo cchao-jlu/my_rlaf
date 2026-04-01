@@ -23,6 +23,10 @@ model:
   num_layers: 10
   aggr: [mean]
   global_aggr: null
+  feature_encoder: mlp
+  dropout: 0.0
+  feature_set: rich
+  separate_encoders: True
 
 loader:
   batch_size: 20
