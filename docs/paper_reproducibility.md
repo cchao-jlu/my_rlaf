@@ -36,14 +36,21 @@ The paper-ready LaTeX tables and figure captions are collected in:
 docs/paper_tables_and_figures.md
 ```
 
+The per-item artifact audit is collected in:
+
+```text
+docs/paper_artifact_manifest.md
+```
+
 Required paper outputs:
 
 | Output | Source artifact |
 | --- | --- |
-| Table 1: Full400 main results | `runs/analysis/online_consistent_boundary400_full400_summary.csv`, `runs/analysis/local_reopen_guarded_full400_summary.csv`, `docs/compact_risk_full400_eval.md` |
+| Table 1: Full400 main results | `runs/analysis/online_consistent_boundary400_full400_summary.csv`, `runs/analysis/local_reopen_guarded_full400_summary.csv`, tracked raw full400 CSVs listed below |
 | Figure 1: Full400 cactus | `figures/fig_full400_cactus_paper.pdf`, `figures/fig_full400_cactus_paper.svg` |
 | Table 2: Stability validation | `runs/analysis/online_consistent_boundary400_stability.csv` |
 | Table 3: Ablation matrix | `docs/paper_ablation_matrix.md` |
+| Appendix: repeated runtime audit | `docs/repeated_runtime_audit.md`, `runs/analysis/repeated_runtime_audit.csv`, `runs/analysis/repeated_runtime_audit/raw/` |
 | Optional Glucose default baseline | `runs/analysis/glucose_default_full400_summary.csv`, `docs/glucose_default_full400_eval.md` |
 | Optional boundary audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv` |
 
@@ -51,6 +58,10 @@ The paper method names are fixed in `docs/paper_tables_and_figures.md`. In
 particular, `online_consistent_boundary400` is written as Online-Consistent
 Selector, and `local_reopen_guarded` is written as + Local Boundary Correction
 only as an ablation.
+
+Historical evaluation notes such as compact-risk markdown files are useful
+context, but the minimal paper reproducibility package treats the tracked CSVs
+and paper docs above as the authoritative inputs.
 
 ## Regenerate From Frozen CSV Artifacts
 
@@ -176,6 +187,50 @@ runs/analysis/glucose_default_full400_summary.csv
 Interpretation: this is an unguided CDCL reference. It should not replace
 One-shot, which is the neural guidance baseline.
 
+## Repeated Runtime Appendix
+
+The repeated runtime appendix is a same-seed key-claim audit. It checks the
+six recovered-timeout instances and the four Local Boundary Correction open-set
+instances. It is not a seed sensitivity study and should not be described as a
+full repeated-run evaluation of Table 1.
+
+Audit summary:
+
+```text
+docs/repeated_runtime_audit.md
+runs/analysis/repeated_runtime_audit.csv
+```
+
+Raw repeat outputs:
+
+```text
+runs/analysis/repeated_runtime_audit/raw/local_open_set/local_reopen_guarded/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/local_reopen_guarded/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/local_reopen_guarded/repeat2.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/online_consistent_boundary400/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/online_consistent_boundary400/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/online_consistent_boundary400/repeat2.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/one_shot/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/one_shot/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/one_shot/repeat2.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat2.csv
+```
+
+Runner:
+
+```text
+run_repeated_runtime_audit.py
+```
+
+Interpretation:
+
+- same-seed repeated runtime audit supports all six recovered timeouts.
+- `3sat_196.cnf` and `3sat_46.cnf` are stable hard speedups.
+- `3sat_188.cnf` is boundary-sensitive.
+- `3sat_66.cnf` remains neutral timeout evidence.
+
 ## Raw Full400 Guided Evaluations
 
 The paper tables can be regenerated from the frozen CSV artifacts above. Fully
@@ -205,6 +260,10 @@ data/test/3sat/400/*.cnf
 data/new_closed_old_on_boundary/3sat/400/*.cnf
 data/new_closed_old_on_boundary/manifest.csv
 ```
+
+The manifest CSV is tracked. The CNF datasets are treated as external data for
+full reruns; they are not required to regenerate the paper tables from the
+frozen CSV artifacts.
 
 The formal Local Boundary Correction full400 run uses the 750-feature guarded
 rule:
@@ -278,3 +337,23 @@ evaluations.
 
 The checkpoint files are about 20 MB each. Decide separately whether to track
 them directly, store them with Git LFS, or publish them as external artifacts.
+
+Repeated runtime audit package committed in `e51a5c7` and `3fa3063`:
+
+```text
+run_repeated_runtime_audit.py
+docs/repeated_runtime_audit.md
+runs/analysis/repeated_runtime_audit.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/local_reopen_guarded/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/local_reopen_guarded/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/local_reopen_guarded/repeat2.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/online_consistent_boundary400/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/online_consistent_boundary400/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/local_open_set/online_consistent_boundary400/repeat2.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/one_shot/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/one_shot/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/one_shot/repeat2.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat0.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat1.csv
+runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat2.csv
+```
