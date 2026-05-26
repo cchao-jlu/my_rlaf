@@ -1,0 +1,2 @@
+method,n,solved,sat,unsat,timeouts,mean_time,median_time,mean_wall_time,median_wall_time,external_timeouts,source_csv
+glucose_default,200,13,13,0,187,57.61451115,60.0,62.303925219655504,65.01338382647373,187,runs/glucose/solver_stats_full400_cpu60.csv
