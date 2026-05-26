@@ -98,10 +98,14 @@ Table 2 汇总稳定性结果。
 
 这些结果支持两个结论。第一，Online-Consistent Selector 相比 one-shot 的 mean-time 改善在 bootstrap 和 split 视角下都稳定。第二，`local_reopen_guarded` 的额外价值主要体现在 mean time，而不是 solved count；其 solved count 改善仍来自与主 selector 相同的 `6` 个 one-shot timeout recovery。
 
+我们另外做了一个 same-seed repeated runtime audit，只覆盖论文中最容易被质疑的关键样本，而不是重跑全量 full400 或改变 solver seed。该 audit 固定 `9` 个 unique instances，每个 pair 跑 `3` 次：`6` 个 `50 -> 56` recovered timeout 用 One-shot vs Online-Consistent Selector 比较，`4` 个 Local Boundary Correction open-set 用 Online-Consistent Selector vs + Local Boundary Correction 比较。结果表明：same-seed repeated runtime audit supports all six recovered timeouts. `3sat_196.cnf` and `3sat_46.cnf` are stable hard speedups. `3sat_188.cnf` is boundary-sensitive. `3sat_66.cnf` remains neutral timeout evidence. 这部分应放在 appendix 或稳定性补充段落中，并明确它是 same-seed runtime audit，不是 seed sensitivity study。
+
 证据来源：
 
 - `docs/paper_stability_validation.md`
 - `runs/analysis/online_consistent_boundary400_stability.csv`
+- `docs/repeated_runtime_audit.md`
+- `runs/analysis/repeated_runtime_audit.csv`
 
 ## 4.5 Local Boundary Correction Ablation
 

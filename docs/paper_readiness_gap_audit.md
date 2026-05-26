@@ -9,16 +9,17 @@
 
 - 结果是否只在 3SAT-400 上成立？
 - 相比强 CDCL / solver default 是否仍有意义？这一项已有 Glucose default reference，剩余问题是放正文还是附录。
-- single-run wall-clock 是否受运行噪声影响？
+- single-run wall-clock 是否受运行噪声影响？这一项已有 same-seed key-claim audit，剩余问题是 seed sensitivity / full-table repeat 是否需要附录补充。
 - 复现 Table 1 / Figure 1 是否有清晰入口？
 
 建议结论：
 
 | Category | Items |
 | --- | --- |
-| Must fix before submission | 复现闭环；明确统计稳定性边界 |
+| Must fix before submission | 复现闭环 |
+| Resolved / scoped limitation | same-seed repeated runtime audit for key claims |
 | Resolved / placement pending | Glucose default / solver default full400 baseline |
-| Should fix if time allows | final method 的 300/350 附录验证；runtime repeated seed；更尖锐的新颖性对照 |
+| Should fix if time allows | final method 的 300/350 附录验证；repeated seed sensitivity；更尖锐的新颖性对照 |
 | Can defer to appendix / rebuttal | 负结果细节；no750 诊断；boundary audit 表；旧 clean stability 结果 |
 
 ## 1. Experimental Strength
@@ -109,34 +110,39 @@ Can defer to appendix / rebuttal:
 - paired bootstrap：2000 paired resamples。
 - repeated split：2000 次 100-instance subset sampling。
 - 结果显示 Online-Consistent Selector 相比 one-shot 的 mean-time 改善稳定。
+- same-seed repeated runtime audit：固定 `9` 个 unique key instances，每个 pair 跑 `3` 次，覆盖 `6` 个 recovered timeout 和 `4` 个 Local Boundary Correction open-set 样本。
+- same-seed repeated runtime audit supports all six recovered timeouts.
+- `3sat_196.cnf` and `3sat_46.cnf` are stable hard speedups.
+- `3sat_188.cnf` is boundary-sensitive.
+- `3sat_66.cnf` remains neutral timeout evidence.
 
-### Gap
+### Status
 
-当前稳定性主要是 per-instance result stability，不是 runtime repeated-run stability。它没有完全回答：
+当前稳定性分成两层。paired bootstrap / repeated split 验证 per-instance aggregate robustness；same-seed repeated runtime audit 验证关键 recovered timeout 和 local correction open-set 的 wall-clock 重复稳定性。它仍没有完全回答：
 
-> 单实例 wall-clock 结果是否受 solver/runtime 噪声或随机漂移影响？
+> 换 solver seed 或对 full400 全量表做 repeated wall-clock 时，结果是否仍完全一致？
 
-项目中已有 `docs/recovered_timeout_stability.md` 和 `docs/pre_warmup_skip_classifier_full400_eval.md` 提醒：个别 recovered timeout 可能存在运行噪声，1 个实例漂移会影响 solved-count 叙事。
+因此 runtime repeat 已从 hard evidence 缺口降级为 resolved / scoped limitation：论文可以引用 key-claim audit，但不要把它写成 full seed-sensitivity study。
 
 ### Recommendation
 
+Resolved / scoped limitation:
+
+- 已补 `docs/repeated_runtime_audit.md` 和 `runs/analysis/repeated_runtime_audit.csv`。
+- 在实验章节明确 bootstrap / repeated split 的含义：它验证 per-instance aggregate robustness，不等价于 repeated runtime seed。
+- 在 appendix 或 caption 中说明 repeated runtime audit 是 same-seed key-claim audit，不是 seed sensitivity。
+
 Must fix before submission:
 
-- 在实验章节明确 bootstrap / repeated split 的含义：它验证 per-instance aggregate robustness，不等价于 repeated runtime seed。
 - 避免把 bootstrap improve probability 写成“运行重复稳定性”。
 
 Should fix if time allows:
 
-- 对 Table 1 的关键方法补 3-run repeated wall-clock：
-  - One-shot
-  - Online-Consistent Selector
-  - + Local Boundary Correction
-  - optionally Old Compact
-- 至少对 6 个 recovered timeout 和 4 个 local correction open-set 样本做 repeated run audit。
+- 如果资源允许，再做 full400 全量 3-run repeated wall-clock 或 repeated seed sensitivity，但不要把它和当前 same-seed audit 混写。
 
 Can defer to appendix / rebuttal:
 
-- 若资源不足，正文保留 paired bootstrap，appendix 加一句 runtime repeat 是 limitation。
+- 若资源不足，正文保留 paired bootstrap / repeated split，appendix 放 same-seed repeated runtime audit，并把 seed sensitivity 写成 limitation。
 
 ## 4. Method Novelty
 
@@ -286,18 +292,18 @@ Can defer to appendix / rebuttal:
 ```text
 Writing readiness: high
 Submission readiness: medium
-Evidence risk: medium after Glucose default baseline; remaining risk is reproducibility closure and runtime-repeat scope
+Evidence risk: medium after Glucose default baseline and same-seed runtime audit; remaining risk is reproducibility closure and seed-sensitivity scope
 ```
 
 可以开始拼 LaTeX 初稿，但投稿前必须补齐最小硬证据：
 
 1. 复现闭环。
-2. 统计稳定性的边界说明，最好补 runtime repeated run。
+2. 统计稳定性的边界说明：same-seed runtime audit 已补，seed sensitivity 仍是 limitation。
 3. Glucose default baseline 的正文/附录 placement。
 
 如果时间有限，优先顺序是：
 
 1. paper reproducibility package；
-2. repeated runtime audit；
-3. 300/350 final method appendix；
-4. negative-results appendix table。
+2. 300/350 final method appendix；
+3. negative-results appendix table；
+4. repeated seed sensitivity or full-table runtime repeat, only if resources allow。

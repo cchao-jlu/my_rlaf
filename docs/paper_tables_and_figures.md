@@ -228,3 +228,47 @@ Sources:
 
 - `docs/local_reopen_guarded_full400_eval.md`
 - `runs/analysis/local_reopen_guarded_full400_open_set.csv`
+
+## Appendix Table: Repeated Runtime Audit
+
+Caption:
+
+> Same-seed repeated runtime audit for the key recovered-timeout and guarded boundary-correction claims. This audit repeats only the fixed key instances and does not test seed sensitivity.
+
+LaTeX:
+
+```latex
+\begin{table}[t]
+\centering
+\caption{Same-seed repeated runtime audit for the key recovered-timeout and guarded boundary-correction claims. This audit repeats only the fixed key instances and does not test seed sensitivity.}
+\label{tab:repeated-runtime-audit}
+\begin{tabular}{llll}
+\toprule
+Instance & Comparison & Stable? & Interpretation \\
+\midrule
+3sat\_163.cnf & One-shot vs Online-Consistent Selector & yes & recovered timeout stable \\
+3sat\_188.cnf & One-shot vs Online-Consistent Selector & yes & recovered timeout stable \\
+3sat\_189.cnf & One-shot vs Online-Consistent Selector & yes & recovered timeout stable \\
+3sat\_85.cnf & One-shot vs Online-Consistent Selector & yes & recovered timeout stable \\
+3sat\_89.cnf & One-shot vs Online-Consistent Selector & yes & recovered timeout stable \\
+3sat\_97.cnf & One-shot vs Online-Consistent Selector & yes & recovered timeout stable \\
+3sat\_188.cnf & Online-Consistent Selector vs + Local Boundary Correction & mixed & boundary-sensitive \\
+3sat\_196.cnf & Online-Consistent Selector vs + Local Boundary Correction & yes & stable hard speedup \\
+3sat\_46.cnf & Online-Consistent Selector vs + Local Boundary Correction & yes & stable hard speedup \\
+3sat\_66.cnf & Online-Consistent Selector vs + Local Boundary Correction & yes & neutral timeout evidence \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Paper wording:
+
+same-seed repeated runtime audit supports all six recovered timeouts. `3sat_196.cnf` and `3sat_46.cnf` are stable hard speedups. `3sat_188.cnf` is boundary-sensitive. `3sat_66.cnf` remains neutral timeout evidence.
+
+Use this as an appendix table or short stability-caption note. Do not merge it into the main full400 result table.
+
+Sources:
+
+- `docs/repeated_runtime_audit.md`
+- `runs/analysis/repeated_runtime_audit.csv`
+- `runs/analysis/repeated_runtime_audit/raw/`
