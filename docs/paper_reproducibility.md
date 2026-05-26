@@ -51,6 +51,7 @@ Required paper outputs:
 | Table 2: Stability validation | `runs/analysis/online_consistent_boundary400_stability.csv` |
 | Table 3: Ablation matrix | `docs/paper_ablation_matrix.md` |
 | Appendix: repeated runtime audit | `docs/repeated_runtime_audit.md`, `runs/analysis/repeated_runtime_audit.csv`, `runs/analysis/repeated_runtime_audit/raw/` |
+| Appendix: 300/350 generality check | `docs/paper_appendix_300350_eval.md`, `runs/analysis/appendix_300350/summary.csv`, `runs/analysis/appendix_300350/raw/` |
 | Optional Glucose default baseline | `runs/analysis/glucose_default_full400_summary.csv`, `docs/glucose_default_full400_eval.md` |
 | Optional boundary audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv` |
 
@@ -231,6 +232,33 @@ Interpretation:
 - `3sat_188.cnf` is boundary-sensitive.
 - `3sat_66.cnf` remains neutral timeout evidence.
 
+## 300/350 Appendix Generality Check
+
+The 300/350 appendix is a small generality check for the final
+Online-Consistent Selector. It is not a main experiment, not a threshold-tuning
+run, and does not apply Local Boundary Correction to 300/350.
+
+Summary:
+
+```text
+docs/paper_appendix_300350_eval.md
+runs/analysis/appendix_300350/summary.csv
+```
+
+Raw outputs:
+
+```text
+runs/analysis/appendix_300350/raw/one_shot_300.csv
+runs/analysis/appendix_300350/raw/one_shot_350.csv
+runs/analysis/appendix_300350/raw/online_consistent_300.csv
+runs/analysis/appendix_300350/raw/online_consistent_350.csv
+```
+
+Interpretation: final Online-Consistent Selector does not collapse on smaller
+held-out sizes. It preserves solved count on 300, improves solved count by one
+on 350, and reduces mean time on both sizes. This does not change the main
+3SAT-400 full400 claim.
+
 ## Raw Full400 Guided Evaluations
 
 The paper tables can be regenerated from the frozen CSV artifacts above. Fully
@@ -356,4 +384,16 @@ runs/analysis/repeated_runtime_audit/raw/recovered_timeout/one_shot/repeat2.csv
 runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat0.csv
 runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat1.csv
 runs/analysis/repeated_runtime_audit/raw/recovered_timeout/online_consistent_boundary400/repeat2.csv
+```
+
+300/350 appendix package committed in `7e4b785` and `fb73882`:
+
+```text
+docs/paper_appendix_300350_smoke.md
+docs/paper_appendix_300350_eval.md
+runs/analysis/appendix_300350/summary.csv
+runs/analysis/appendix_300350/raw/one_shot_300.csv
+runs/analysis/appendix_300350/raw/one_shot_350.csv
+runs/analysis/appendix_300350/raw/online_consistent_300.csv
+runs/analysis/appendix_300350/raw/online_consistent_350.csv
 ```

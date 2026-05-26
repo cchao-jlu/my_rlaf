@@ -272,3 +272,42 @@ Sources:
 - `docs/repeated_runtime_audit.md`
 - `runs/analysis/repeated_runtime_audit.csv`
 - `runs/analysis/repeated_runtime_audit/raw/`
+
+## Appendix Table: 300/350 Generality Check
+
+Caption:
+
+> Appendix generality check on smaller held-out 3SAT sizes. These runs compare only One-shot and Online-Consistent Selector; Local Boundary Correction is not applied to 300/350.
+
+LaTeX:
+
+```latex
+\begin{table}[t]
+\centering
+\caption{Appendix generality check on smaller held-out 3SAT sizes. These runs compare only One-shot and Online-Consistent Selector; Local Boundary Correction is not applied to 300/350.}
+\label{tab:appendix-300350}
+\begin{tabular}{llrrrr}
+\toprule
+Size & Method & Solved & Mean time (s) & Median time (s) & $\Delta$ mean vs. One-shot (s) \\
+\midrule
+300 & One-shot & 200 & 15.311 & 14.099 & 0.000 \\
+300 & Online-Consistent Selector & 200 & 7.272 & 6.061 & -8.039 \\
+350 & One-shot & 108 & 43.741 & 57.104 & 0.000 \\
+350 & Online-Consistent Selector & 109 & 33.815 & 40.065 & -9.925 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Recommended text:
+
+Appendix 300/350 results show the final Online-Consistent Selector does not collapse on smaller held-out sizes: it preserves solved count on 300 and improves solved count by one instance on 350 while reducing mean time in both cases. These runs are a generality check only and do not include Local Boundary Correction.
+
+Sources:
+
+- `docs/paper_appendix_300350_eval.md`
+- `runs/analysis/appendix_300350/summary.csv`
+- `runs/analysis/appendix_300350/raw/one_shot_300.csv`
+- `runs/analysis/appendix_300350/raw/one_shot_350.csv`
+- `runs/analysis/appendix_300350/raw/online_consistent_300.csv`
+- `runs/analysis/appendix_300350/raw/online_consistent_350.csv`

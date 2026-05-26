@@ -33,6 +33,7 @@ the formal guarded Local Boundary Correction rule.
 | Table 2: Stability validation | `runs/analysis/online_consistent_boundary400_stability.csv`; `runs/analysis/local_reopen_guarded_full400_per_instance.csv` | `summarize_online_consistent_boundary400_stability.py` | Yes | No for frozen-table regeneration |
 | Table 3: Ablation matrix | `docs/paper_ablation_matrix.md` | Manual paper table from frozen ablation docs/results | Yes | No for paper table; historical failed-branch artifacts are not required |
 | Appendix: repeated runtime audit | `docs/repeated_runtime_audit.md`; `runs/analysis/repeated_runtime_audit.csv`; 12 raw repeat CSVs under `runs/analysis/repeated_runtime_audit/raw/` | `run_repeated_runtime_audit.py` | Yes | Checkpoints and CNF datasets only to rerun the audit |
+| Appendix: 300/350 generality check | `docs/paper_appendix_300350_eval.md`; `runs/analysis/appendix_300350/summary.csv`; four raw CSVs under `runs/analysis/appendix_300350/raw/` | direct `evaluate_guided_solver.py` runs from `docs/paper_appendix_300350_eval.md`; no Local Boundary Correction | Yes | Checkpoints and 300/350 CNF datasets only for rerun |
 | Optional appendix: Glucose default baseline | `runs/glucose/solver_stats_full400_cpu60.csv`; `runs/analysis/glucose_default_full400_summary.csv`; `docs/glucose_default_full400_eval.md` | `run_glucose_default_full400_cpu60.py` | Yes | CNF dataset only for rerun |
 | Optional appendix: boundary open-set audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv`; `runs/analysis/local_reopen_guarded_full400_guidance_audit.csv`; `data/new_closed_old_on_boundary/manifest.csv` | `summarize_local_reopen_guarded_full400_eval.py`; `configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml` | Yes | Checkpoints and CNF datasets only for full rerun |
 
@@ -62,6 +63,11 @@ runs/analysis/local_reopen_guarded_full400_guidance_audit.csv
 runs/analysis/online_consistent_boundary400_stability.csv
 runs/analysis/glucose_default_full400_summary.csv
 runs/analysis/repeated_runtime_audit.csv
+runs/analysis/appendix_300350/summary.csv
+runs/analysis/appendix_300350/raw/one_shot_300.csv
+runs/analysis/appendix_300350/raw/one_shot_350.csv
+runs/analysis/appendix_300350/raw/online_consistent_300.csv
+runs/analysis/appendix_300350/raw/online_consistent_350.csv
 ```
 
 ## Tracked Scripts And Configs
@@ -88,6 +94,20 @@ Fixed interpretation:
 - `3sat_196.cnf` and `3sat_46.cnf` are stable hard speedups.
 - `3sat_188.cnf` is boundary-sensitive.
 - `3sat_66.cnf` remains neutral timeout evidence.
+
+## 300/350 Appendix Scope
+
+The 300/350 appendix is a generality check only. It compares One-shot and the
+final Online-Consistent Selector on `data/test/3sat/300/*.cnf` and
+`data/test/3sat/350/*.cnf`.
+
+Fixed interpretation:
+
+- 300: Online-Consistent Selector preserves solved count and reduces mean time.
+- 350: Online-Consistent Selector solves one additional instance and reduces
+  mean time.
+- Local Boundary Correction is not applied to 300/350.
+- The result does not change the main 3SAT-400 full400 claim.
 
 ## External Artifact Decision
 

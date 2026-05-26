@@ -7,19 +7,20 @@
 
 当前论文已经可以进入 LaTeX 初稿拼装，但还不建议直接投稿。主线叙事、方法草稿、实验章节、表图包、related work 和 Glucose default reference 都已经形成闭环；主要风险不在“故事能不能写”，而在审稿人会追问的复现与稳定性边界：
 
-- 结果是否只在 3SAT-400 上成立？
+- 结果是否只在 3SAT-400 上成立？这一项已有 300/350 appendix generality check，但主 claim 仍限定在 full400。
 - 相比强 CDCL / solver default 是否仍有意义？这一项已有 Glucose default reference，剩余问题是放正文还是附录。
 - single-run wall-clock 是否受运行噪声影响？这一项已有 same-seed key-claim audit，剩余问题是 seed sensitivity / full-table repeat 是否需要附录补充。
-- 复现 Table 1 / Figure 1 是否有清晰入口？
+- 复现 Table 1 / Figure 1 是否有清晰入口？这一项已有 `docs/paper_reproducibility.md` 和 `docs/paper_artifact_manifest.md`。
 
 建议结论：
 
 | Category | Items |
 | --- | --- |
-| Must fix before submission | 复现闭环 |
+| Resolved / reproducibility package | paper tables, figures, appendix CSVs, scripts, configs, and manifest are tracked |
 | Resolved / scoped limitation | same-seed repeated runtime audit for key claims |
+| Resolved / appendix evidence | 300/350 final-method generality check |
 | Resolved / placement pending | Glucose default / solver default full400 baseline |
-| Should fix if time allows | final method 的 300/350 附录验证；repeated seed sensitivity；更尖锐的新颖性对照 |
+| Should fix if time allows | repeated seed sensitivity；更尖锐的新颖性对照 |
 | Can defer to appendix / rebuttal | 负结果细节；no750 诊断；boundary audit 表；旧 clean stability 结果 |
 
 ## 1. Experimental Strength
@@ -30,17 +31,26 @@
 - Online-Consistent Selector：`56/200`, mean `46.2217s`。
 - One-shot：`50/200`, mean `47.7517s`。
 - Local Boundary Correction：`56/200`, mean `45.4976s`，只作为 ablation。
-- 现有 300/350 资料主要来自 clean fixed-rho / polarity / SBE / earlier selector 线，不是最终 `online_consistent_boundary400` 主线。
+- 已补 300/350 appendix generality check，只比较 One-shot 和 final Online-Consistent Selector，不迁移 Local Boundary Correction。
+- 300 appendix：One-shot `200/200`, mean `15.3115s`；Online-Consistent Selector `200/200`, mean `7.2723s`。
+- 350 appendix：One-shot `108/200`, mean `43.7406s`；Online-Consistent Selector `109/200`, mean `33.8154s`。
 
-### Gap
+### Status
 
-当前 hard evidence 还不足以回答：
+当前 hard evidence 已经能回答一个较弱的 appendix 问题：
 
-> 这个 selector 是只在 3SAT-400 长尾上有效，还是跨 300/350/400 都有稳健行为？
+> final Online-Consistent Selector 在 300/350 held-out sizes 上是否明显崩掉？
 
-已有 `docs/clean_stability_and_cactus_results.md` 可以说明早期方法在 300/350/400 的趋势，但不能直接支撑最终 Online-Consistent Selector 的跨规模泛化。
+答案是否定的：300/350 appendix run 显示它没有 collapse，并在两个 size 上降低 mean time。不过这仍不是跨规模主 claim；正文主结论仍应限定为 3SAT-400 full400，300/350 只作为 appendix generality evidence。
 
 ### Recommendation
+
+Resolved / appendix evidence:
+
+- 已补 `docs/paper_appendix_300350_eval.md`。
+- 已纳入 `runs/analysis/appendix_300350/summary.csv` 和四个 raw CSV。
+- 论文中只写作 appendix generality check，不写成主实验或跨规模泛化证明。
+- 明确 300/350 不包含 Local Boundary Correction；该模块仍是 400-boundary ablation。
 
 Must fix before submission:
 
@@ -48,8 +58,7 @@ Must fix before submission:
 
 Should fix if time allows:
 
-- 补 final Online-Consistent Selector 在 300/350 上的附录评估，至少给出 one-shot / Online-Consistent / + Local Boundary Correction 的 solved 和 mean time。
-- 如果 300/350 不适合跑 local correction，就只补 Online-Consistent Selector，并明确 local correction 只针对 400 boundary audit。
+- 如果需要更强的跨规模主张，再单独设计 scale-generalization 实验；不要把当前 appendix check 扩写成主 claim。
 
 Can defer to appendix / rebuttal:
 
@@ -241,45 +250,46 @@ Can defer to appendix / rebuttal:
 - `runs/glucose/solver_stats_full400_cpu60.csv`
 - `runs/analysis/glucose_default_full400_summary.csv`
 
-关键运行入口存在：
+关键运行入口和 frozen artifacts 已纳入 git：
 
 - `configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml`
 - `configs/config_eval_guided_solver_online_consistent_new_closed_old_on_boundary400.yaml`
 - `summarize_online_consistent_boundary400_eval.py`
 - `summarize_online_consistent_boundary400_stability.py`
 - `summarize_local_reopen_guarded_full400_eval.py`
+- `docs/paper_artifact_manifest.md`
+- `runs/analysis/online_consistent_boundary400_full400_summary.csv`
+- `runs/analysis/local_reopen_guarded_full400_summary.csv`
+- `runs/analysis/online_consistent_boundary400_stability.csv`
+- `runs/analysis/repeated_runtime_audit.csv`
+- `runs/analysis/appendix_300350/summary.csv`
+- `data/new_closed_old_on_boundary/manifest.csv`
 
-但这些 configs、scripts、runs、data、checkpoints 多数仍未纳入刚才的 paper package commit。
+### Status
 
-### Gap
-
-如果别人 clone 当前仓库，不一定能直接复现：
+当前最小复现闭环已经覆盖：
 
 - Table 1；
 - Figure 1；
-- stability table；
+- Table 2 stability；
+- Table 3 ablation matrix；
+- repeated runtime appendix；
+- 300/350 appendix；
 - local correction open set；
-- checkpoint-dependent full400 evaluation。
+- Glucose default baseline。
 
-当前已开始整理 reproducibility package：`docs/paper_reproducibility.md` 已列出 Table 1 / Figure 1 / Table 2 / Table 3 的输入 CSV、生成脚本、Glucose default 命令、guided full400 configs、checkpoint 路径和 external artifact 边界。剩余缺口是决定哪些 guided-result CSV、configs、summarization scripts 和 manifest 要实际纳入 git。
+剩余边界是 full rerun 需要 checkpoint 和 CNF dataset external artifacts；frozen CSV package 已足够重建当前 paper tables 和 figures。
 
 ### Recommendation
 
-Must fix before submission:
+Resolved / reproducibility package:
 
-- 已新增最小复现清单 `docs/paper_reproducibility.md`；下一步需要把清单中的最小 guided-result artifacts 纳入仓库或明确为 external artifact。
-- 决定哪些文件纳入仓库，哪些作为 external artifact：
-  - configs；
-  - summarization scripts；
-  - `runs/analysis/*summary.csv` / `*per_instance.csv`；
-  - `data/new_closed_old_on_boundary/manifest.csv`；
-  - paper-ready figures；
-  - checkpoints。
-- 更新 README 或新增 `docs/paper_reproducibility.md`，让读者知道怎么复现 paper tables。
+- `docs/paper_reproducibility.md` 和 `docs/paper_artifact_manifest.md` 已列出主表、图、appendix 表、CSV、脚本、configs 和 external artifact 边界。
+- checkpoint 和 full CNF datasets 仍按 external artifact / Git LFS 待定处理，不阻塞 frozen-result table reproduction。
 
 Should fix if time allows:
 
-- 提供一个 `make paper-results` 或单个 shell-free command list，把 Table 1 / Figure 1 / Table 2 / Table 3 重新生成。
+- 提供一个 `make paper-results` 或单个 shell-free command list，把 Table 1 / Figure 1 / Table 2 / Table 3 和 appendix tables 重新生成。
 
 Can defer to appendix / rebuttal:
 
@@ -292,18 +302,18 @@ Can defer to appendix / rebuttal:
 ```text
 Writing readiness: high
 Submission readiness: medium
-Evidence risk: medium after Glucose default baseline and same-seed runtime audit; remaining risk is reproducibility closure and seed-sensitivity scope
+Evidence risk: lower after Glucose default baseline, same-seed runtime audit, 300/350 appendix check, and reproducibility package; remaining risk is seed-sensitivity scope and external checkpoint/data packaging
 ```
 
-可以开始拼 LaTeX 初稿，但投稿前必须补齐最小硬证据：
+可以开始拼 LaTeX 初稿。投稿前剩余需要决策的不是新模型或新实验，而是 packaging / positioning：
 
-1. 复现闭环。
-2. 统计稳定性的边界说明：same-seed runtime audit 已补，seed sensitivity 仍是 limitation。
-3. Glucose default baseline 的正文/附录 placement。
+1. checkpoint / CNF dataset 用 Git LFS 还是 external artifact。
+2. Glucose default baseline 的正文/附录 placement。
+3. seed sensitivity 是否仅作为 limitation，还是资源允许时补充。
 
 如果时间有限，优先顺序是：
 
-1. paper reproducibility package；
-2. 300/350 final method appendix；
-3. negative-results appendix table；
+1. LaTeX 初稿拼装；
+2. negative-results appendix table；
+3. checkpoint/data artifact packaging decision；
 4. repeated seed sensitivity or full-table runtime repeat, only if resources allow。

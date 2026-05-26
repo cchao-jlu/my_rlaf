@@ -100,12 +100,16 @@ Table 2 汇总稳定性结果。
 
 我们另外做了一个 same-seed repeated runtime audit，只覆盖论文中最容易被质疑的关键样本，而不是重跑全量 full400 或改变 solver seed。该 audit 固定 `9` 个 unique instances，每个 pair 跑 `3` 次：`6` 个 `50 -> 56` recovered timeout 用 One-shot vs Online-Consistent Selector 比较，`4` 个 Local Boundary Correction open-set 用 Online-Consistent Selector vs + Local Boundary Correction 比较。结果表明：same-seed repeated runtime audit supports all six recovered timeouts. `3sat_196.cnf` and `3sat_46.cnf` are stable hard speedups. `3sat_188.cnf` is boundary-sensitive. `3sat_66.cnf` remains neutral timeout evidence. 这部分应放在 appendix 或稳定性补充段落中，并明确它是 same-seed runtime audit，不是 seed sensitivity study。
 
+Appendix 300/350 results show the final Online-Consistent Selector does not collapse on smaller held-out sizes: it preserves solved count on 300, solves one additional instance on 350, and reduces mean time on both sizes. This appendix check compares only One-shot and Online-Consistent Selector; it does not include Local Boundary Correction.
+
 证据来源：
 
 - `docs/paper_stability_validation.md`
 - `runs/analysis/online_consistent_boundary400_stability.csv`
 - `docs/repeated_runtime_audit.md`
 - `runs/analysis/repeated_runtime_audit.csv`
+- `docs/paper_appendix_300350_eval.md`
+- `runs/analysis/appendix_300350/summary.csv`
 
 ## 4.5 Local Boundary Correction Ablation
 
@@ -180,5 +184,6 @@ Online-Consistent Selector 的价值在于，它在 full400 上稳定保留了 `
 3. Table 2：稳定性表，来自 `runs/analysis/online_consistent_boundary400_stability.csv`。
 4. Table 3：ablation matrix，来自 `docs/paper_ablation_matrix.md`。
 5. Optional Table：边界样本审计表，展示 `3sat_46/196/188/66` 以及 `3sat_82/93`。
+6. Appendix Table：300/350 generality check，只比较 One-shot 和 Online-Consistent Selector，不包含 Local Boundary Correction。
 
 暂不建议正文放过多负结果图。`compact_stable`、`polarity / SBE`、pairwise veto 的详细表可以进附录，用来支撑“没有继续堆 selector 复杂度”的选择。
