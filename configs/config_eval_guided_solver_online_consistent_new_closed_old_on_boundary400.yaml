@@ -1,0 +1,37 @@
+# @package _global_
+
+defaults:
+  - config_eval_guided_solver
+  - _self_
+
+checkpoint: runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400Conservative/best.pt
+save_file: eval_online_consistent_new_closed_old_on_boundary400.csv
+
+dataset:
+  eval_path: "data/new_closed_old_on_boundary/3sat/400/*.cnf"
+  lazy: True
+
+solver:
+  solver: null
+  num_workers: 8
+  params:
+    cpu-lim: 60
+    rnd-freq: 0.0
+    K: 0.1
+
+loader:
+  batch_size: 10
+  num_neighbors: 128
+  num_workers: 0
+
+feedback_refinement:
+  enabled: True
+  state_type: event_var
+  event_state_features: enhanced
+  num_rounds: 1
+  state_momentum: 0.5
+  rollout_budget_type: conflicts
+  rollout_conflicts: 2000
+  intervention_conflicts: [500, 1000, 2000]
+  warmup_cpu_lim: 15
+  local_reopen_candidate_manifest: data/new_closed_old_on_boundary/manifest.csv

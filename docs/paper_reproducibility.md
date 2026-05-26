@@ -234,7 +234,7 @@ figures/fig_full400_cactus_paper.svg
 figures/make_full400_cactus_paper.py
 ```
 
-Current reproducibility addendum to commit:
+Reproducibility addendum committed in `c7228bc`:
 
 ```text
 docs/paper_reproducibility.md
@@ -245,7 +245,7 @@ runs/glucose/solver_stats_full400_cpu60.csv
 runs/analysis/glucose_default_full400_summary.csv
 ```
 
-Recommended next commit after this addendum:
+Guided-result package to keep under version control:
 
 ```text
 configs/config_eval_guided_solver_online_consistent_new_closed_old_on_boundary400.yaml
@@ -253,6 +253,15 @@ configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml
 summarize_online_consistent_boundary400_eval.py
 summarize_local_reopen_guarded_full400_eval.py
 summarize_online_consistent_boundary400_stability.py
+runs/GNN_Glucose_3SAT_V1/eval_oneshot_full400_compactcheck.csv
+runs/GNN_Glucose_3SAT_TwoStageRiskControllerCompactRiskEvidence300350400/eval_compact_risk_full400.csv
+runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400Conservative/eval_online_consistent_boundary400_full400_batch0.csv
+runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400Conservative/eval_online_consistent_boundary400_full400_batch1.csv
+runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400Conservative/eval_online_consistent_boundary400_full400_batch2.csv
+runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400Conservative/eval_online_consistent_boundary400_full400_batch3.csv
+runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400LocalReopenOverride/eval_local_reopen_guarded_full400.csv
+runs/analysis/positive_floor_pairwise_slowdown_veto_full400_actual_batched.csv
+runs/analysis/local_reopen_guarded_full400_guidance_audit.csv
 runs/analysis/online_consistent_boundary400_full400_summary.csv
 runs/analysis/online_consistent_boundary400_full400_actual_batched.csv
 runs/analysis/online_consistent_boundary400_full400_per_instance.csv
@@ -262,6 +271,10 @@ runs/analysis/local_reopen_guarded_full400_open_set.csv
 runs/analysis/online_consistent_boundary400_stability.csv
 data/new_closed_old_on_boundary/manifest.csv
 ```
+
+These CSV artifacts are intentionally tracked so that the summary scripts and
+paper cactus script can be rerun without rerunning checkpoint-dependent solver
+evaluations.
 
 The checkpoint files are about 20 MB each. Decide separately whether to track
 them directly, store them with Git LFS, or publish them as external artifacts.
