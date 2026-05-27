@@ -54,6 +54,16 @@ METHODS = [
         ),
     ),
     MethodSpec(
+        method="old_compact",
+        paper_name="Old Compact",
+        config_name="config_eval_guided_solver_online_consistent_new_closed_old_on_boundary400",
+        extra_overrides=(
+            "checkpoint=runs/GNN_Glucose_3SAT_TwoStageRiskControllerCompactRiskEvidence300350400/best.pt",
+            "dataset.eval_path=data/test/3sat/400/*.cnf",
+            "feedback_refinement.local_reopen_candidate_manifest=null",
+        ),
+    ),
+    MethodSpec(
         method="local_reopen_guarded",
         paper_name="+ Local Boundary Correction",
         config_name="config_eval_guided_solver_local_reopen_guarded_full400",
@@ -188,7 +198,10 @@ def pair_summary(per_instance: pd.DataFrame) -> pd.DataFrame:
     rows = []
     pairs = [
         ("one_shot", "online_consistent_boundary400", "One-shot vs Online-Consistent Selector"),
+        ("one_shot", "old_compact", "One-shot vs Old Compact"),
+        ("old_compact", "online_consistent_boundary400", "Old Compact vs Online-Consistent Selector"),
         ("online_consistent_boundary400", "local_reopen_guarded", "Online-Consistent Selector vs + Local Boundary Correction"),
+        ("old_compact", "local_reopen_guarded", "Old Compact vs + Local Boundary Correction"),
         ("one_shot", "local_reopen_guarded", "One-shot vs + Local Boundary Correction"),
     ]
     for left, right, label in pairs:
@@ -232,16 +245,15 @@ def write_doc(summary: pd.DataFrame, repeat_rows: pd.DataFrame, pairs: pd.DataFr
         "It does not change the model, thresholds, configs, or solver seed.",
         "",
         "Important interpretation: the absolute solved counts differ from the frozen single-run paper table,",
-        "which is expected wall-clock drift. The evidence here is the repeated-run stability of the deltas:",
-        "Online-Consistent Selector is +5 solved over One-shot in all three repeats, and",
-        "+ Local Boundary Correction is +6 solved over One-shot in all three repeats.",
+        "which is expected wall-clock drift. The evidence here is repeat-level stability of solved counts",
+        "and matched deltas across methods under the same full400 evaluation protocol.",
         "",
         "Scope:",
         "",
         "- One-shot x 3 repeats",
+        "- Old Compact x 3 repeats",
         "- Online-Consistent Selector x 3 repeats",
         "- + Local Boundary Correction x 3 repeats",
-        "- Old Compact is not included in this run; it remains the frozen reference baseline unless explicitly rerun with a matched config.",
         "",
         "Outputs:",
         "",

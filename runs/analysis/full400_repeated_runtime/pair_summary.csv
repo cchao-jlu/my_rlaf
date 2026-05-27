@@ -1,4 +1,7 @@
 comparison,n,left_solved_count_mean,right_solved_count_mean,delta_solved_count_mean,instances_recovered_all_repeats,instances_lost_all_repeats,instances_recovered_majority,instances_lost_majority,mean_delta_time,median_delta_time,faster_instances_gt_0p1s,slower_instances_gt_0p1s
 One-shot vs Online-Consistent Selector,200,48.0,53.0,5.0,5,0,5,0,-1.3411454191496273,0.08586289235432787,16,58
-Online-Consistent Selector vs + Local Boundary Correction,200,53.0,54.0,1.0,1,0,1,0,-0.41031365013900756,0.00015050110625480784,6,7
+One-shot vs Old Compact,200,48.0,54.0,6.0,6,0,6,0,-1.394958178687591,0.0776203725102782,10,53
+Old Compact vs Online-Consistent Selector,200,54.0,53.0,-1.0,0,1,0,1,0.05381275953796397,0.003278697608948944,12,8
+Online-Consistent Selector vs + Local Boundary Correction,200,53.0,54.0,1.0,1,0,1,0,-0.4103136501390079,0.00015050110625480784,6,7
+Old Compact vs + Local Boundary Correction,200,54.0,54.0,0.0,0,0,0,0,-0.3565008906010439,0.0031470216751077196,12,7
 One-shot vs + Local Boundary Correction,200,48.0,54.0,6.0,6,0,6,0,-1.751459069288635,0.09090775251770111,16,58
