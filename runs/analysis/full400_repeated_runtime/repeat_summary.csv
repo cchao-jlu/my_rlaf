@@ -1,0 +1,10 @@
+method,paper_name,repeat,n,solved,mean_time,median_time,total_time,mean_cpu_time,mean_gpu_time,raw_csv
+one_shot,One-shot,0,200,48,47.641728675520795,60.27238499088287,9528.345735104156,47.337170005000004,0.30455867052078245,runs/analysis/full400_repeated_runtime/raw/one_shot/repeat0.csv
+online_consistent_boundary400,Online-Consistent Selector,0,200,53,46.33039275685349,60.373877153862,9266.078551370698,45.913067659999996,0.3414279818534851,runs/analysis/full400_repeated_runtime/raw/online_consistent_boundary400/repeat0.csv
+local_reopen_guarded,+ Local Boundary Correction,0,200,54,45.911450706346116,60.37372215641021,9182.290141269226,45.504128739999985,0.3148256063461304,runs/analysis/full400_repeated_runtime/raw/local_reopen_guarded/repeat0.csv
+one_shot,One-shot,1,200,48,47.64373049776763,60.2688618812561,9528.746099553528,47.33882782499998,0.30490267276763916,runs/analysis/full400_repeated_runtime/raw/one_shot/repeat1.csv
+online_consistent_boundary400,Online-Consistent Selector,1,200,53,46.27721039261047,60.34650585315705,9255.442078522094,45.89742309500003,0.3047199726104736,runs/analysis/full400_repeated_runtime/raw/online_consistent_boundary400/repeat1.csv
+local_reopen_guarded,+ Local Boundary Correction,1,200,54,45.90008396231993,60.36470792737579,9180.01679246399,45.49634767,0.3102522373199463,runs/analysis/full400_repeated_runtime/raw/local_reopen_guarded/repeat1.csv
+one_shot,One-shot,2,200,48,47.6740184566881,60.30295584011078,9534.803691337616,47.34050878500002,0.3335096716880798,runs/analysis/full400_repeated_runtime/raw/one_shot/repeat2.csv
+online_consistent_boundary400,Online-Consistent Selector,2,200,53,46.32843822306365,60.377540179977416,9265.687644612732,45.91184414,0.34267852306365965,runs/analysis/full400_repeated_runtime/raw/online_consistent_boundary400/repeat2.csv
+local_reopen_guarded,+ Local Boundary Correction,2,200,54,45.8935657534445,60.35988254060364,9178.713150688904,45.498046724999995,0.30188491344451907,runs/analysis/full400_repeated_runtime/raw/local_reopen_guarded/repeat2.csv
