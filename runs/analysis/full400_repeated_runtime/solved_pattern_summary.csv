@@ -1,0 +1,5 @@
+pattern,pattern_label,count,stable_repeats
+0000,p0000,146,True
+0011,p0011,1,True
+0111,p0111,5,True
+1111,p1111,48,True

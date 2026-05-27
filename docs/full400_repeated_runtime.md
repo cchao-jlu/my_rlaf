@@ -31,6 +31,14 @@ Outputs:
 - `runs/analysis/full400_repeated_runtime/per_instance_summary.csv`
 - `runs/analysis/full400_repeated_runtime/pair_summary.csv`
 
+Per-instance audit:
+
+- `docs/full400_repeated_runtime_instance_audit.md`
+- `runs/analysis/full400_repeated_runtime/solved_pattern_overlap.csv`
+- `runs/analysis/full400_repeated_runtime/solved_pattern_summary.csv`
+- `runs/analysis/full400_repeated_runtime/solved_difference_audit.csv`
+- `runs/analysis/full400_repeated_runtime/local_vs_old_time_audit.csv`
+
 ## Method Summary
 
 | method | repeats | solved mean | solved range | mean time mean | mean time std |
