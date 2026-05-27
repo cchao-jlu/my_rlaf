@@ -1,0 +1,13 @@
+method,paper_name,seed,n,solved,mean_time,median_time,total_time,raw_csv
+one_shot,One-shot,1,200,48,47.64172867552078,60.27238499088287,9528.345735104156,runs/analysis/full400_seed_robustness/raw/one_shot/seed1.csv
+online_consistent_boundary400,Online-Consistent Selector,1,200,53,46.33039275685349,60.373877153862,9266.078551370698,runs/analysis/full400_seed_robustness/raw/online_consistent_boundary400/seed1.csv
+old_compact,Old Compact,1,200,54,46.26938122986527,60.36019445128632,9253.876245973053,runs/analysis/full400_seed_robustness/raw/old_compact/seed1.csv
+local_reopen_guarded,+ Local Boundary Correction,1,200,54,45.91145070634613,60.37372215641021,9182.290141269226,runs/analysis/full400_seed_robustness/raw/local_reopen_guarded/seed1.csv
+one_shot,One-shot,2,200,48,47.660512832285,60.29783711643219,9532.102566457,runs/analysis/full400_seed_robustness/raw/one_shot/seed2.csv
+online_consistent_boundary400,Online-Consistent Selector,2,200,53,46.30976504665161,60.36032676728058,9261.953009330322,runs/analysis/full400_seed_robustness/raw/online_consistent_boundary400/seed2.csv
+old_compact,Old Compact,2,200,54,46.261585483880005,60.364048902259825,9252.317096776002,runs/analysis/full400_seed_robustness/raw/old_compact/seed2.csv
+local_reopen_guarded,+ Local Boundary Correction,2,200,54,45.89685168933761,60.35124384296417,9179.370337867522,runs/analysis/full400_seed_robustness/raw/local_reopen_guarded/seed2.csv
+one_shot,One-shot,3,200,48,47.691839718276825,60.29653850421906,9538.367943655365,runs/analysis/full400_seed_robustness/raw/one_shot/seed3.csv
+online_consistent_boundary400,Online-Consistent Selector,3,200,53,46.33064786983719,60.36521813204956,9266.129573967439,runs/analysis/full400_seed_robustness/raw/online_consistent_boundary400/seed3.csv
+old_compact,Old Compact,3,200,54,46.30227115149292,60.39337021047211,9260.454230298583,runs/analysis/full400_seed_robustness/raw/old_compact/seed3.csv
+local_reopen_guarded,+ Local Boundary Correction,3,200,54,45.933264208066866,60.38160242403412,9186.652841613373,runs/analysis/full400_seed_robustness/raw/local_reopen_guarded/seed3.csv

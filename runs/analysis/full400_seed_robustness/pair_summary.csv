@@ -1,0 +1,7 @@
+comparison,n,left_solved_seed_sum,right_solved_seed_sum,left_solved_count_mean,right_solved_count_mean,delta_solved_count_mean,instances_recovered_all_seeds,instances_lost_all_seeds,instances_recovered_majority,instances_lost_majority,mean_delta_time,median_delta_time,max_slowdown_time,max_speedup_time
+One-shot vs Online-Consistent Selector,200,144,159,48.0,53.0,5.0,5,0,5,0,-1.3410918509134426,0.08390159920756046,30.24855515502929,-59.66970147547404
+One-shot vs Old Compact,200,144,162,48.0,54.0,6.0,6,0,6,0,-1.3869477869481408,0.08136100268299629,30.690242683817548,-59.696196879063926
+Online-Consistent Selector vs Old Compact,200,159,162,53.0,54.0,1.0,1,0,1,0,-0.045855936034697994,0.003790541839600814,43.818814682851155,-36.818470526112876
+Online-Consistent Selector vs + Local Boundary Correction,200,159,162,53.0,54.0,1.0,1,0,1,0,-0.40974635653055846,-0.0022847634608034184,0.947479218170173,-36.85144460268148
+Old Compact vs + Local Boundary Correction,200,162,162,54.0,54.0,0.0,0,0,0,0,-0.3638904204958607,-0.005287547159827932,0.5238710745137531,-43.71330777245077
+One-shot vs + Local Boundary Correction,200,144,162,48.0,54.0,6.0,6,0,6,0,-1.7508382074440016,0.08680367380523535,31.196034373199463,-59.71587880455017
