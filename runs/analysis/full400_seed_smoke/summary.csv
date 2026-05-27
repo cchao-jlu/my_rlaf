@@ -1,0 +1,10 @@
+method,paper_name,seed,n,solved,mean_time,median_time,raw_csv
+online_consistent_boundary400,Online-Consistent Selector,1,14,9,27.482181408041818,15.78654202859497,runs/analysis/full400_seed_smoke/raw/online_consistent_boundary400/seed1.csv
+old_compact,Old Compact,1,14,10,28.386317909489225,24.074940338378905,runs/analysis/full400_seed_smoke/raw/old_compact/seed1.csv
+local_reopen_guarded,+ Local Boundary Correction,1,14,10,25.251789611188617,15.621662185470582,runs/analysis/full400_seed_smoke/raw/local_reopen_guarded/seed1.csv
+online_consistent_boundary400,Online-Consistent Selector,2,14,9,27.377428453085766,15.787503622528076,runs/analysis/full400_seed_smoke/raw/online_consistent_boundary400/seed2.csv
+old_compact,Old Compact,2,14,10,28.572176856761384,24.75592175071716,runs/analysis/full400_seed_smoke/raw/old_compact/seed2.csv
+local_reopen_guarded,+ Local Boundary Correction,2,14,10,25.373077972885135,15.926960305923464,runs/analysis/full400_seed_smoke/raw/local_reopen_guarded/seed2.csv
+online_consistent_boundary400,Online-Consistent Selector,3,14,9,27.373167968778343,15.963302607482909,runs/analysis/full400_seed_smoke/raw/online_consistent_boundary400/seed3.csv
+old_compact,Old Compact,3,14,10,28.337013578332083,24.378351851547244,runs/analysis/full400_seed_smoke/raw/old_compact/seed3.csv
+local_reopen_guarded,+ Local Boundary Correction,3,14,10,25.37059061799186,16.202275152038574,runs/analysis/full400_seed_smoke/raw/local_reopen_guarded/seed3.csv

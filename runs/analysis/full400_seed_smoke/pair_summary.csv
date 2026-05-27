@@ -1,0 +1,4 @@
+comparison,n,left_solved_seed_sum,right_solved_seed_sum,delta_solved_seed_sum,instances_recovered_all_seeds,instances_lost_all_seeds,instances_recovered_majority,instances_lost_majority,mean_delta_time,max_slowdown_time,max_speedup_time
+Online-Consistent Selector vs Old Compact,14,27,30,3,1,0,1,0,1.0209101715589228,43.70187950522359,-28.898183494776415
+Online-Consistent Selector vs + Local Boundary Correction,14,27,30,3,1,0,1,0,-2.079106542613438,0.0980391381276462,-28.686275881576545
+Old Compact vs + Local Boundary Correction,14,30,30,0,0,0,0,0,-3.1000167141723614,0.6562518840637215,-43.7443040534668
