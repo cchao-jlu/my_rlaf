@@ -5,11 +5,11 @@
 
 ## Executive Summary
 
-当前论文已经可以进入 LaTeX 初稿拼装，但还不建议直接投稿。主线叙事、方法草稿、实验章节、表图包、related work 和 Glucose default reference 都已经形成闭环；主要风险不在“故事能不能写”，而在审稿人会追问的复现与稳定性边界：
+当前论文已经可以进入 LaTeX 初稿拼装，但还不建议直接投稿。主线叙事、方法草稿、实验章节、表图包、related work、Glucose default reference、full400 solver-seed robustness 和 300/350/400 generalization baseline table 都已经形成闭环；主要风险不在“故事能不能写”，而在审稿人会追问的复现与稳定性边界：
 
-- 结果是否只在 3SAT-400 上成立？这一项已有 300/350 appendix generality check，但主 claim 仍限定在 full400。
-- 相比强 CDCL / solver default 是否仍有意义？这一项已有 Glucose default reference，剩余问题是放正文还是附录。
-- single-run wall-clock 是否受运行噪声影响？这一项已有 same-seed key-claim audit，剩余问题是 seed sensitivity / full-table repeat 是否需要附录补充。
+- 结果是否只在 3SAT-400 上成立？这一项已有 300/350/400 generalization / baseline robustness table，但主 claim 仍限定在 full400。
+- 相比强 CDCL / solver default 是否仍有意义？这一项已有 Glucose default 300/350/400 reference，剩余问题是放正文还是附录。
+- single-run wall-clock 是否受运行噪声影响？这一项已有 full400 same-seed repeats 和 solver-seed robustness，剩余问题是是否需要更多机器/环境复现。
 - 复现 Table 1 / Figure 1 是否有清晰入口？这一项已有 `docs/paper_reproducibility.md` 和 `docs/paper_artifact_manifest.md`。
 
 建议结论：
@@ -17,23 +17,26 @@
 | Category | Items |
 | --- | --- |
 | Resolved / reproducibility package | paper tables, figures, appendix CSVs, scripts, configs, and manifest are tracked |
-| Resolved / scoped limitation | same-seed repeated runtime audit for key claims |
-| Resolved / appendix evidence | 300/350 final-method generality check |
-| Resolved / placement pending | Glucose default / solver default full400 baseline |
-| Should fix if time allows | repeated seed sensitivity；更尖锐的新颖性对照 |
+| Resolved / robustness evidence | full400 same-seed repeats and full400 seeds 1/2/3 robustness |
+| Resolved / appendix evidence | 300/350/400 generalization and baseline robustness table |
+| Resolved / placement pending | Glucose default / solver default 300/350/400 baseline |
+| Should fix if time allows | 多机器/环境复现；更尖锐的新颖性对照 |
 | Can defer to appendix / rebuttal | 负结果细节；no750 诊断；boundary audit 表；旧 clean stability 结果 |
 
 ## 1. Experimental Strength
 
 ### Current Evidence
 
-- 主结果只冻结在 `data/test/3sat/400/*.cnf` 的 full400 真实 wall-clock 上。
-- Online-Consistent Selector：`56/200`, mean `46.2217s`。
-- One-shot：`50/200`, mean `47.7517s`。
-- Local Boundary Correction：`56/200`, mean `45.4976s`，只作为 ablation。
-- 已补 300/350 appendix generality check，只比较 One-shot 和 final Online-Consistent Selector，不迁移 Local Boundary Correction。
+- 主结果现在应使用 `data/test/3sat/400/*.cnf` 的 full400 solver-seed robustness 表，而不是旧 frozen single-run 表。
+- One-shot：`48.0/200`, mean `47.6647s`，seeds 1/2/3 solved std `0.0`。
+- Online-Consistent Selector：`53.0/200`, mean `46.3236s`，seeds 1/2/3 solved std `0.0`。
+- Old Compact：`54.0/200`, mean `46.2777s`，仍是强 matched baseline。
+- Local Boundary Correction：`54.0/200`, mean `45.9139s`，只作为 guarded boundary correction ablation。
+- 已补 300/350/400 generalization / baseline robustness table：300/350 只作为 appendix single-run check，full400 neural rows 使用 3-seed robustness；不迁移 Local Boundary Correction 到 300/350。
 - 300 appendix：One-shot `200/200`, mean `15.3115s`；Online-Consistent Selector `200/200`, mean `7.2723s`。
 - 350 appendix：One-shot `108/200`, mean `43.7406s`；Online-Consistent Selector `109/200`, mean `33.8154s`。
+- 300/350 matched Old Compact：300 `200/200`, mean `8.9073s`；350 `103/200`, mean `34.9183s`。
+- Glucose default：300 `197/200`, mean `20.2219s`；350 `73/200`, mean `47.4535s`；400 `13/200`, mean `57.6145s`。
 
 ### Status
 
@@ -48,8 +51,10 @@
 Resolved / appendix evidence:
 
 - 已补 `docs/paper_appendix_300350_eval.md`。
+- 已补 `docs/paper_generalization_baseline_table.md`。
 - 已纳入 `runs/analysis/appendix_300350/summary.csv` 和四个 raw CSV。
-- 论文中只写作 appendix generality check，不写成主实验或跨规模泛化证明。
+- 已纳入 `runs/analysis/generalization_baseline/paper_table.csv`、`runs/analysis/generalization_baseline/summary.csv`、Glucose 300/350 raw CSV 和 matched Old Compact 300/350 raw CSV。
+- 论文中只写作 appendix generality / baseline robustness check，不写成跨规模主 claim。
 - 明确 300/350 不包含 Local Boundary Correction；该模块仍是 400-boundary ablation。
 
 Must fix before submission:
@@ -72,16 +77,20 @@ Can defer to appendix / rebuttal:
 
 - One-shot neural guidance baseline.
 - Old Compact reference.
-- Pairwise Veto negative branch.
 - Online-Consistent Selector.
 - + Local Boundary Correction.
+- Glucose default reference in appendix / baseline robustness table.
 
-README 中有 `evaluate_base_solver.py` 的原生 solver 评估入口；当前已补一版 paper-ready 的 Glucose default / solver default full400 对照：
+README 中有 `evaluate_base_solver.py` 的原生 solver 评估入口；当前已补 paper-ready 的 Glucose default / solver default 300/350/400 对照：
 
 - source: `docs/glucose_default_full400_eval.md`
+- generalized source: `docs/paper_generalization_baseline_table.md`
+- CSV: `runs/glucose/solver_stats_300_cpu60.csv`
+- CSV: `runs/glucose/solver_stats_350_cpu60.csv`
 - CSV: `runs/glucose/solver_stats_full400_cpu60.csv`
 - summary: `runs/analysis/glucose_default_full400_summary.csv`
-- result: `13/200`, mean `57.6145s`, median `60.0000s`
+- generalization summary: `runs/analysis/generalization_baseline/paper_table.csv`
+- results: 300 `197/200`, mean `20.2219s`; 350 `73/200`, mean `47.4535s`; 400 `13/200`, mean `57.6145s`
 
 ### Status
 
@@ -89,7 +98,7 @@ README 中有 `evaluate_base_solver.py` 的原生 solver 评估入口；当前�
 
 > 你提升的是相对 neural one-shot baseline，还是相对强 CDCL solver？
 
-当前实验主表主要回答“相对 RLAF-style one-shot neural guidance baseline 是否更好”。新增 Glucose default 对照显示，unguided solver default 在当前 full400 口径下为 `13/200`，明显弱于 one-shot neural guidance baseline 的 `50/200`。这可以回答 solver-default reference 问题，但论文仍应避免把结果泛化成全面击败所有强 CDCL solvers。
+当前实验主表主要回答“相对 RLAF-style one-shot neural guidance baseline 是否更好”。新增 Glucose default 对照显示，unguided solver default 在当前 full400 口径下为 `13/200`，明显弱于 one-shot neural guidance baseline 的 `48/200` 3-seed robustness mean。300/350 对照进一步说明 solver default 不是一个被忽略的弱点：Glucose default 在 300 上很强但 slower，在 350/400 上 solved count 明显落后。这可以回答 solver-default reference 问题，但论文仍应避免把结果泛化成全面击败所有强 CDCL solvers。
 
 该项已从 hard evidence 缺口降级为 placement pending：后续只需决定 Glucose default 放在正文 baseline 表、实验设置段落，还是附录 baseline 表。
 
@@ -97,14 +106,14 @@ README 中有 `evaluate_base_solver.py` 的原生 solver 评估入口；当前�
 
 Resolved / placement pending:
 
-- 已补 solver default / unguided Glucose full400 baseline；后续需要决定放入正文 baseline 表还是 appendix baseline 表。
+- 已补 solver default / unguided Glucose 300/350/400 baseline；后续需要决定放入正文 baseline 表还是 appendix baseline 表。
 - 在实验设置中明确 One-shot 是 neural baseline，不是 solver default。
 - 如果强 CDCL baseline 不输或更强，也要如实定位：本文贡献是 risk-controlled neural intervention，而不是全面击败所有 CDCL defaults。
 
 Should fix if time allows:
 
 - 加入 RLAF original checkpoint / original one-shot checkpoint 的可复现说明，确认当前 one-shot 与 RLAF baseline 的关系。
-- 如果有 Kissat 或 Glucose default 的强基线，至少在 appendix 给出结果，避免审稿人认为 baseline 不充分。
+- 如果有 Kissat 等更强 CDCL baseline，至少在 appendix 给出结果，避免审稿人认为 baseline 不充分。
 
 Can defer to appendix / rebuttal:
 
@@ -119,6 +128,8 @@ Can defer to appendix / rebuttal:
 - paired bootstrap：2000 paired resamples。
 - repeated split：2000 次 100-instance subset sampling。
 - 结果显示 Online-Consistent Selector 相比 one-shot 的 mean-time 改善稳定。
+- full400 same-seed repeated runtime：One-shot `48/200`，Online-Consistent Selector `53/200`，Old Compact `54/200`，+ Local Boundary Correction `54/200`，每个方法 `3` 次 repeat。
+- full400 solver-seed robustness：seeds 1/2/3 solved count std 为 `0.0`；Online-Consistent Selector 稳定优于 One-shot，Local Boundary Correction 稳定匹配 Old Compact solved count 并降低 mean time。
 - same-seed repeated runtime audit：固定 `9` 个 unique key instances，每个 pair 跑 `3` 次，覆盖 `6` 个 recovered timeout 和 `4` 个 Local Boundary Correction open-set 样本。
 - same-seed repeated runtime audit supports all six recovered timeouts.
 - `3sat_196.cnf` and `3sat_46.cnf` are stable hard speedups.
@@ -127,19 +138,21 @@ Can defer to appendix / rebuttal:
 
 ### Status
 
-当前稳定性分成两层。paired bootstrap / repeated split 验证 per-instance aggregate robustness；same-seed repeated runtime audit 验证关键 recovered timeout 和 local correction open-set 的 wall-clock 重复稳定性。它仍没有完全回答：
+当前稳定性分成四层。paired bootstrap / repeated split 验证 per-instance aggregate robustness；same-seed key-claim audit 验证关键 recovered timeout 和 local correction open-set 的 wall-clock 重复稳定性；full400 same-seed repeats 验证全量表在同 seed 下的 runtime repeat；full400 solver-seed robustness 验证 seeds 1/2/3 下 solved pattern 不变。它仍没有完全回答：
 
-> 换 solver seed 或对 full400 全量表做 repeated wall-clock 时，结果是否仍完全一致？
+> 换机器、换系统负载或更大 seed set 后，wall-clock 是否仍完全一致？
 
-因此 runtime repeat 已从 hard evidence 缺口降级为 resolved / scoped limitation：论文可以引用 key-claim audit，但不要把它写成 full seed-sensitivity study。
+因此 runtime repeat / seed sensitivity 已从 hard evidence 缺口降级为 resolved / scoped limitation：论文可以引用 full400 repeat 和 3-seed robustness，但不要把它写成跨机器 runtime reproducibility。
 
 ### Recommendation
 
-Resolved / scoped limitation:
+Resolved / robustness evidence:
 
 - 已补 `docs/repeated_runtime_audit.md` 和 `runs/analysis/repeated_runtime_audit.csv`。
+- 已补 `docs/full400_repeated_runtime.md`、`docs/full400_repeated_runtime_instance_audit.md` 和 `runs/analysis/full400_repeated_runtime/`。
+- 已补 `docs/full400_seed_robustness.md` 和 `runs/analysis/full400_seed_robustness/`。
 - 在实验章节明确 bootstrap / repeated split 的含义：它验证 per-instance aggregate robustness，不等价于 repeated runtime seed。
-- 在 appendix 或 caption 中说明 repeated runtime audit 是 same-seed key-claim audit，不是 seed sensitivity。
+- 在 appendix 或 caption 中说明 key-claim repeated runtime audit 是 same-seed small-set audit；full400 seed robustness 是 seeds 1/2/3，不是跨机器复现。
 
 Must fix before submission:
 
@@ -147,7 +160,7 @@ Must fix before submission:
 
 Should fix if time allows:
 
-- 如果资源允许，再做 full400 全量 3-run repeated wall-clock 或 repeated seed sensitivity，但不要把它和当前 same-seed audit 混写。
+- 如果资源允许，再做跨机器/跨负载复现，但不要把它和当前 seed robustness 混写。
 
 Can defer to appendix / rebuttal:
 

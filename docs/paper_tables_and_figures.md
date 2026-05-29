@@ -27,24 +27,23 @@
 
 Caption:
 
-> Full400 wall-clock results on 200 held-out 3SAT-400 instances. One-shot is the neural guidance baseline without feedback refinement. Online-Consistent Selector is the main selector. + Local Boundary Correction is a guarded boundary correction ablation, not a separate main model.
+> Full400 solver-seed robustness results on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. One-shot is the neural guidance baseline without feedback refinement. Online-Consistent Selector is the main selector. + Local Boundary Correction is a guarded boundary correction ablation, not a separate main model.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{Full400 wall-clock results on 200 held-out 3SAT-400 instances. One-shot is the neural guidance baseline without feedback refinement. Online-Consistent Selector is the main selector. + Local Boundary Correction is a guarded boundary correction ablation, not a separate main model.}
+\caption{Full400 solver-seed robustness results on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. One-shot is the neural guidance baseline without feedback refinement. Online-Consistent Selector is the main selector. + Local Boundary Correction is a guarded boundary correction ablation, not a separate main model.}
 \label{tab:full400-main}
 \begin{tabular}{lrrrr}
 \toprule
-Method & Solved & Mean time (s) & Median time (s) & $\Delta$ mean vs. One-shot (s) \\
+Method & Solved & Mean time (s) & Median time (s) & Solved std \\
 \midrule
-One-shot & 50 & 47.752 & 60.766 & 0.000 \\
-Old Compact & 56 & 46.348 & 60.881 & -1.403 \\
-Pairwise Veto & 52 & 46.876 & 60.959 & -0.876 \\
-Online-Consistent Selector & 56 & 46.222 & 60.882 & -1.530 \\
-+ Local Boundary Correction & 56 & 45.498 & 60.346 & -2.254 \\
+One-shot & 48.0 & 47.665 & 60.289 & 0.0 \\
+Online-Consistent Selector & 53.0 & 46.324 & 60.366 & 0.0 \\
+Old Compact & 54.0 & 46.278 & 60.373 & 0.0 \\
++ Local Boundary Correction & 54.0 & 45.914 & 60.369 & 0.0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -52,55 +51,42 @@ Online-Consistent Selector & 56 & 46.222 & 60.882 & -1.530 \\
 
 Recommended text:
 
-Online-Consistent Selector recovers the same six one-shot timeouts as Old Compact while slightly reducing mean wall-clock time. + Local Boundary Correction keeps the solved count unchanged but further reduces mean time, so its role is boundary repair rather than a main-model upgrade.
+Online-Consistent Selector is stable over One-shot across seeds 1/2/3, improving solved count from 48/200 to 53/200. Old Compact remains a strong matched baseline at 54/200. + Local Boundary Correction matches Old Compact solved count and gives the lowest mean time, so its role remains guarded boundary repair rather than an unrestricted main-model upgrade.
 
 Sources:
+
+- `docs/full400_seed_robustness.md`
+- `runs/analysis/full400_seed_robustness/method_summary.csv`
+- `runs/analysis/full400_seed_robustness/seed_summary.csv`
+- `runs/analysis/full400_seed_robustness/per_instance_summary.csv`
+
+Historical single-run sources remain useful context but should not be the main table:
 
 - `docs/online_consistent_boundary400_full400_eval.md`
 - `docs/local_reopen_guarded_full400_eval.md`
 - `docs/compact_risk_full400_eval.md`
-- `runs/analysis/online_consistent_boundary400_full400_summary.csv`
-- `runs/analysis/local_reopen_guarded_full400_summary.csv`
 
 ## Table 2: Stability Validation
 
 Caption:
 
-> Paired bootstrap and repeated split stability on the final full400 per-instance results. All deltas are measured against One-shot. Bootstrap uses 2000 paired resamples; repeated split samples 100 instances without replacement for 2000 trials.
+> Full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{Paired bootstrap and repeated split stability on the final full400 per-instance results. All deltas are measured against One-shot. Bootstrap uses 2000 paired resamples; repeated split samples 100 instances without replacement for 2000 trials.}
+\caption{Full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.}
 \label{tab:full400-stability}
-\begin{tabular}{lrrrrr}
+\begin{tabular}{lrrrr}
 \toprule
-Method & Solved & Mean time (s) & $\Delta$ mean (s) & Bootstrap 95\% CI & Split improve rate \\
+Method & Repeat solved & Seed solved & Seed solved std & Seed mean time (s) \\
 \midrule
-Old Compact & 56 & 46.348 & -1.403 & $[-2.729,\,-0.264]$ & 0.991 \\
-Online-Consistent Selector & 56 & 46.222 & -1.530 & $[-2.823,\,-0.407]$ & 0.994 \\
-+ Local Boundary Correction & 56 & 45.498 & -2.254 & $[-3.650,\,-1.068]$ & 1.000 \\
-\bottomrule
-\end{tabular}
-\end{table}
-```
-
-Optional wider version with bootstrap improvement probability:
-
-```latex
-\begin{table}[t]
-\centering
-\caption{Stability validation on final full400 per-instance results.}
-\label{tab:full400-stability-wide}
-\begin{tabular}{lrrrrrr}
-\toprule
-Method & Solved & Mean (s) & $\Delta$ mean (s) & 95\% CI & Bootstrap $p_{\mathrm{improve}}$ & Split improve rate \\
-\midrule
-Old Compact & 56 & 46.348 & -1.403 & $[-2.729,\,-0.264]$ & 0.995 & 0.991 \\
-Online-Consistent Selector & 56 & 46.222 & -1.530 & $[-2.823,\,-0.407]$ & 0.998 & 0.994 \\
-+ Local Boundary Correction & 56 & 45.498 & -2.254 & $[-3.650,\,-1.068]$ & 1.000 & 1.000 \\
+One-shot & 48.0 & 48.0 & 0.0 & 47.665 \\
+Online-Consistent Selector & 53.0 & 53.0 & 0.0 & 46.324 \\
+Old Compact & 54.0 & 54.0 & 0.0 & 46.278 \\
++ Local Boundary Correction & 54.0 & 54.0 & 0.0 & 45.914 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -108,12 +94,14 @@ Online-Consistent Selector & 56 & 46.222 & -1.530 & $[-2.823,\,-0.407]$ & 0.998 
 
 Recommended text:
 
-The stability analysis supports the same interpretation as the raw full400 results. Online-Consistent Selector is a stable improvement over One-shot, while + Local Boundary Correction mainly improves mean time rather than solved count.
+The stability analysis supports the same interpretation as the main full400 table. Online-Consistent Selector is stable over One-shot, Old Compact remains the strongest uncorrected reference in solved count, and + Local Boundary Correction matches Old Compact solved count while giving the lowest mean time. The older bootstrap / repeated-split table remains useful historical single-run evidence but should not replace the full400 repeated and seed-robustness results.
 
 Sources:
 
-- `docs/paper_stability_validation.md`
-- `runs/analysis/online_consistent_boundary400_stability.csv`
+- `docs/full400_repeated_runtime.md`
+- `docs/full400_seed_robustness.md`
+- `runs/analysis/full400_repeated_runtime/summary.csv`
+- `runs/analysis/full400_seed_robustness/method_summary.csv`
 
 ## Table 3: Ablation Matrix
 
@@ -133,9 +121,9 @@ LaTeX:
 Ablation & Scope & Result & Takeaway \\
 \midrule
 No guard & boundary subset & 5/26; mean 53.341 $\rightarrow$ 51.675 & Local signal exists, but needs a guard \\
-Candidate guard & full400 & opens 4 candidates; 56/200; mean 45.498 & Guard keeps correction local \\
+Candidate guard & full400 3-seed & opens 4 candidates; 54/200; mean 45.914 & Guard keeps correction local \\
 no750 diagnostic & trace only & opens 3 positive + 1 neutral & Diagnostic only; not official full400 patch \\
-Local correction on/off & full400 & 56/200; mean 46.222 $\rightarrow$ 45.498 & Final boundary correction claim \\
+Local correction on/off & full400 3-seed & 53.0 $\rightarrow$ 54.0 solved; mean 46.324 $\rightarrow$ 45.914 & Final boundary correction claim \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -162,7 +150,7 @@ Recommended title:
 
 Caption:
 
-> Cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector preserves the timeout recovery of Old Compact while reducing mean time. Local Boundary Correction keeps the solved count unchanged and further reduces mean time by repairing a small set of guarded boundary cases.
+> Cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases.
 
 Paper-ready legend names:
 
@@ -184,7 +172,7 @@ Recommended LaTeX:
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.78\linewidth]{figures/fig_full400_cactus_paper.pdf}
-\caption{Cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector preserves the timeout recovery of Old Compact while reducing mean time. Local Boundary Correction keeps the solved count unchanged and further reduces mean time by repairing a small set of guarded boundary cases.}
+\caption{Cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases.}
 \label{fig:full400-cactus}
 \end{figure}
 ```
@@ -311,3 +299,51 @@ Sources:
 - `runs/analysis/appendix_300350/raw/one_shot_350.csv`
 - `runs/analysis/appendix_300350/raw/online_consistent_300.csv`
 - `runs/analysis/appendix_300350/raw/online_consistent_350.csv`
+
+## Appendix Table: Generalization / Baseline Robustness
+
+Caption:
+
+> Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.
+
+LaTeX:
+
+```latex
+\begin{table}[t]
+\centering
+\caption{Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.}
+\label{tab:generalization-baseline}
+\begin{tabular}{llrrr}
+\toprule
+Size & Method & Solved & Mean time (s) & Median time (s) \\
+\midrule
+300 & Glucose default & 197 & 20.222 & 18.630 \\
+300 & One-shot & 200 & 15.311 & 14.099 \\
+300 & Online-Consistent Selector & 200 & 7.272 & 6.061 \\
+300 & Old Compact & 200 & 8.907 & 7.597 \\
+350 & Glucose default & 73 & 47.453 & 60.000 \\
+350 & One-shot & 108 & 43.741 & 57.104 \\
+350 & Online-Consistent Selector & 109 & 33.815 & 40.065 \\
+350 & Old Compact & 103 & 34.918 & 46.533 \\
+400 & Glucose default & 13 & 57.615 & 60.000 \\
+400 & One-shot & 48.0 & 47.665 & 60.289 \\
+400 & Online-Consistent Selector & 53.0 & 46.324 & 60.366 \\
+400 & Old Compact & 54.0 & 46.278 & 60.373 \\
+400 & + Local Boundary Correction & 54.0 & 45.914 & 60.369 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Recommended text:
+
+This table broadens the evidence without changing the model. Online-Consistent Selector does not collapse on 300/350: it preserves solved count on 300 and improves solved count over One-shot and Old Compact on 350 under the frozen single-run appendix protocol. Glucose default is included as an unguided CDCL reference, not as the main neural baseline. Local Boundary Correction remains 400-only because the formal guarded rule is tied to the 400 candidate manifest.
+
+Sources:
+
+- `docs/paper_generalization_baseline_table.md`
+- `runs/analysis/generalization_baseline/paper_table.csv`
+- `runs/analysis/generalization_baseline/summary.csv`
+- `runs/glucose/solver_stats_300_cpu60.csv`
+- `runs/glucose/solver_stats_350_cpu60.csv`
+- `runs/glucose/solver_stats_full400_cpu60.csv`

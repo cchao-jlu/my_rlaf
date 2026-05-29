@@ -52,6 +52,7 @@ Required paper outputs:
 | Table 3: Ablation matrix | `docs/paper_ablation_matrix.md` |
 | Appendix: repeated runtime audit | `docs/repeated_runtime_audit.md`, `runs/analysis/repeated_runtime_audit.csv`, `runs/analysis/repeated_runtime_audit/raw/` |
 | Appendix: 300/350 generality check | `docs/paper_appendix_300350_eval.md`, `runs/analysis/appendix_300350/summary.csv`, `runs/analysis/appendix_300350/raw/` |
+| Appendix: generalization / baseline robustness | `docs/paper_generalization_baseline_table.md`, `runs/analysis/generalization_baseline/paper_table.csv`, `runs/analysis/generalization_baseline/summary.csv` |
 | Optional Glucose default baseline | `runs/analysis/glucose_default_full400_summary.csv`, `docs/glucose_default_full400_eval.md` |
 | Optional boundary audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv` |
 
@@ -181,12 +182,57 @@ Summary source:
 
 ```text
 docs/glucose_default_full400_eval.md
+runs/glucose/solver_stats_300_cpu60.csv
+runs/glucose/solver_stats_350_cpu60.csv
 runs/glucose/solver_stats_full400_cpu60.csv
 runs/analysis/glucose_default_full400_summary.csv
 ```
 
 Interpretation: this is an unguided CDCL reference. It should not replace
 One-shot, which is the neural guidance baseline.
+
+## Generalization / Baseline Robustness Appendix
+
+The generalization / baseline robustness table combines:
+
+- Glucose default on 300/350/400;
+- One-shot and Online-Consistent Selector 300/350 appendix runs;
+- matched Old Compact 300/350 reruns;
+- full400 3-seed robustness rows for the neural methods.
+
+Regenerate the combined table:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python summarize_generalization_baseline.py
+```
+
+Inputs:
+
+```text
+runs/glucose/solver_stats_300_cpu60.csv
+runs/glucose/solver_stats_350_cpu60.csv
+runs/glucose/solver_stats_full400_cpu60.csv
+runs/analysis/appendix_300350/raw/one_shot_300.csv
+runs/analysis/appendix_300350/raw/one_shot_350.csv
+runs/analysis/appendix_300350/raw/online_consistent_300.csv
+runs/analysis/appendix_300350/raw/online_consistent_350.csv
+runs/analysis/generalization_baseline/raw/old_compact_300.csv
+runs/analysis/generalization_baseline/raw/old_compact_350.csv
+runs/analysis/full400_seed_robustness/method_summary.csv
+```
+
+Outputs:
+
+```text
+docs/paper_generalization_baseline_table.md
+runs/analysis/generalization_baseline/audit.csv
+runs/analysis/generalization_baseline/summary.csv
+runs/analysis/generalization_baseline/paper_table.csv
+```
+
+Interpretation: 300/350 rows are appendix single-run checks; full400 neural
+rows are the main 3-seed robustness results. Local Boundary Correction is not
+applied to 300/350.
 
 ## Repeated Runtime Appendix
 

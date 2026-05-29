@@ -34,6 +34,7 @@ the formal guarded Local Boundary Correction rule.
 | Table 3: Ablation matrix | `docs/paper_ablation_matrix.md` | Manual paper table from frozen ablation docs/results | Yes | No for paper table; historical failed-branch artifacts are not required |
 | Appendix: repeated runtime audit | `docs/repeated_runtime_audit.md`; `runs/analysis/repeated_runtime_audit.csv`; 12 raw repeat CSVs under `runs/analysis/repeated_runtime_audit/raw/` | `run_repeated_runtime_audit.py` | Yes | Checkpoints and CNF datasets only to rerun the audit |
 | Appendix: 300/350 generality check | `docs/paper_appendix_300350_eval.md`; `runs/analysis/appendix_300350/summary.csv`; four raw CSVs under `runs/analysis/appendix_300350/raw/` | direct `evaluate_guided_solver.py` runs from `docs/paper_appendix_300350_eval.md`; no Local Boundary Correction | Yes | Checkpoints and 300/350 CNF datasets only for rerun |
+| Appendix: generalization / baseline robustness | `docs/paper_generalization_baseline_table.md`; `runs/analysis/generalization_baseline/paper_table.csv`; `runs/analysis/generalization_baseline/summary.csv`; `runs/glucose/solver_stats_300_cpu60.csv`; `runs/glucose/solver_stats_350_cpu60.csv`; matched Old Compact 300/350 raw CSVs | `summarize_generalization_baseline.py`; `run_glucose_default_full400_cpu60.py`; direct matched `evaluate_guided_solver.py` Old Compact reruns | Yes | Checkpoints and CNF datasets only to rerun guided rows |
 | Optional appendix: Glucose default baseline | `runs/glucose/solver_stats_full400_cpu60.csv`; `runs/analysis/glucose_default_full400_summary.csv`; `docs/glucose_default_full400_eval.md` | `run_glucose_default_full400_cpu60.py` | Yes | CNF dataset only for rerun |
 | Optional appendix: boundary open-set audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv`; `runs/analysis/local_reopen_guarded_full400_guidance_audit.csv`; `data/new_closed_old_on_boundary/manifest.csv` | `summarize_local_reopen_guarded_full400_eval.py`; `configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml` | Yes | Checkpoints and CNF datasets only for full rerun |
 
@@ -68,6 +69,14 @@ runs/analysis/appendix_300350/raw/one_shot_300.csv
 runs/analysis/appendix_300350/raw/one_shot_350.csv
 runs/analysis/appendix_300350/raw/online_consistent_300.csv
 runs/analysis/appendix_300350/raw/online_consistent_350.csv
+runs/glucose/solver_stats_300_cpu60.csv
+runs/glucose/solver_stats_350_cpu60.csv
+runs/glucose/solver_stats_full400_cpu60.csv
+runs/analysis/generalization_baseline/audit.csv
+runs/analysis/generalization_baseline/summary.csv
+runs/analysis/generalization_baseline/paper_table.csv
+runs/analysis/generalization_baseline/raw/old_compact_300.csv
+runs/analysis/generalization_baseline/raw/old_compact_350.csv
 ```
 
 ## Tracked Scripts And Configs
@@ -81,6 +90,7 @@ summarize_online_consistent_boundary400_stability.py
 figures/make_full400_cactus_paper.py
 run_glucose_default_full400_cpu60.py
 run_repeated_runtime_audit.py
+summarize_generalization_baseline.py
 ```
 
 ## Repeated Runtime Audit Scope
@@ -108,6 +118,20 @@ Fixed interpretation:
   mean time.
 - Local Boundary Correction is not applied to 300/350.
 - The result does not change the main 3SAT-400 full400 claim.
+
+## Generalization / Baseline Robustness Scope
+
+The broader appendix table answers baseline and size-width questions without
+changing the model:
+
+- Glucose default is included for 300/350/400 as an unguided CDCL reference.
+- Old Compact 300/350 uses matched 200-instance reruns; the older
+  `eval_compact_risk_disjoint_{300,350}.csv` files cover only 100 disjoint
+  instances and are not used for the paper table.
+- Online-Consistent 300/350 reuses the current appendix reruns with
+  `feedback_refinement.local_reopen_candidate_manifest=null`.
+- Full400 neural rows use the 3-seed robustness table.
+- Local Boundary Correction appears only at 400.
 
 ## External Artifact Decision
 

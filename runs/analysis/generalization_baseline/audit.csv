@@ -1,0 +1,7 @@
+item,status,reason,source
+One-shot 300/350,reused,current appendix rerun exists for 200 instances; old drift-prone CSVs not used,"runs/analysis/appendix_300350/raw/one_shot_{300,350}.csv"
+Online-Consistent 300/350,reused,current appendix rerun exists for 200 instances with local_reopen_candidate_manifest=null,"runs/analysis/appendix_300350/raw/online_consistent_{300,350}.csv"
+Glucose default 300/350,new run,only full400 had the same nominal 60s / external 65s baseline; old runs/glucose/solver_stats.csv uses a long CPU limit,"runs/glucose/solver_stats_{300,350}_cpu60.csv"
+Old Compact 300/350,new run,"historical eval_compact_risk_disjoint_{300,350}.csv covers only 100 disjoint instances","runs/analysis/generalization_baseline/raw/old_compact_{300,350}.csv"
+Local Boundary Correction 300/350,not run,400-boundary guarded correction; do not migrate to 300/350,
+Full400 neural methods,reused,use existing 3-seed robustness table as the main full400 result,runs/analysis/full400_seed_robustness/method_summary.csv
