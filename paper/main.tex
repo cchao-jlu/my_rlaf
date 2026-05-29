@@ -265,7 +265,7 @@ Instance & Comparison & Stable? & Interpretation \\
 
 \section{300/350 Generality Check}
 
-Table~\ref{tab:generalization-baseline} reports the broader generalization and baseline robustness check. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.
+Table~\ref{tab:generalization-baseline} reports the broader generalization and baseline robustness check. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. CaDiCaL default is included as a stronger unguided CDCL reference, not as a neural baseline. Local Boundary Correction is only evaluated on the 400-boundary setting.
 
 \begin{table}[h]
 \centering
@@ -284,6 +284,7 @@ Size & Method & Solved & Mean time (s) & Median time (s) \\
 350 & Online-Consistent Selector & 109 & 33.815 & 40.065 \\
 350 & Old Compact & 103 & 34.918 & 46.533 \\
 400 & Glucose default & 13 & 57.615 & 60.000 \\
+400 & CaDiCaL default & 75 & 42.924 & 60.000 \\
 400 & One-shot & 48.0 & 47.665 & 60.289 \\
 400 & Online-Consistent Selector & 53.0 & 46.324 & 60.366 \\
 400 & Old Compact & 54.0 & 46.278 & 60.373 \\

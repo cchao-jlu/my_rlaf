@@ -78,15 +78,23 @@ SINGLE_RUN_SPECS = [
         "runs/glucose/solver_stats_full400_cpu60.csv",
         "single-run nominal 60s / external 65s guard",
     ),
+    (
+        400,
+        "CaDiCaL default",
+        "cadical_default",
+        "runs/cadical/solver_stats_full400_cpu60.csv",
+        "single-run CaDiCaL 1.5.2 wall-clock 60s / external 65s guard",
+    ),
 ]
 
 
 METHOD_ORDER = {
     "glucose_default": 0,
-    "one_shot": 1,
-    "online_consistent_boundary400": 2,
-    "old_compact": 3,
-    "local_reopen_guarded": 4,
+    "cadical_default": 1,
+    "one_shot": 2,
+    "online_consistent_boundary400": 3,
+    "old_compact": 4,
+    "local_reopen_guarded": 5,
 }
 
 
@@ -183,6 +191,12 @@ def write_audit() -> pd.DataFrame:
                 "source": "runs/glucose/solver_stats_{300,350}_cpu60.csv",
             },
             {
+                "item": "CaDiCaL default full400",
+                "status": "new run",
+                "reason": "top-conference baseline audit needed a stronger unguided CDCL reference than Glucose default",
+                "source": "runs/cadical/solver_stats_full400_cpu60.csv",
+            },
+            {
                 "item": "Old Compact 300/350",
                 "status": "new run",
                 "reason": "historical eval_compact_risk_disjoint_{300,350}.csv covers only 100 disjoint instances",
@@ -265,9 +279,11 @@ def write_doc(paper: pd.DataFrame, audit: pd.DataFrame) -> None:
             "  preserves solved count and is faster than both One-shot and Old Compact;",
             "  on 350, it improves solved count over One-shot and Old Compact in this",
             "  frozen single-run appendix protocol.",
-            "- Glucose default is a useful unguided CDCL reference, not the main neural",
-            "  baseline. It is strong on 300 but falls behind the neural-guided methods",
-            "  on 350 and 400 under the nominal 60s budget.",
+            "- Glucose default and CaDiCaL default are unguided CDCL references, not",
+            "  neural baselines. Glucose is strong on 300 but falls behind the",
+            "  neural-guided methods on 350 and 400 under the nominal 60s budget.",
+            "  CaDiCaL is stronger than the neural-guided Glucose workflow on full400,",
+            "  so the paper should not claim dominance over modern CDCL defaults.",
             "- Old Compact remains a strong baseline. It matches Online-Consistent",
             "  solved count on 300 but is slower in mean time, is weaker in solved",
             "  count on 350, and reaches one more solved instance on full400 before",

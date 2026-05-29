@@ -54,6 +54,7 @@ Required paper outputs:
 | Appendix: 300/350 generality check | `docs/paper_appendix_300350_eval.md`, `runs/analysis/appendix_300350/summary.csv`, `runs/analysis/appendix_300350/raw/` |
 | Appendix: generalization / baseline robustness | `docs/paper_generalization_baseline_table.md`, `runs/analysis/generalization_baseline/paper_table.csv`, `runs/analysis/generalization_baseline/summary.csv` |
 | Optional Glucose default baseline | `runs/analysis/glucose_default_full400_summary.csv`, `docs/glucose_default_full400_eval.md` |
+| Optional CaDiCaL default baseline | `runs/analysis/cadical_default_full400_summary.csv`, `docs/cadical_default_full400_eval.md` |
 | Optional boundary audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv` |
 
 The paper method names are fixed in `docs/paper_tables_and_figures.md`. In
@@ -196,6 +197,7 @@ One-shot, which is the neural guidance baseline.
 The generalization / baseline robustness table combines:
 
 - Glucose default on 300/350/400;
+- CaDiCaL default on 400;
 - One-shot and Online-Consistent Selector 300/350 appendix runs;
 - matched Old Compact 300/350 reruns;
 - full400 3-seed robustness rows for the neural methods.
@@ -212,6 +214,9 @@ Inputs:
 runs/glucose/solver_stats_300_cpu60.csv
 runs/glucose/solver_stats_350_cpu60.csv
 runs/glucose/solver_stats_full400_cpu60.csv
+runs/cadical/solver_stats_full400_cpu60.csv
+runs/analysis/cadical_default_full400_summary.csv
+runs/analysis/cadical_default_full400_comparison.csv
 runs/analysis/appendix_300350/raw/one_shot_300.csv
 runs/analysis/appendix_300350/raw/one_shot_350.csv
 runs/analysis/appendix_300350/raw/online_consistent_300.csv
@@ -231,8 +236,36 @@ runs/analysis/generalization_baseline/paper_table.csv
 ```
 
 Interpretation: 300/350 rows are appendix single-run checks; full400 neural
-rows are the main 3-seed robustness results. Local Boundary Correction is not
-applied to 300/350.
+rows are the main 3-seed robustness results. CaDiCaL default is a strong
+unguided CDCL reference and should not be mixed with neural-guided Glucose
+workflow rows. Local Boundary Correction is not applied to 300/350.
+
+## CaDiCaL Default Baseline
+
+The stronger unguided CDCL reference uses CaDiCaL 1.5.2 with a 60s wall-clock
+limit:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python run_cadical_default_full400_cpu60.py \
+  --input 'data/test/3sat/400/*.cnf' \
+  --output runs/cadical/solver_stats_full400_cpu60.csv \
+  --limit 60 \
+  --timeout 65 \
+  --workers 8
+```
+
+Summary source:
+
+```text
+docs/cadical_default_full400_eval.md
+runs/cadical/solver_stats_full400_cpu60.csv
+runs/analysis/cadical_default_full400_summary.csv
+runs/analysis/cadical_default_full400_comparison.csv
+```
+
+Interpretation: CaDiCaL default is stronger than the neural-guided Glucose
+workflow on full400 (`75/200` solved). It should be presented as a strong CDCL
+reference, not as part of the neural-method main table.
 
 ## Repeated Runtime Appendix
 

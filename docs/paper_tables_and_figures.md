@@ -326,6 +326,7 @@ Size & Method & Solved & Mean time (s) & Median time (s) \\
 350 & Online-Consistent Selector & 109 & 33.815 & 40.065 \\
 350 & Old Compact & 103 & 34.918 & 46.533 \\
 400 & Glucose default & 13 & 57.615 & 60.000 \\
+400 & CaDiCaL default & 75 & 42.924 & 60.000 \\
 400 & One-shot & 48.0 & 47.665 & 60.289 \\
 400 & Online-Consistent Selector & 53.0 & 46.324 & 60.366 \\
 400 & Old Compact & 54.0 & 46.278 & 60.373 \\
@@ -337,7 +338,7 @@ Size & Method & Solved & Mean time (s) & Median time (s) \\
 
 Recommended text:
 
-This table broadens the evidence without changing the model. Online-Consistent Selector does not collapse on 300/350: it preserves solved count on 300 and improves solved count over One-shot and Old Compact on 350 under the frozen single-run appendix protocol. Glucose default is included as an unguided CDCL reference, not as the main neural baseline. Local Boundary Correction remains 400-only because the formal guarded rule is tied to the 400 candidate manifest.
+This table broadens the evidence without changing the model. Online-Consistent Selector does not collapse on 300/350: it preserves solved count on 300 and improves solved count over One-shot and Old Compact on 350 under the frozen single-run appendix protocol. Glucose default and CaDiCaL default are unguided CDCL references, not neural baselines. CaDiCaL default is stronger than the neural-guided Glucose workflow on full400, so the paper should not claim dominance over modern CDCL defaults. Local Boundary Correction remains 400-only because the formal guarded rule is tied to the 400 candidate manifest.
 
 Sources:
 
@@ -347,3 +348,7 @@ Sources:
 - `runs/glucose/solver_stats_300_cpu60.csv`
 - `runs/glucose/solver_stats_350_cpu60.csv`
 - `runs/glucose/solver_stats_full400_cpu60.csv`
+- `docs/cadical_default_full400_eval.md`
+- `runs/cadical/solver_stats_full400_cpu60.csv`
+- `runs/analysis/cadical_default_full400_summary.csv`
+- `runs/analysis/cadical_default_full400_comparison.csv`
