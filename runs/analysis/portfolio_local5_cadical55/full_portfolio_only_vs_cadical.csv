@@ -1,0 +1,5 @@
+file_key,local_stage1_solved,stage2_solved,portfolio_time,local_correction_time_mean,cadical_time,pattern
+3sat_111.cnf,False,True,59.18845927203074,60.42047099383546,60.0,0000
+3sat_132.cnf,True,False,0.471170731669108,0.471170731669108,60.0,1111
+3sat_25.cnf,True,False,1.556499393137614,1.556499393137614,60.0,1111
+3sat_48.cnf,False,True,59.38256242964417,60.389411155426025,60.0,0000

@@ -1,0 +1,2 @@
+mode,total,solved,local_stage1_solved,stage2_solved,cadical_solved,portfolio_only_vs_cadical,cadical_only_vs_portfolio,mean_portfolio_time,median_portfolio_time
+full,200,79,37,42,75,4,0,41.66071326985304,60.0
