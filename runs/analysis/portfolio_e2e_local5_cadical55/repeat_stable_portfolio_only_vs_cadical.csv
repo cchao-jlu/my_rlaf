@@ -1,0 +1,5 @@
+file_key,portfolio_solved_repeats,local_first_stage_solved_repeats,cadical_second_stage_solved_repeats,portfolio_only_vs_cadical_repeats,cadical_only_vs_portfolio_repeats,stable_portfolio_solved,stable_portfolio_only_vs_cadical,cadical_60s_solved,cadical_60s_time,local_correction_time_mean,portfolio_time_mean,portfolio_time_std,pattern
+3sat_111.cnf,3,0,3,3,0,True,True,False,60.0,60.42047099383546,58.80488551702971,0.4335897020418594,0000
+3sat_132.cnf,3,3,0,3,0,True,True,False,60.0,0.471170731669108,0.31500532804057,0.009885125767904472,1111
+3sat_140.cnf,3,3,0,3,0,True,True,False,60.0,5.46549120759074,4.157212676169972,0.030025711429221655,1111
+3sat_25.cnf,3,3,0,3,0,True,True,False,60.0,1.556499393137614,1.2091068477990727,0.019984801761240137,1111

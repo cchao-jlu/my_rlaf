@@ -1,0 +1,2 @@
+repeats,portfolio_solved_mean,portfolio_solved_std,portfolio_solved_min,portfolio_solved_max,delta_vs_cadical_min,delta_vs_cadical_max,cadical_only_vs_portfolio_max,local_errors_total,mean_portfolio_time_mean,mean_portfolio_time_std
+3,79.66666666666667,0.4714045207910317,79,80,4,5,0,0,41.12449652500839,0.00715648645737956

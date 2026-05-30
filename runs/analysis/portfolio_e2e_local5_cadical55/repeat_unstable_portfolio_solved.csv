@@ -1,0 +1,2 @@
+file_key,portfolio_solved_repeats,local_first_stage_solved_repeats,cadical_second_stage_solved_repeats,portfolio_only_vs_cadical_repeats,cadical_only_vs_portfolio_repeats,stable_portfolio_solved,stable_portfolio_only_vs_cadical,cadical_60s_solved,cadical_60s_time,local_correction_time_mean,portfolio_time_mean,portfolio_time_std,pattern
+3sat_48.cnf,2,0,2,2,0,False,False,False,60.0,60.389411155426025,59.74828377676507,0.20967583474329127,0000

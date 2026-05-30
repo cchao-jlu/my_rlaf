@@ -1,0 +1,2 @@
+mode,repeat,instances,portfolio_solved,local_first_stage_solved,cadical_second_stage_solved,cadical_60s_baseline_solved,delta_vs_cadical_60s,portfolio_only_vs_cadical,cadical_only_vs_portfolio,local_errors,mean_portfolio_time,median_portfolio_time
+full,1,200,80,40,40,75,5,5,0,0,41.1177965368377,60.0
