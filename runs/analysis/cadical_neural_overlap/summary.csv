@@ -1,0 +1,6 @@
+question,count,interpretation
+CaDiCaL solved / Local unsolved,26,CaDiCaL covers many instances missed by the neural-guided Glucose workflow.
+Local solved / CaDiCaL unsolved,5,Nonzero complementarity for a neural/CaDiCaL portfolio.
+Online solved / CaDiCaL unsolved,4,"Online alone has nonzero complementarity, but these are all already One-shot solved."
+One-shot timeout recovered by Online,5,CaDiCaL solved 5/5 of these.
+Local Correction open set,4,CaDiCaL solved 2/4 open-set instances.

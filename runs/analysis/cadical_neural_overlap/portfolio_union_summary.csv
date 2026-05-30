@@ -1,0 +1,5 @@
+method,paper_name,method_solved,cadical_solved,union_solved,method_only,cadical_only,both_solved,both_unsolved
+one_shot,One-shot,48,75,79,4,31,44,121
+online_consistent_boundary400,Online-Consistent Selector,53,75,79,4,26,49,121
+old_compact,Old Compact,54,75,80,5,26,49,120
+local_reopen_guarded,+ Local Boundary Correction,54,75,80,5,26,49,120
