@@ -1,0 +1,5 @@
+method,paper_name,method_solved,cadical_solved,parallel_union_solved,method_only,cadical_only,both_solved,both_unsolved,parallel_mean_time,parallel_median_time,gain_vs_cadical_solved,gain_vs_method_solved
+one_shot,One-shot,48,75,79,4,31,44,121,40.901998641290355,60.0,4,31
+online,Online-Consistent Selector,53,75,79,4,26,49,121,40.46138861986275,60.0,4,26
+old_compact,Old Compact,54,75,80,5,26,49,120,40.545238851626344,60.0,5,26
+local,+ Local Boundary Correction,54,75,80,5,26,49,120,40.32031144752286,60.0,5,26

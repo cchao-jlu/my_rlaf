@@ -1,0 +1,13 @@
+first,second,first_name,second_name,first_cap,second_cap,solved,mean_time,median_time
+local,cadical,+ Local Boundary Correction,CaDiCaL,5.0,55.0,77,42.50713817992295,60.0
+online,cadical,Online-Consistent Selector,CaDiCaL,5.0,55.0,77,42.53602682806433,60.0
+cadical,online,CaDiCaL,Online-Consistent Selector,55.0,5.0,77,42.89284555939492,60.0
+cadical,local,CaDiCaL,+ Local Boundary Correction,55.0,5.0,77,42.89335595716983,60.0
+cadical,online,CaDiCaL,Online-Consistent Selector,50.0,10.0,76,42.864075206871505,60.0
+cadical,local,CaDiCaL,+ Local Boundary Correction,50.0,10.0,76,42.86511313919842,60.0
+local,cadical,+ Local Boundary Correction,CaDiCaL,10.0,50.0,76,42.93169393206914,60.0
+online,cadical,Online-Consistent Selector,CaDiCaL,10.0,50.0,76,42.98267755575373,60.0
+cadical,online,CaDiCaL,Online-Consistent Selector,40.0,20.0,73,42.97173877933505,60.0
+cadical,local,CaDiCaL,+ Local Boundary Correction,40.0,20.0,73,42.9738450682332,60.0
+cadical,online,CaDiCaL,Online-Consistent Selector,45.0,15.0,73,43.00916685107104,60.0
+cadical,local,CaDiCaL,+ Local Boundary Correction,45.0,15.0,73,43.01016430275445,60.0

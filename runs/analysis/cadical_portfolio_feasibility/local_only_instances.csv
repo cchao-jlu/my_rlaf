@@ -1,0 +1,6 @@
+file_key,one_shot_solved,online_solved,old_compact_solved,local_correction_solved,local_correction_time_mean,cadical_solved,cadical_time,pattern
+3sat_132.cnf,True,True,True,True,0.471170731669108,False,60.0,1111
+3sat_140.cnf,True,True,True,True,5.46549120759074,False,60.0,1111
+3sat_147.cnf,True,True,True,True,13.594362647267658,False,60.0,1111
+3sat_188.cnf,False,False,True,True,31.987218340571086,False,60.0,0011
+3sat_25.cnf,True,True,True,True,1.556499393137614,False,60.0,1111
