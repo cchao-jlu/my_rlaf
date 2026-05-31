@@ -1,0 +1,3 @@
+file_key,one_shot_solved,online_solved,old_compact_solved,local_correction_solved,cadical_solved_repeats,cadical_solved_any,cadical_solved_all,cadical_time_mean,cadical_time_min,cadical_time_max,results,pattern,one_shot_time_mean,online_time_mean,old_compact_time_mean,local_correction_time_mean,local_minus_online_time_mean,local_minus_old_time_mean
+3sat_140.cnf,True,True,True,True,0,False,False,60.0,60.0,60.0,"UNKNOWN,UNKNOWN,UNKNOWN",1111,49.64791121559143,5.359984297190349,49.17879898004151,5.46549120759074,0.1055069104003916,-43.71330777245077
+3sat_147.cnf,True,True,True,True,0,False,False,60.0,60.0,60.0,"UNKNOWN,UNKNOWN,UNKNOWN",1111,13.459145491282143,13.60245877597046,13.608089263031005,13.594362647267658,-0.0080961287028014,-0.0137266157633462

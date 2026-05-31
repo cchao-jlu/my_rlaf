@@ -1,0 +1,10 @@
+question,count,interpretation
+CaDiCaL solved in any repeat / Local unsolved,29,CaDiCaL covers these neural-workflow misses in at least one 60s repeat.
+CaDiCaL solved in all repeats / Local unsolved,26,Stable CaDiCaL-only coverage against Local Boundary Correction.
+Local solved / CaDiCaL unsolved in all repeats,3,Strict repeated-baseline neural complementarity.
+Local solved / CaDiCaL not solved in all repeats,5,Boundary-sensitive complementarity including CaDiCaL variance cases.
+Online solved / CaDiCaL unsolved in all repeats,2,Strict repeated-baseline complementarity for the selector alone.
+Online solved / CaDiCaL not solved in all repeats,4,Selector complementarity if CaDiCaL runtime-boundary cases are included.
+Local-only over Online / CaDiCaL unsolved in all repeats,1,Strict boundary-correction contribution beyond Online and repeated CaDiCaL.
+One-shot timeout recovered by Online,5,CaDiCaL solved 5/5 in at least one repeat and 5/5 in all repeats.
+Local Correction open set,4,CaDiCaL solved 2/4 in at least one repeat and 2/4 in all repeats.

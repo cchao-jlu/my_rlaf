@@ -37,6 +37,7 @@ the formal guarded Local Boundary Correction rule.
 | Appendix: generalization / baseline robustness | `docs/paper_generalization_baseline_table.md`; `runs/analysis/generalization_baseline/paper_table.csv`; `runs/analysis/generalization_baseline/summary.csv`; `runs/glucose/solver_stats_300_cpu60.csv`; `runs/glucose/solver_stats_350_cpu60.csv`; matched Old Compact 300/350 raw CSVs | `summarize_generalization_baseline.py`; `run_glucose_default_full400_cpu60.py`; direct matched `evaluate_guided_solver.py` Old Compact reruns | Yes | Checkpoints and CNF datasets only to rerun guided rows |
 | Optional appendix: Glucose default baseline | `runs/glucose/solver_stats_full400_cpu60.csv`; `runs/analysis/glucose_default_full400_summary.csv`; `docs/glucose_default_full400_eval.md` | `run_glucose_default_full400_cpu60.py` | Yes | CNF dataset only for rerun |
 | Optional appendix: CaDiCaL default baseline | `runs/cadical/solver_stats_full400_cpu60.csv`; `runs/analysis/cadical_default_full400_summary.csv`; `runs/analysis/cadical_default_full400_comparison.csv`; `docs/cadical_default_full400_eval.md` | `run_cadical_default_full400_cpu60.py` | Yes | CNF dataset only for rerun |
+| Stronger-CDCL gate: external solver baseline | `runs/external_solvers/<solver>_full400_cpu60.csv`; `runs/analysis/external_solvers/<solver>_full400_cpu60/{repeat_summary,aggregate,instance_summary}.csv` after a binary is provided | `run_external_solver_baseline.py`; `summarize_external_solver_baseline.py` | Runner: Yes; solver binary/results: No until provided | External Kissat/MapleSAT/CryptoMiniSat binary plus CNF dataset |
 | Optional appendix: boundary open-set audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv`; `runs/analysis/local_reopen_guarded_full400_guidance_audit.csv`; `data/new_closed_old_on_boundary/manifest.csv` | `summarize_local_reopen_guarded_full400_eval.py`; `configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml` | Yes | Checkpoints and CNF datasets only for full rerun |
 
 ## Tracked Guided Result Inputs
@@ -94,6 +95,8 @@ summarize_online_consistent_boundary400_stability.py
 figures/make_full400_cactus_paper.py
 run_glucose_default_full400_cpu60.py
 run_cadical_default_full400_cpu60.py
+run_external_solver_baseline.py
+summarize_external_solver_baseline.py
 run_repeated_runtime_audit.py
 summarize_generalization_baseline.py
 ```
@@ -147,3 +150,10 @@ Do not commit checkpoints until there is an explicit decision between direct
 tracking, Git LFS, or external artifact hosting. The frozen CSV package is
 sufficient for regenerating the paper-ready tables and figures without rerunning
 checkpoint-dependent solver evaluations.
+
+External stronger CDCL solvers are also artifact-gated. The current repository
+contains CaDiCaL, Glucose, weighted Glucose, March, and weighted March binaries,
+but no tracked Kissat / MapleSAT / CryptoMiniSat binary. If one is added for
+baseline auditing, keep the binary under an external artifact path unless there
+is an explicit licensing and tracking decision. The runner and summarizer are
+tracked so that such a baseline can be reproduced without changing model code.

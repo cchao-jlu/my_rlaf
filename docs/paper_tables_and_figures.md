@@ -19,33 +19,34 @@
 
 固定口径：
 
-- 顶会主结果现在是 `Local5 -> CaDiCaL55 Portfolio`，不是 neural-only full400 表。
+- 当前最强证据是 `Local5 -> CaDiCaL55 Portfolio` 的 boundary-sensitive complementarity，不是 neural-only full400 表。
 - Online-Consistent Selector 和 + Local Boundary Correction 是 portfolio 的 neural-first stage / mechanism analysis。
 - + Local Boundary Correction 只作为 guarded neural-stage component，不作为 unrestricted neural main model。
 - 正式 + Local Boundary Correction full400 patch 是含 750 特征版本。
 - no750 只作为 diagnostic feature ablation；它的 open set 与正式 full400 patch 不同，不能替代正式结果。
 - portfolio-only evidence 必须拆分为 neural-first complement 和 second-stage CaDiCaL runtime-boundary evidence。
+- full overlap evidence 也要单独报告：Local/CaDiCaL strict complement 是 3 个实例，Online/CaDiCaL strict complement 是 2 个实例，Local-only strict boundary contribution 是 1 个实例。
 
 ## Table 1: Full400 Portfolio Main Results
 
 Caption:
 
-> End-to-end full400 portfolio robustness on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL baseline is a 60s standalone run. Repeats keep the model, selector, correction guard, solver binaries, and time split fixed.
+> End-to-end full400 portfolio and repeated CaDiCaL baseline on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL repeats are standalone 60s runs. The model, selector, correction guard, solver binaries, and time split are fixed.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{End-to-end full400 portfolio robustness on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL baseline is a 60s standalone run. Repeats keep the model, selector, correction guard, solver binaries, and time split fixed.}
+\caption{End-to-end full400 portfolio and repeated CaDiCaL baseline on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL repeats are standalone 60s runs. The model, selector, correction guard, solver binaries, and time split are fixed.}
 \label{tab:portfolio-main}
 \begin{tabular}{lrrrrrr}
 \toprule
-Run & Solved & Local & C2 solves & C60 & Delta & C-only loss \\
+Run & Portfolio & Local & C2 solves & CaDiCaL & Delta & C-only loss \\
 \midrule
 0 & 79 & 40 & 39 & 75 & +4 & 0 \\
-1 & 80 & 40 & 40 & 75 & +5 & 0 \\
-2 & 80 & 40 & 40 & 75 & +5 & 0 \\
+1 & 80 & 40 & 40 & 80 & +0 & 0 \\
+2 & 80 & 40 & 40 & 80 & +0 & 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -53,7 +54,7 @@ Run & Solved & Local & C2 solves & C60 & Delta & C-only loss \\
 
 Recommended text:
 
-The end-to-end neural-first/CDCL-second portfolio solves 79-80/200 instances over three full400 repeats, compared with 75/200 for standalone CaDiCaL 60s. It improves solved count by +4 to +5 with zero CaDiCaL-only losses. This is the main top-conference result, but the paper must split the portfolio-only evidence: three stable instances are solved by the Local first stage within 5s, while the remaining portfolio-only cases are second-stage CaDiCaL runtime-boundary evidence.
+The end-to-end neural-first/CDCL-second portfolio solves 79-80/200 instances over three full400 repeats. The original standalone CaDiCaL 60s run solved 75/200, but repeated CaDiCaL 60s runs solve 75, 80, and 80 instances. Matched same-repeat deltas are therefore +4, 0, and 0. This is boundary-sensitive complementarity evidence, not robust solved-count dominance over CaDiCaL.
 
 Sources:
 
@@ -61,25 +62,68 @@ Sources:
 - `runs/analysis/portfolio_e2e_local5_cadical55/repeat_stability_summary.csv`
 - `runs/analysis/portfolio_e2e_local5_cadical55/repeat_stability_aggregate.csv`
 - `runs/analysis/portfolio_e2e_local5_cadical55/repeat_instance_overlap.csv`
+- `docs/cadical_repeat_stability.md`
+- `runs/analysis/cadical_repeat_stability/portfolio_vs_cadical_repeats.csv`
 
-## Table 2: Portfolio Claim Split
+## Table 2: Repeated-CaDiCaL Overlap Audit
 
 Caption:
 
-> Portfolio-only evidence split by source. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while standalone CaDiCaL 60s times out. Runtime-boundary evidence means the instance is solved by the second-stage CaDiCaL 55s run, not by the neural first stage.
+> Full repeated-CaDiCaL overlap audit on 200 held-out 3SAT-400 instances. Neural solved means solved in all three neural solver-seed runs. CaDiCaL unsolved means unsolved in all three standalone CaDiCaL 60s repeats. Local-only is the strict boundary-correction contribution beyond Online-Consistent Selector.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{Portfolio-only evidence split by source. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while standalone CaDiCaL 60s times out. Runtime-boundary evidence means the instance is solved by the second-stage CaDiCaL 55s run, not by the neural first stage.}
+\caption{Full repeated-CaDiCaL overlap audit on 200 held-out 3SAT-400 instances. Neural solved means solved in all three neural solver-seed runs. CaDiCaL unsolved means unsolved in all three standalone CaDiCaL 60s repeats. Local-only is the strict boundary-correction contribution beyond Online-Consistent Selector.}
+\label{tab:cadical-overlap}
+\begin{tabular}{lr}
+\toprule
+Overlap question & Count \\
+\midrule
+CaDiCaL solved in any repeat / Local unsolved & 29 \\
+CaDiCaL solved in all repeats / Local unsolved & 26 \\
+Local solved / CaDiCaL unsolved in all repeats & 3 \\
+Online solved / CaDiCaL unsolved in all repeats & 2 \\
+Local-only over Online / CaDiCaL unsolved in all repeats & 1 \\
+One-shot timeout recovered by Online; CaDiCaL solved all & 5 \\
+Local Correction open set; CaDiCaL solved all & 2/4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Recommended text:
+
+The full repeated-baseline overlap audit separates neural-workflow recovery from strong-CDCL complementarity. Local Boundary Correction solves three instances that CaDiCaL misses in all three repeats: `3sat_140.cnf`, `3sat_147.cnf`, and `3sat_188.cnf`. Online-Consistent Selector already solves `3sat_140.cnf` and `3sat_147.cnf`, leaving `3sat_188.cnf` as the only strict Local-only gain beyond Online and repeated CaDiCaL. The five one-shot timeouts recovered by Online are all solved by CaDiCaL in all three repeats. Therefore, Online recovery supports the neural workflow, while the strong-CDCL complementarity claim must remain narrow.
+
+Sources:
+
+- `docs/cadical_repeated_neural_overlap_audit.md`
+- `runs/analysis/cadical_repeated_neural_overlap/summary.csv`
+- `runs/analysis/cadical_repeated_neural_overlap/local_solved_cadical_unsolved_all.csv`
+- `runs/analysis/cadical_repeated_neural_overlap/local_only_solved_cadical_unsolved_all.csv`
+- `runs/analysis/cadical_repeated_neural_overlap/oneshot_timeout_recovered_by_online.csv`
+
+## Table 3: Portfolio Claim Split
+
+Caption:
+
+> Portfolio-only evidence under the original CaDiCaL 60s run, with repeated-CaDiCaL audit. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while the original standalone CaDiCaL 60s run times out. Repeated CaDiCaL runs show that only one such instance remains unsolved by CaDiCaL across all repeats.
+
+LaTeX:
+
+```latex
+\begin{table}[t]
+\centering
+\caption{Portfolio-only evidence under the original CaDiCaL 60s run, with repeated-CaDiCaL audit. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while the original standalone CaDiCaL 60s run times out. Repeated CaDiCaL runs show that only one such instance remains unsolved by CaDiCaL across all repeats.}
 \label{tab:portfolio-claim-split}
 \begin{tabular}{p{0.46\linewidth}rrr}
 \toprule
-Evidence class & Inst. & PO reps & Local reps \\
+Evidence class & Inst. & PO reps & Repeated-CaDiCaL strict \\
 \midrule
-Stable neural-first complement & 3 & 9 & 9 \\
+Original-run neural-first complement & 3 & 9 & 1 \\
 Stable second-stage runtime boundary & 1 & 3 & 0 \\
 Unstable second-stage runtime boundary & 1 & 2 & 0 \\
 \bottomrule
@@ -89,15 +133,16 @@ Unstable second-stage runtime boundary & 1 & 2 & 0 \\
 
 Recommended text:
 
-The strict neural-first complement consists of `3sat_132.cnf`, `3sat_140.cnf`, and `3sat_25.cnf`. `3sat_111.cnf` is stable portfolio-only evidence but is solved by the second-stage CaDiCaL run; `3sat_48.cnf` appears in two of three repeats and is also a second-stage cutoff/runtime boundary case. Therefore, the paper may report total portfolio solved count, but must not describe the entire +4/+5 portfolio delta as neural solves.
+Under the original CaDiCaL run, portfolio-only neural-first complement consists of `3sat_132.cnf`, `3sat_140.cnf`, and `3sat_25.cnf`; repeated CaDiCaL runs solve `3sat_132.cnf` and `3sat_25.cnf`, leaving `3sat_140.cnf` as the strict repeated-baseline complement within this original-run portfolio-only split. `3sat_111.cnf` and `3sat_48.cnf` are CaDiCaL runtime-boundary cases. Therefore, the paper may report the original-run portfolio-only evidence, but must not describe the entire +4/+5 original delta as repeated-baseline robust. Do not confuse this table with the full overlap audit above, where Local/CaDiCaL strict complement is 3 and Local-only over Online is 1.
 
 Sources:
 
 - `docs/portfolio_claim_split.md`
 - `runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv`
 - `runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split_summary.csv`
+- `runs/analysis/cadical_repeat_stability/key_boundary_audit.csv`
 
-## Table 3: Neural-Stage Mechanism Results
+## Table 4: Neural-Stage Mechanism Results
 
 Caption:
 
@@ -140,7 +185,7 @@ Historical single-run sources remain useful context but should not be used as a 
 - `docs/local_reopen_guarded_full400_eval.md`
 - `docs/compact_risk_full400_eval.md`
 
-## Table 4: Stability Validation
+## Table 5: Stability Validation
 
 Caption:
 
@@ -177,7 +222,7 @@ Sources:
 - `runs/analysis/full400_repeated_runtime/summary.csv`
 - `runs/analysis/full400_seed_robustness/method_summary.csv`
 
-## Table 5: Ablation Matrix
+## Table 6: Ablation Matrix
 
 Caption:
 
@@ -224,7 +269,7 @@ Recommended title:
 
 Caption:
 
-> Portfolio main result on 200 held-out 3SAT-400 instances. Left: standalone CaDiCaL 60s solves 75/200, while the end-to-end Local5 -> CaDiCaL55 portfolio solves 79, 80, and 80 instances over three repeats with zero CaDiCaL-only losses. Right: portfolio-only evidence split by source; three stable instances are strict neural-first complements, while the remaining portfolio-only evidence comes from second-stage CaDiCaL runtime-boundary behavior.
+> Portfolio and CaDiCaL repeat audit on 200 held-out 3SAT-400 instances. Left: the original CaDiCaL 60s run solves 75/200, but repeated CaDiCaL 60s runs solve 80/200, matching the best portfolio repeats. Right: original-run portfolio-only evidence split by source; within that portfolio-only split, repeated CaDiCaL reduces strict neural-first complement to one instance.
 
 Recommended LaTeX:
 
@@ -232,7 +277,7 @@ Recommended LaTeX:
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{fig_portfolio_full400_paper.pdf}
-\caption{Portfolio main result on 200 held-out 3SAT-400 instances. Left: standalone CaDiCaL 60s solves 75/200, while the end-to-end Local5 -> CaDiCaL55 portfolio solves 79, 80, and 80 instances over three repeats with zero CaDiCaL-only losses. Right: portfolio-only evidence split by source; three stable instances are strict neural-first complements, while the remaining portfolio-only evidence comes from second-stage CaDiCaL runtime-boundary behavior.}
+\caption{Portfolio and CaDiCaL repeat audit on 200 held-out 3SAT-400 instances. Left: the original CaDiCaL 60s run solves 75/200, but repeated CaDiCaL 60s runs solve 80/200, matching the best portfolio repeats. Right: original-run portfolio-only evidence split by source; within that portfolio-only split, repeated CaDiCaL reduces strict neural-first complement to one instance.}
 \label{fig:portfolio-main}
 \end{figure}
 ```
@@ -244,6 +289,7 @@ Sources:
 - `figures/make_portfolio_results_paper.py`
 - `runs/analysis/portfolio_e2e_local5_cadical55/repeat_stability_summary.csv`
 - `runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split_summary.csv`
+- `runs/analysis/cadical_repeat_stability/repeat_summary.csv`
 
 ## Figure 2: Neural-Stage Cactus Plot
 

@@ -259,6 +259,100 @@ Summary source:
 ```text
 docs/cadical_default_full400_eval.md
 runs/cadical/solver_stats_full400_cpu60.csv
+runs/cadical/solver_stats_full400_cpu60_repeat1.csv
+runs/cadical/solver_stats_full400_cpu60_repeat2.csv
+runs/analysis/cadical_repeat_stability/repeat_summary.csv
+runs/analysis/cadical_repeat_stability/instance_summary.csv
+runs/analysis/cadical_repeated_neural_overlap/summary.csv
+```
+
+Interpretation: repeated CaDiCaL 60s runs solve `75, 80, 80` on full400.
+This constrains the paper claim: the Local5 -> CaDiCaL55 portfolio is
+boundary-sensitive complementarity evidence, not a robust solved-count win over
+CaDiCaL.
+
+## Stronger External CDCL Solver Gate
+
+This is a gate for top-conference baseline strength. It does not change the
+neural model, selector, thresholds, Local Boundary Correction rule, or portfolio
+schedule. Use it only after an external solver binary such as Kissat or MapleSAT
+is available.
+
+Current repository solver executables:
+
+```text
+solvers/cadical/cadical
+solvers/glucose/simp/glucose_static
+solvers/glucose_weighted/simp/glucose_static
+solvers/march/march_nh
+solvers/march_weighted/march_nh
+```
+
+There is no tracked Kissat / MapleSAT / CryptoMiniSat binary at the time of this
+audit. Put external binaries under a non-committed artifact path, for example:
+
+```text
+external_solvers/kissat/kissat
+external_solvers/maple/maplesat
+```
+
+Smoke-test an external solver on 5 full400 instances:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python run_external_solver_baseline.py \
+  --solver external_solvers/kissat/kissat \
+  --solver-name kissat \
+  --input 'data/test/3sat/400/*.cnf' \
+  --output runs/external_solvers/kissat_full400_cpu60_smoke.csv \
+  --limit 60 \
+  --timeout 65 \
+  --workers 1 \
+  --n 5 \
+  --cmd-template '{solver} {file}'
+```
+
+Run full400 repeat 0 after smoke passes:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python run_external_solver_baseline.py \
+  --solver external_solvers/kissat/kissat \
+  --solver-name kissat \
+  --input 'data/test/3sat/400/*.cnf' \
+  --output runs/external_solvers/kissat_full400_cpu60.csv \
+  --limit 60 \
+  --timeout 65 \
+  --workers 8 \
+  --repeat 0 \
+  --cmd-template '{solver} {file}'
+```
+
+For repeat 1 and repeat 2, rerun the same command with `--repeat 1` and
+`--repeat 2`, using the same output CSV. Then summarize:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python summarize_external_solver_baseline.py \
+  --input runs/external_solvers/kissat_full400_cpu60.csv \
+  --output-dir runs/analysis/external_solvers/kissat_full400_cpu60
+```
+
+Some solvers require solver-specific timeout flags. Use `--cmd-template` for
+those cases. Examples:
+
+```text
+CaDiCaL: '{solver} -q -t {limit} {file}'
+generic external timeout only: '{solver} {file}'
+```
+
+Decision rule for paper use:
+
+- If a stronger external solver solves at least as many instances as CaDiCaL and
+  erases neural-only complementarity, the paper must remain a
+  risk-control/failure-boundary paper.
+- If Local/Online solve instances that a stronger external solver misses across
+  repeated runs, then portfolio/complementarity framing becomes stronger.
+- Do not tune the neural selector based on external-solver results; this gate is
+  only a baseline robustness audit.
+runs/cadical/solver_stats_full400_cpu60.csv
 runs/analysis/cadical_default_full400_summary.csv
 runs/analysis/cadical_default_full400_comparison.csv
 ```

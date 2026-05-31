@@ -1,0 +1,5 @@
+method,method_solved,cadical_any_solved,union_vs_cadical_any,method_only_vs_cadical_any,cadical_any_only,cadical_all_solved,union_vs_cadical_all,method_only_vs_cadical_all,cadical_all_only
+One-shot,48,80,82,2,34,75,79,4,31
+Online-Consistent Selector,53,80,82,2,29,75,79,4,26
+Old Compact,54,80,83,3,29,75,80,5,26
++ Local Boundary Correction,54,80,83,3,29,75,80,5,26

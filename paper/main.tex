@@ -25,7 +25,7 @@ Learning-guided SAT solvers face a practical tension. One-shot neural guidance i
 
 We propose an Online-Consistent Selector for event-conditioned SAT guidance. The neural first stage obtains a one-shot guidance prior, runs short warmup probes to collect CDCL events, and applies a conservative risk/recovery controller to choose between the one-shot path and an event-adapted guidance path. A guarded Local Boundary Correction reopens a small set of over-conservative selector decisions under a candidate manifest. We then use this guarded neural stage in a simple sequential portfolio: run Local Boundary Correction for at most 5s, then run CaDiCaL for at most 55s on unsolved instances.
 
-On 200 held-out 3SAT-400 instances, standalone CaDiCaL with a 60s limit solves 75/200. The end-to-end Local5--CaDiCaL55 portfolio solves 79--80/200 over three full repeats, improving solved count by +4 to +5 with zero CaDiCaL-only losses. The strict neural-first complement consists of three stable instances solved by the 5s Local stage while CaDiCaL 60s times out; additional portfolio-only cases are second-stage CaDiCaL cutoff/runtime-boundary evidence. Neural-stage results explain the mechanism: Online-Consistent Selector improves one-shot guidance from 48/200 to 53/200 under seeds 1, 2, and 3, while guarded Local Boundary Correction reaches 54/200. These results support a cautious complementarity claim: sparse, risk-controlled neural guidance can be a useful first stage for a strong CDCL portfolio.
+On 200 held-out 3SAT-400 instances, the end-to-end Local5--CaDiCaL55 portfolio solves 79--80/200 over three full repeats. However, repeated standalone CaDiCaL 60s runs solve 75, 80, and 80 instances, so the matched portfolio deltas are +4, 0, and 0. A repeated-CaDiCaL overlap audit finds three Local-solved instances that CaDiCaL misses in all repeats, two of which are already solved by the Online-Consistent Selector; the Local-only strict boundary contribution is \texttt{3sat\_188.cnf}. Neural-stage results explain the mechanism: Online-Consistent Selector improves one-shot guidance from 48/200 to 53/200 under seeds 1, 2, and 3, while guarded Local Boundary Correction reaches 54/200. These results support a cautious claim: sparse, risk-controlled neural guidance creates boundary-sensitive complementarity, but does not robustly dominate repeated CaDiCaL runs.
 \end{abstract}
 
 \section{Introduction}
@@ -40,7 +40,7 @@ Our main contribution is not a more complex branching model. Instead, it is a co
 \begin{enumerate}
     \item We propose an event-conditioned online selector that uses real CDCL event traces to decide whether neural feedback should be activated in a low-budget first stage.
     \item We introduce conservative risk control for neural SAT guidance, separating recovery potential from slowdown and lost-solution risk.
-    \item We demonstrate an end-to-end neural-first/CDCL-second portfolio that improves over standalone CaDiCaL on full400 while preserving CaDiCaL-solved instances.
+    \item We audit an end-to-end neural-first/CDCL-second portfolio against repeated CaDiCaL baselines, showing boundary-sensitive complementarity without claiming robust solved-count dominance.
 \end{enumerate}
 
 \section{Related Work}
@@ -137,29 +137,29 @@ The boxed procedure below summarizes the inference-time workflow. The key proper
 
 \section{Experiments}
 
-We evaluate whether online-consistent conservative selection can provide a useful neural first stage for a strong CDCL portfolio under real wall-clock evaluation. The main questions are: whether the end-to-end Local5--CaDiCaL55 schedule improves over standalone CaDiCaL 60s, whether the improvement is stable, and how much of the portfolio-only evidence comes from neural-first complementarity rather than second-stage runtime-boundary behavior.
+We evaluate whether online-consistent conservative selection can provide a useful neural first stage for a strong CDCL portfolio under real wall-clock evaluation. The main questions are: how the end-to-end Local5--CaDiCaL55 schedule compares with standalone CaDiCaL 60s under repeated baselines, whether any apparent advantage is stable under repeated CaDiCaL runs, and how much of the portfolio-only evidence comes from neural-first complementarity rather than second-stage runtime-boundary behavior.
 
 \subsection{Experimental Setup}
 
-The main benchmark is \texttt{data/test/3sat/400/*.cnf}, containing 200 held-out 3SAT-400 instances. All full400 conclusions come from real wall-clock runs rather than offline estimates or stale selector caches. Standalone baselines use a nominal 60s solve limit; the external guard is 65s, so a small number of solver-reported CPU times may slightly exceed 60s. As solver-default references, unweighted Glucose solves 13/200 instances and CaDiCaL solves 75/200 instances under this full400 protocol.
+The main benchmark is \texttt{data/test/3sat/400/*.cnf}, containing 200 held-out 3SAT-400 instances. All full400 conclusions come from real wall-clock runs rather than offline estimates or stale selector caches. Standalone baselines use a nominal 60s solve limit; the external guard is 65s, so a small number of solver-reported CPU times may slightly exceed 60s. As solver-default references, unweighted Glucose solves 13/200 instances and the original standalone CaDiCaL run solves 75/200; repeated CaDiCaL 60s runs solve 75, 80, and 80 instances.
 
 The main portfolio runs guarded Local Boundary Correction for at most 5s, then runs CaDiCaL for at most 55s on instances not solved by the neural first stage. We also report neural-stage mechanism results comparing the one-shot neural guidance baseline, Old Compact, the Online-Consistent Selector, and guarded Local Boundary Correction. Pairwise Veto, compact-stable variants, polarity/SBE variants, and no750 boundary variants are treated as negative results or diagnostics, not as the main method.
 
 \subsection{Main Full400 Portfolio Results}
 
-Table~\ref{tab:portfolio-main} gives the main end-to-end portfolio result. The Local5--CaDiCaL55 portfolio solves 79--80/200 instances over three full400 repeats, compared with 75/200 for standalone CaDiCaL 60s. The portfolio improves solved count by +4 to +5 and has zero CaDiCaL-only losses in all three repeats.
+Table~\ref{tab:portfolio-main} gives the main end-to-end portfolio result together with repeated standalone CaDiCaL 60s runs. The Local5--CaDiCaL55 portfolio solves 79--80/200 instances over three full400 repeats. The original CaDiCaL run solved 75/200, but repeated CaDiCaL runs solve 80/200; matched deltas are therefore +4, 0, and 0. The portfolio has zero CaDiCaL-only losses in all three repeats, but its solved-count advantage is boundary-sensitive rather than repeated-baseline robust.
 
 \begin{table}[t]
 \centering
-\caption{End-to-end full400 portfolio robustness on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL baseline is a 60s standalone run. Repeats keep the model, selector, correction guard, solver binaries, and time split fixed.}
+\caption{End-to-end full400 portfolio and repeated CaDiCaL baseline on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL repeats are standalone 60s runs. The model, selector, correction guard, solver binaries, and time split are fixed.}
 \label{tab:portfolio-main}
 \begin{tabular}{lrrrrrr}
 \toprule
-Run & Solved & Local & C2 solves & C60 & Delta & C-only loss \\
+Run & Portfolio & Local & C2 solves & CaDiCaL & Delta & C-only loss \\
 \midrule
 0 & 79 & 40 & 39 & 75 & +4 & 0 \\
-1 & 80 & 40 & 40 & 75 & +5 & 0 \\
-2 & 80 & 40 & 40 & 75 & +5 & 0 \\
+1 & 80 & 40 & 40 & 80 & +0 & 0 \\
+2 & 80 & 40 & 40 & 80 & +0 & 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -167,23 +167,42 @@ Run & Solved & Local & C2 solves & C60 & Delta & C-only loss \\
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.9\linewidth]{fig_portfolio_full400_paper.pdf}
-\caption{Portfolio main result on 200 held-out 3SAT-400 instances. Left: standalone CaDiCaL 60s solves 75/200, while the end-to-end Local5--CaDiCaL55 portfolio solves 79, 80, and 80 instances over three repeats with zero CaDiCaL-only losses. Right: portfolio-only evidence split by source; three stable instances are strict neural-first complements, while the remaining portfolio-only evidence comes from second-stage CaDiCaL runtime-boundary behavior.}
+\caption{Portfolio and CaDiCaL repeat audit on 200 held-out 3SAT-400 instances. Left: the original CaDiCaL 60s run solves 75/200, but repeated CaDiCaL 60s runs solve 80/200, matching the best portfolio repeats. Right: original-run portfolio-only evidence split by source; within that portfolio-only split, repeated CaDiCaL reduces strict neural-first complement to one instance.}
 \label{fig:portfolio-main}
 \end{figure}
 
-Table~\ref{tab:portfolio-claim-split} splits the portfolio-only evidence by source. This distinction is important: the paper does not claim that neural guidance alone contributes the entire +4/+5 delta. The strict neural-first complement consists of three stable instances solved by the Local first stage within 5s while standalone CaDiCaL 60s times out. The remaining portfolio-only evidence is second-stage CaDiCaL cutoff/runtime-boundary behavior.
+Table~\ref{tab:portfolio-claim-split} splits the portfolio-only evidence by source. This distinction is important: the paper does not claim that neural guidance alone contributes the entire original-run +4 delta, and the repeated-CaDiCaL audit shows that only one neural-first complement remains strict across all CaDiCaL repeats. The remaining portfolio-only evidence is second-stage CaDiCaL cutoff/runtime-boundary behavior or CaDiCaL repeat variance.
 
 \begin{table}[t]
 \centering
-\caption{Portfolio-only evidence split by source. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while standalone CaDiCaL 60s times out. Runtime-boundary evidence means the instance is solved by the second-stage CaDiCaL 55s run, not by the neural first stage.}
+\caption{Portfolio-only evidence under the original CaDiCaL 60s run, with repeated-CaDiCaL audit. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while the original standalone CaDiCaL 60s run times out. Repeated CaDiCaL runs show that only one such instance remains unsolved by CaDiCaL across all repeats.}
 \label{tab:portfolio-claim-split}
 \begin{tabular}{p{0.46\linewidth}rrr}
 \toprule
-Evidence class & Inst. & PO reps & Local reps \\
+Evidence class & Inst. & PO reps & Repeated-CaDiCaL strict \\
 \midrule
-Stable neural-first complement & 3 & 9 & 9 \\
+Original-run neural-first complement & 3 & 9 & 1 \\
 Stable second-stage runtime boundary & 1 & 3 & 0 \\
 Unstable second-stage runtime boundary & 1 & 2 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Full repeated-CaDiCaL overlap audit on 200 held-out 3SAT-400 instances. Neural solved means solved in all three neural solver-seed runs. CaDiCaL unsolved means unsolved in all three standalone CaDiCaL 60s repeats. Local-only is the strict boundary-correction contribution beyond Online-Consistent Selector.}
+\label{tab:cadical-overlap}
+\begin{tabular}{p{0.72\linewidth}r}
+\toprule
+Overlap question & Count \\
+\midrule
+CaDiCaL solved in any repeat / Local unsolved & 29 \\
+CaDiCaL solved in all repeats / Local unsolved & 26 \\
+Local solved / CaDiCaL unsolved in all repeats & 3 \\
+Online solved / CaDiCaL unsolved in all repeats & 2 \\
+Local-only over Online / CaDiCaL unsolved in all repeats & 1 \\
+One-shot timeout recovered by Online; CaDiCaL solved all & 5 \\
+Local Correction open set; CaDiCaL solved all & 2/4 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -197,7 +216,9 @@ Unstable second-stage runtime boundary & 1 & 2 & 0 \\
 
 \subsection{Instance-Level Behavior}
 
-The portfolio improvement is not uniform across all instances. Stable neural-first complement comes from \texttt{3sat\_132.cnf}, \texttt{3sat\_140.cnf}, and \texttt{3sat\_25.cnf}. The stable runtime-boundary portfolio-only case is \texttt{3sat\_111.cnf}, which is solved by the second-stage CaDiCaL 55s run in all repeats but not by the independent CaDiCaL 60s baseline run. \texttt{3sat\_48.cnf} appears in two of three repeats and is also a second-stage cutoff/runtime-boundary case.
+The portfolio improvement is not uniform across all instances. Under the original CaDiCaL run, portfolio-only neural-first complement comes from \texttt{3sat\_132.cnf}, \texttt{3sat\_140.cnf}, and \texttt{3sat\_25.cnf}. Repeated CaDiCaL 60s runs solve \texttt{3sat\_132.cnf} and \texttt{3sat\_25.cnf}, leaving \texttt{3sat\_140.cnf} as the strict repeated-baseline complement within the original-run portfolio-only split. The runtime-boundary portfolio-only cases \texttt{3sat\_111.cnf} and \texttt{3sat\_48.cnf} are also solved by repeated standalone CaDiCaL 60s runs.
+
+Table~\ref{tab:cadical-overlap} gives the full repeated-CaDiCaL overlap audit. This audit gives a broader view because it is not restricted to instances that are portfolio-only under the original CaDiCaL run. Local Boundary Correction solves three instances that CaDiCaL misses in all three 60s repeats: \texttt{3sat\_140.cnf}, \texttt{3sat\_147.cnf}, and \texttt{3sat\_188.cnf}. Online-Consistent Selector already solves \texttt{3sat\_140.cnf} and \texttt{3sat\_147.cnf}; the only strict Local-only gain beyond Online and repeated CaDiCaL is \texttt{3sat\_188.cnf}. Conversely, the five one-shot timeouts recovered by Online are all solved by CaDiCaL in all three repeats, so they explain neural-workflow recovery but not strong-CDCL complementarity.
 
 Within the neural first stage, decision audits identify two important boundary classes. In \texttt{new\_opened\_old\_off} cases, the new selector opens an adapter branch that the old compact selector closed, such as \texttt{3sat\_140.cnf}, which drops from 41.083s to 4.339s. In \texttt{new\_closed\_old\_on} cases, the new selector closes a branch that earlier evidence opened. This includes correctly avoided slowdowns such as \texttt{3sat\_82.cnf}, but also over-conservative misses such as \texttt{3sat\_46.cnf} and \texttt{3sat\_196.cnf}. These boundary misses motivate the guarded Local Boundary Correction ablation.
 
@@ -271,11 +292,11 @@ The experiments support a conservative portfolio interpretation. Neural feedback
 
 Local Boundary Correction exposes a remaining limitation: conservative risk control can close useful branches. The guarded correction repairs a small number of these boundary errors, but it is not a new global selector; under the 3-seed full400 protocol it matches Old Compact solved count and reduces mean runtime. The official boundary correction uses the 750-feature guarded rule; no750 remains a diagnostic feature ablation.
 
-The portfolio result also has a sharp claim boundary. The total portfolio improvement is +4 to +5 solved instances, but the strict neural-first complement is three stable instances. Other portfolio-only cases are solved by the second-stage CaDiCaL run and should be treated as cutoff/runtime-boundary evidence, not neural solves. The current evidence is strongest on the full 3SAT-400 test set. Appendix results on 3SAT-300 and 3SAT-350 show that the Online-Consistent Selector does not collapse on smaller held-out sizes, and the broader appendix table includes Glucose default and Old Compact references. These remain generality and baseline robustness checks rather than a new cross-scale claim. The runtime robustness evidence is also scoped: it covers same-seed repeats and seeds 1, 2, and 3 for the neural stage plus three full portfolio repeats, not cross-machine reproducibility.
+The portfolio result also has a sharp claim boundary. The original single-run comparison gives a +4 portfolio advantage, but repeated CaDiCaL baselines solve 80/200 and remove the matched solved-count advantage in repeats 1 and 2. Full repeated-baseline overlap has three Local-solved CaDiCaL-unsolved instances, but only one is a Local-only gain beyond Online: \texttt{3sat\_188.cnf}. Other portfolio-only cases should be treated as cutoff/runtime-boundary evidence or CaDiCaL repeat variance, not neural solves. The current evidence is strongest on the full 3SAT-400 test set. Appendix results on 3SAT-300 and 3SAT-350 show that the Online-Consistent Selector does not collapse on smaller held-out sizes, and the broader appendix table includes Glucose default and Old Compact references. These remain generality and baseline robustness checks rather than a new cross-scale claim. The runtime robustness evidence is also scoped: it covers same-seed repeats and seeds 1, 2, and 3 for the neural stage plus three full portfolio and CaDiCaL repeats, not cross-machine reproducibility.
 
 \section{Conclusion}
 
-This paper studies event-conditioned neural SAT guidance as a conservative first stage for a CDCL portfolio. Rather than calling a neural model at every branching decision, the solver collects low-frequency CDCL event traces, uses an Online-Consistent Selector to decide whether event-adapted guidance should be activated, and applies a guarded Local Boundary Correction for a narrow class of over-conservative boundary cases. On held-out 3SAT-400 instances, the resulting Local5--CaDiCaL55 portfolio solves 79--80/200 instances over three repeats, compared with 75/200 for standalone CaDiCaL 60s, with zero CaDiCaL-only losses. The strict neural-first complement is small but stable: three CaDiCaL-unsolved instances are solved within the 5s Local stage. The results suggest that solver feedback is most useful when treated as sparse evidence for risk-controlled portfolio complementarity, not as an unconditional replacement for a strong CDCL solver.
+This paper studies event-conditioned neural SAT guidance as a conservative first stage for a CDCL portfolio. Rather than calling a neural model at every branching decision, the solver collects low-frequency CDCL event traces, uses an Online-Consistent Selector to decide whether event-adapted guidance should be activated, and applies a guarded Local Boundary Correction for a narrow class of over-conservative boundary cases. On held-out 3SAT-400 instances, the resulting Local5--CaDiCaL55 portfolio solves 79--80/200 instances over three repeats. Repeated standalone CaDiCaL 60s runs solve 75, 80, and 80 instances, so the portfolio evidence is boundary-sensitive rather than a robust solved-count win. The full overlap audit finds three Local-solved instances that repeated CaDiCaL misses, but the strict Local-only boundary gain beyond Online and repeated CaDiCaL is one instance. The results suggest that solver feedback is most useful when treated as sparse evidence for risk-controlled boundary complementarity, not as an unconditional replacement for a strong CDCL solver.
 
 \clearpage
 \appendix

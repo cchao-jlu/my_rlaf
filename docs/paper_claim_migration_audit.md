@@ -12,18 +12,27 @@ The older manuscript direction was neural-workflow internal:
 - Main full400 table: neural methods under Glucose, with CaDiCaL only as an
   appendix baseline reference.
 
-The strongest current top-conference evidence is now portfolio-level:
+The strongest current evidence is no longer a neural-only improvement claim.
+It is a boundary-sensitive neural/CDCL overlap result, and repeated CaDiCaL
+baselines show that solved-count portfolio gains are not robust enough for a
+dominance claim:
 
 - End-to-end `Local Boundary Correction 5s -> CaDiCaL 55s` solves
   `79-80/200` over three full400 repeats.
-- CaDiCaL 60s baseline solves `75/200`.
-- The portfolio improves by `+4` to `+5` solved instances with zero
-  CaDiCaL-only losses across the three repeats.
-- Strict neural-first complement is smaller but real: 3 stable instances are
-  solved by Local within 5s while CaDiCaL 60s times out.
-- The remaining portfolio-only evidence is second-stage CaDiCaL
-  cutoff/runtime-boundary behavior and must not be described as a neural
-  solve.
+- The original CaDiCaL 60s baseline run solves `75/200`, but repeated CaDiCaL
+  60s runs solve `75, 80, 80`.
+- Against matched repeated CaDiCaL counts, the portfolio deltas are `+4, 0, 0`.
+- Full overlap audit against three CaDiCaL 60s repeats gives:
+  - Local solved / CaDiCaL unsolved in all repeats: `3` instances
+    (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`).
+  - Online solved / CaDiCaL unsolved in all repeats: `2` instances
+    (`3sat_140.cnf`, `3sat_147.cnf`).
+  - Local-only over Online and CaDiCaL-unsolved in all repeats: `1`
+    instance (`3sat_188.cnf`).
+- The older portfolio-only claim split still matters, but only as a schedule
+  audit: apparent original-run complements such as `3sat_132.cnf` and
+  `3sat_25.cnf` are CaDiCaL runtime-boundary cases under repeated baseline
+  runs.
 
 Authoritative sources:
 
@@ -32,6 +41,10 @@ docs/portfolio_e2e_local5_cadical55_stability.md
 docs/portfolio_claim_split.md
 runs/analysis/portfolio_e2e_local5_cadical55/repeat_stability_summary.csv
 runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv
+docs/cadical_repeat_stability.md
+runs/analysis/cadical_repeat_stability/portfolio_vs_cadical_repeats.csv
+docs/cadical_repeated_neural_overlap_audit.md
+runs/analysis/cadical_repeated_neural_overlap/summary.csv
 ```
 
 ## Must Fix Before Top-Conference Submission
@@ -50,26 +63,38 @@ runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv
 
    Required replacement:
 
-   - Main result should be the end-to-end `Local 5s -> CaDiCaL 55s` portfolio:
-     `79-80/200` vs CaDiCaL `75/200`, zero CaDiCaL-only losses.
+   - Main result should be the end-to-end `Local 5s -> CaDiCaL 55s` portfolio
+     as boundary-sensitive evidence: `79-80/200` portfolio solves, original
+     CaDiCaL run `75/200`, repeated CaDiCaL runs `75, 80, 80`.
+   - Matched repeated-CaDiCaL deltas are `+4, 0, 0`, so the paper cannot claim
+     robust solved-count improvement over CaDiCaL.
    - Online-Consistent Selector and Local Boundary Correction should become the
      neural-first stage and mechanism analysis.
 
-2. Split portfolio-only evidence into neural-first complement and runtime
-   boundary evidence.
+2. Split full overlap evidence, Local-only contribution, and portfolio-only
+   schedule evidence.
 
    Required wording:
 
-   - Stable neural-first complement: `3sat_132.cnf`, `3sat_140.cnf`,
-     `3sat_25.cnf`.
-   - Stable second-stage runtime-boundary evidence: `3sat_111.cnf`.
-   - Boundary-sensitive second-stage runtime-boundary evidence: `3sat_48.cnf`.
+   - Full repeated-baseline strict Local/CaDiCaL complement:
+     `3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`.
+   - Online/CaDiCaL strict complement:
+     `3sat_140.cnf`, `3sat_147.cnf`.
+   - Local-only strict boundary correction contribution:
+     `3sat_188.cnf`.
+   - Original-run portfolio-only neural-first complements that weaken under
+     repeated CaDiCaL: `3sat_132.cnf`, `3sat_25.cnf`.
+   - Portfolio runtime-boundary evidence: `3sat_111.cnf`, `3sat_48.cnf`.
 
    Forbidden wording:
 
    - Do not say the neural method alone contributes all `+4` to `+5` solved
      instances.
+   - Do not describe `+4/+5` as repeated-baseline robust.
    - Do not call second-stage CaDiCaL solves neural solves.
+   - Do not collapse full strict complementarity (`3` Local instances) and
+     Local-only boundary correction contribution (`1` instance) into one
+     ambiguous number.
 
 3. Replace or demote the current main table.
 
@@ -82,9 +107,9 @@ runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv
 
    Required new main table:
 
-   - CaDiCaL 60s baseline: `75/200`.
+   - CaDiCaL 60s repeats: `75, 80, 80`.
    - Local5 -> CaDiCaL55 portfolio repeats: `79, 80, 80`.
-   - Delta vs CaDiCaL: `+4, +5, +5`.
+   - Matched delta vs CaDiCaL: `+4, 0, 0`.
    - CaDiCaL-only losses: `0, 0, 0`.
    - Local first-stage solves: `40, 40, 40`.
 
@@ -100,10 +125,12 @@ runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv
    - The neural workflow alone gives a stable improvement over one-shot but
      does not beat Old Compact or CaDiCaL.
    - As a neural-first/CDCL-second portfolio, Local5 -> CaDiCaL55 solves
-     `79-80/200` vs `75/200` for CaDiCaL 60s.
-   - The strict neural-first contribution is 3 stable CaDiCaL-unsolved
-     early solves; additional portfolio-only cases include CaDiCaL
-     runtime-boundary behavior.
+     `79-80/200`; repeated CaDiCaL 60s solves `75, 80, 80`.
+   - The matched repeated-CaDiCaL delta is `+4, 0, 0`, so the portfolio result
+     is evidence of boundary-sensitive complementarity rather than robust
+     dominance.
+   - Full overlap has 3 Local-solved CaDiCaL-unsolved instances, but only one
+     of them is a Local-only gain beyond Online (`3sat_188.cnf`).
 
 5. Reframe related work and novelty.
 
@@ -117,7 +144,8 @@ runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv
    - This work uses neural guidance as a cheap first-stage complement, then
      falls back to a strong CDCL solver.
    - The novelty is the event-conditioned, risk-controlled neural first stage
-     and evidence that it creates nonzero complementarity with CaDiCaL.
+     and evidence that it creates boundary-sensitive complementarity with
+     CaDiCaL.
 
 ## Should Fix If Time Allows
 
@@ -164,8 +192,9 @@ runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv
 4. Main experiments: CaDiCaL 60s vs end-to-end portfolio repeats.
 5. Mechanism analysis: neural-only full400 table, overlap audit, claim split,
    local boundary correction ablation.
-6. Limitations: full400 only, runtime-boundary behavior, strict neural-first
-   complement is 3 stable instances, not the entire +4/+5 portfolio delta.
+6. Limitations: full400 only, runtime-boundary behavior, strict Local-only
+   boundary gain over Online and repeated CaDiCaL is 1 instance, and the
+   original +4/+5-style portfolio delta is not repeated-CaDiCaL robust.
 
 ## Next Concrete Edit
 

@@ -1,0 +1,2 @@
+file_key,one_shot_solved,online_solved,old_compact_solved,local_correction_solved,cadical_solved_repeats,cadical_solved_any,cadical_solved_all,cadical_time_mean,cadical_time_min,cadical_time_max,results,pattern,one_shot_time_mean,online_time_mean,old_compact_time_mean,local_correction_time_mean,local_minus_online_time_mean,local_minus_old_time_mean
+3sat_188.cnf,False,False,True,True,0,False,False,60.0,60.0,60.0,"UNKNOWN,UNKNOWN,UNKNOWN",0011,60.2807779150645,60.394368605504354,31.64044864424642,31.987218340571086,-28.407150264933268,0.3467696963246673
