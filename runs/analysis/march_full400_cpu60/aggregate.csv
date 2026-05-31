@@ -1,2 +1,2 @@
 solver_name,repeats,solved_mean,solved_std,solved_min,solved_max,mean_time_mean,mean_time_std
-march,1,192.0,0.0,192,192,26.800538662350736,0.0
+march,3,192.0,0.0,192,192,26.817773796367305,0.016998850553048173

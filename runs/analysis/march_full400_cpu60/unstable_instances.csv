@@ -1,1 +1,3 @@
 solver_name,file_key,repeats,solved_repeats,stable_solved,time_mean,time_min,time_max,results
+march,3sat_21.cnf,3,1,False,61.620608886393406,60.0,64.86182665918022,"UNKNOWN,UNSATISFIABLE,UNKNOWN"
+march,3sat_67.cnf,3,2,False,62.79780641167114,60.0,64.22591722896323,"UNSATISFIABLE,UNKNOWN,UNSATISFIABLE"

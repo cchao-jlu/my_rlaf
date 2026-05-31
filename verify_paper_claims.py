@@ -35,6 +35,8 @@ def main() -> None:
     neural = pd.read_csv(ROOT / "runs/analysis/full400_seed_robustness/method_summary.csv")
     overlap = pd.read_csv(ROOT / "runs/analysis/cadical_repeated_neural_overlap/summary.csv")
     march = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/strict60_summary.csv")
+    march_repeats = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/strict60_repeat_summary.csv")
+    march_overlap = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -89,14 +91,27 @@ def main() -> None:
     require("CaDiCaL solved all & 2/4" in paper, "paper/main.tex must state CaDiCaL solves 2/4 Local open set")
 
     march_row = march.iloc[0]
-    require(int(march_row["solved_strict60"]) == 184, "Unexpected March strict-60 solved count")
-    require(int(march_row["solved_external65"]) == 192, "Unexpected March external-65 solved count")
-    require(int(march_row["solved_after_60_before_65"]) == 8, "Unexpected March after-60 count")
+    require(int(march_row["repeats"]) == 3, "Unexpected March repeat count")
+    require(float(march_row["solved_strict60"]) == 184.0, "Unexpected March strict-60 solved count")
+    require(float(march_row["solved_strict60_std"]) == 0.0, "Unexpected March strict-60 solved std")
+    require(int(march_row["solved_strict60_min"]) == 184, "Unexpected March strict-60 solved min")
+    require(int(march_row["solved_strict60_max"]) == 184, "Unexpected March strict-60 solved max")
+    require(float(march_row["solved_external65"]) == 192.0, "Unexpected March external-65 solved count")
+    require(float(march_row["solved_external65_std"]) == 0.0, "Unexpected March external-65 solved std")
+    require(float(march_row["solved_after_60_before_65"]) == 8.0, "Unexpected March after-60 count")
+    require(int(march_row["strict60_stable_instances"]) == 200, "Unexpected March stable instance count")
+    require(march_repeats["solved_strict60"].astype(int).tolist() == [184, 184, 184], "Unexpected March repeat strict counts")
+    require(march_repeats["solved_external65"].astype(int).tolist() == [192, 192, 192], "Unexpected March repeat external counts")
+    local_overlap = march_overlap.loc[march_overlap["method"].eq("+ Local Boundary Correction")].iloc[0]
+    require(int(local_overlap["method_only_vs_march_all"]) == 0, "Local should have no strict repeated-March complement")
+    require(int(local_overlap["march_all_only_vs_method"]) == 130, "Unexpected March-all-only vs Local count")
     require("184/200" in paper, "paper/main.tex must state March strict-60 184/200")
+    require("each of three repeats" in paper, "paper/main.tex must state repeated March strict-60 count")
+    require("stable on all 200 instances" in paper, "paper/main.tex must state March instance stability")
     require("March" in paper, "paper/main.tex must discuss March baseline")
     require(
         "removes the current strong-baseline complementarity claim" in paper
-        or "no solved-count complement against this March run" in paper,
+        or "no solved-count complement against repeated March strict-60" in paper,
         "paper/main.tex must state March removes current strong-baseline complementarity",
     )
 
@@ -130,7 +145,7 @@ def main() -> None:
     print(f"portfolio={portfolio_solved}, cadical={cadical_solved}, deltas={deltas}")
     print(f"neural_counts={neural_counts}")
     print(f"overlap_counts={expected_overlap}")
-    print("march_strict60=184, march_external65=192")
+    print("march_strict60=184 x3, march_external65=192 x3, stable_instances=200")
 
 
 if __name__ == "__main__":

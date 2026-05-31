@@ -1,4 +1,4 @@
-file_key,one_shot_solved,online_solved,local_correction_solved,cadical_solved_repeats,march_solved_strict60,march_wall_time,pattern
-3sat_140.cnf,True,True,True,0,True,8.050108323339373,1111
-3sat_147.cnf,True,True,True,0,True,35.587177332956344,1111
-3sat_188.cnf,False,False,True,0,True,15.664388957899064,0011
+file_key,one_shot_solved,online_solved,local_correction_solved,cadical_solved_repeats,march_solved_strict60_repeats,march_solved_strict60_all,march_wall_time_mean,pattern
+3sat_140.cnf,True,True,True,0,3,True,8.170724990001569,1111
+3sat_147.cnf,True,True,True,0,3,True,35.81541673699394,1111
+3sat_188.cnf,False,False,True,0,3,True,15.554643778596073,0011

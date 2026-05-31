@@ -26,7 +26,7 @@
 - no750 只作为 diagnostic feature ablation；它的 open set 与正式 full400 patch 不同，不能替代正式结果。
 - portfolio-only evidence 必须拆分为 neural-first complement 和 second-stage CaDiCaL runtime-boundary evidence。
 - full overlap evidence 也要单独报告：Local/CaDiCaL strict complement 是 3 个实例，Online/CaDiCaL strict complement 是 2 个实例，Local-only strict boundary contribution 是 1 个实例。
-- March strict-60 baseline 是当前最强 baseline：184/200，mean capped time 26.702s。它解掉 CaDiCaL-strict complement 的 `3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`，所以不能再写 strong-SAT-baseline complementarity claim。
+- March strict-60 baseline 是当前最强 baseline：3 次 repeats 都是 184/200，mean capped time 26.713s，strict solved pattern 在 200 个实例上完全稳定。它解掉 CaDiCaL-strict complement 的 `3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`，所以不能再写 strong-SAT-baseline complementarity claim。
 
 ## Table 1: Full400 Portfolio Main Results
 
@@ -111,20 +111,20 @@ Sources:
 
 Caption:
 
-> March full400 baseline using the existing unweighted March binary. Because the current March runner uses an external 65s guard rather than an internal 60s limit, strict 60s treats solutions with wall time greater than 60s as timeouts.
+> Repeated March full400 baseline using the existing unweighted March binary. Because the current March runner uses an external 65s guard rather than an internal 60s limit, strict 60s treats solutions with wall time greater than 60s as timeouts.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{March full400 baseline using the existing unweighted March binary. Because the current March runner uses an external 65s guard rather than an internal 60s limit, strict 60s treats solutions with wall time greater than 60s as timeouts.}
+\caption{Repeated March full400 baseline using the existing unweighted March binary. Because the current March runner uses an external 65s guard rather than an internal 60s limit, strict 60s treats solutions with wall time greater than 60s as timeouts.}
 \label{tab:march-baseline}
-\begin{tabular}{lrrrr}
+\begin{tabular}{lrrrrr}
 \toprule
-Solver & Solved ext-65 & Solved strict-60 & Mean strict-60 (s) & Median strict-60 (s) \\
+Solver & Repeats & Solved ext-65 & Solved strict-60 & Mean strict-60 (s) & Stable inst. \\
 \midrule
-March & 192 & 184 & 26.702 & 28.759 \\
+March & 3 & 192.0 $\pm$ 0.0 & 184.0 $\pm$ 0.0 & 26.713 $\pm$ 0.010 & 200/200 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -132,13 +132,15 @@ March & 192 & 184 & 26.702 & 28.759 \\
 
 Recommended text:
 
-The March baseline changes the interpretation of the strong-baseline story. Under strict 60s, March solves 184/200, far above the Local5 -> CaDiCaL55 portfolio and all neural-guided Glucose variants. It solves all three Local-solved / repeated-CaDiCaL-unsolved instances (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`). Therefore the current evidence cannot support a strong-SAT-baseline complementarity or performance claim; the defensible direction is risk-controlled neural feedback and failure-boundary analysis.
+The March baseline changes the interpretation of the strong-baseline story. Under strict 60s, March solves 184/200 in each of three repeats, far above the Local5 -> CaDiCaL55 portfolio and all neural-guided Glucose variants. Its strict solved/unsolved status is stable on all 200 instances, and it solves all three Local-solved / repeated-CaDiCaL-unsolved instances (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`) in all three repeats. Therefore the current evidence cannot support a strong-SAT-baseline complementarity or performance claim; the defensible direction is risk-controlled neural feedback and failure-boundary analysis.
 
 Sources:
 
 - `docs/march_full400_baseline_audit.md`
 - `runs/march/solver_stats_full400_cpu60.csv`
 - `runs/analysis/march_full400_cpu60/strict60_summary.csv`
+- `runs/analysis/march_full400_cpu60/strict60_repeat_summary.csv`
+- `runs/analysis/march_full400_cpu60/strict60_instance_summary.csv`
 - `runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv`
 - `runs/analysis/march_full400_cpu60/strict_complement_keys.csv`
 

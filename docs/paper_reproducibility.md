@@ -382,7 +382,7 @@ Decision rule for paper use:
 ## March Baseline Audit
 
 The repository already contains an unweighted March binary. It can be audited
-with the generic external solver runner:
+with the generic external solver runner. Run repeats 0, 1, and 2:
 
 ```bash
 /home/sunshixin/anaconda3/envs/rlaf/bin/python run_external_solver_baseline.py \
@@ -407,16 +407,17 @@ strict-60 audit:
 Current result:
 
 ```text
-external-65 solved: 192/200
-strict-60 solved: 184/200
-mean strict-60 time: 26.702s
+external-65 solved: 192/200 in each of 3 repeats
+strict-60 solved: 184/200 in each of 3 repeats
+mean strict-60 time: 26.713s +/- 0.010s
+strict solved pattern: stable on 200/200 instances
 ```
 
 Interpretation: March solves all three Local-solved / repeated-CaDiCaL-unsolved
-instances (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`). This removes the
-current strong-SAT-baseline complementarity claim; March must be reported in the
-baseline discussion or used to justify a pivot toward failure-boundary / risk
-control rather than performance superiority.
+instances (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`) in all three strict-60
+repeats. This removes the current strong-SAT-baseline complementarity claim;
+March must be reported in the baseline discussion or used to justify a pivot
+toward failure-boundary / risk control rather than performance superiority.
 runs/cadical/solver_stats_full400_cpu60.csv
 runs/analysis/cadical_default_full400_summary.csv
 runs/analysis/cadical_default_full400_comparison.csv

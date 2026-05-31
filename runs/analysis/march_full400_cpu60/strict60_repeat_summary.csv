@@ -1,0 +1,4 @@
+solver,repeat,total,solved_external65,solved_strict60,solved_after_60_before_65,mean_time_strict60,median_time_strict60,external_timeouts
+March,0,200,192,184,8,26.702281428754794,28.759147722041234,8
+March,1,200,192,184,8,26.72571405750001,28.838060683570802,8
+March,2,200,192,184,8,26.70959065499017,28.935648534912616,8

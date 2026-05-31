@@ -110,14 +110,16 @@ README 中有 `evaluate_base_solver.py` 的原生 solver 评估入口；已补 p
   `3sat_196.cnf` in all repeats; only `3sat_188.cnf` is a Local-solved
   CaDiCaL-strict-unsolved boundary point.
 
-March audit adds a stronger baseline from an existing solver family:
+Repeated March audit adds a stronger baseline from an existing solver family:
 
-- March external-65 raw run solves `192/200`.
+- March external-65 solves `192/200` in each of three repeats.
 - Strict 60s count, treating wall time greater than 60s as timeout, is
-  `184/200`, mean strict-capped time `26.702s`.
+  `184/200` in each of three repeats, mean strict-capped time `26.713s`.
+- Strict solved/unsolved status is stable on all `200/200` instances:
+  184 solved in all repeats and 16 unsolved in all repeats.
 - March solves all three Local-solved / CaDiCaL-unsolved-all instances:
-  `3sat_140.cnf`, `3sat_147.cnf`, and `3sat_188.cnf`.
-- Local solved / March unsolved is `0`; March solved / Local unsolved is `130`.
+  `3sat_140.cnf`, `3sat_147.cnf`, and `3sat_188.cnf`, in all three repeats.
+- Local solved / March unsolved-all is `0`; March-all solved / Local unsolved is `130`.
 
 Sources:
 
@@ -143,7 +145,7 @@ runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv
 - 相对 RLAF-style one-shot neural guidance baseline，Online-Consistent Selector 是稳定改进。
 - 相对 Glucose default，neural guidance 明显更强。
 - 相对 CaDiCaL，不能声称 robust dominance。证据只支持 cautious complementarity / boundary-sensitive risk-control framing。
-- 相对 March，当前 neural workflow 和 Local Boundary Correction 没有 solved-count complementarity；March strict60 `184/200` 大幅强于 Local5 -> CaDiCaL55 portfolio `79-80/200`。
+- 相对 March，当前 neural workflow 和 Local Boundary Correction 没有 solved-count complementarity；March strict60 在三次 repeats 中稳定 `184/200`，大幅强于 Local5 -> CaDiCaL55 portfolio `79-80/200`。
 
 因此 baseline sufficiency 的状态不是简单的 placement pending。Glucose default 已 resolved；CaDiCaL baseline 已经揭示 claim 风险；March baseline 进一步说明当前结果不能支撑顶会性能论文。必须在投稿前完成定位重写。
 
@@ -153,7 +155,7 @@ Resolved:
 
 - 已补 solver default / unguided Glucose 300/350/400 baseline。
 - 已补 CaDiCaL 60s full400 baseline repeats 和 repeated-CaDiCaL overlap audit。
-- 已补 March full400 strict-60 baseline audit。
+- 已补 March full400 strict-60 baseline audit，三次 repeats 的 solved count 和 per-instance solved pattern 都稳定。
 - 在实验设置中明确 One-shot 是 neural baseline，不是 solver default。
 
 Must fix before submission:
@@ -169,7 +171,7 @@ Must fix before submission:
 - Local Boundary Correction 只能说在 strict repeated-CaDiCaL 口径下打开
   `3sat_188.cnf` 这个 Local-only boundary point；不能把
   `3sat_46.cnf` / `3sat_196.cnf` 写成 strong-CDCL complement。
-- March strict-60 `184/200` 必须进入 baseline discussion 或 limitation；
+- March strict-60 三次稳定 `184/200` 必须进入 baseline discussion 或 limitation；
   如果不放，审稿人一旦发现 March 结果，当前 strong baseline claim 会崩。
 
 Should fix if time allows:
@@ -383,20 +385,19 @@ Can defer to appendix / rebuttal:
 ```text
 Writing readiness: medium for a risk-control / negative-results manuscript
 Submission readiness: low for a top-conference performance-improvement claim
-Evidence risk: March strict-60 baseline (184/200) dominates current neural and portfolio results. The strongest defensible claim is no longer strong-CDCL complementarity; it is failure-boundary analysis and risk-controlled neural intervention under a weaker neural-guided Glucose workflow.
+Evidence risk: repeated March strict-60 baseline (184/200 in all three repeats) dominates current neural and portfolio results. The strongest defensible claim is no longer strong-CDCL complementarity; it is failure-boundary analysis and risk-controlled neural intervention under a weaker neural-guided Glucose workflow.
 ```
 
 不能继续按旧的 neural-only、portfolio-dominance 或 strong-CDCL-complementarity 叙事推进。投稿前剩余需要决策的核心是 claim positioning，其次才是 packaging：
 
 1. 是否接受“failure boundary / risk-control / negative evidence”作为顶会目标，而不是性能 dominance。
-2. 是否补 Kissat / Maple / March repeats 作为 stronger-CDCL audit。
+2. 是否补 Kissat / Maple 作为 stronger-CDCL audit。
 3. checkpoint / CNF dataset 用 Git LFS 还是 external artifact。
 4. seed sensitivity 是否仅作为 limitation，还是资源允许时补充。
 
 如果时间有限，优先顺序是：
 
-1. 更新 paper/main.tex 和 paper tables，加入 March baseline 并移除 strong-CDCL complementarity 暗示；
-2. 决定是否继续跑 March repeats / Kissat / MapleSAT，或正式转为 failure-boundary 论文；
-3. checkpoint/data artifact packaging decision；
-4. negative-results appendix table；
-5. 跨机器或更多 CaDiCaL repeats，只在资源允许时做。
+1. 决定是否继续跑 Kissat / MapleSAT，或正式转为 failure-boundary 论文；
+2. checkpoint/data artifact packaging decision；
+3. negative-results appendix table；
+4. 跨机器或更多 CaDiCaL repeats，只在资源允许时做。

@@ -1,5 +1,5 @@
-method,method_solved,march_strict60_solved,union_solved,method_only_vs_march,march_only_vs_method,both_unsolved
-One-shot,48,184,184,0,136,16
-Online-Consistent Selector,53,184,184,0,131,16
-Old Compact,54,184,184,0,130,16
-+ Local Boundary Correction,54,184,184,0,130,16
+method,method_solved,march_strict60_all_solved,union_vs_march_all,method_only_vs_march_all,march_all_only_vs_method,both_unsolved_vs_march_all,march_strict60_any_solved,union_vs_march_any,method_only_vs_march_any,march_any_only_vs_method
+One-shot,48,184,184,0,136,16,184,184,0,136
+Online-Consistent Selector,53,184,184,0,131,16,184,184,0,131
+Old Compact,54,184,184,0,130,16,184,184,0,130
++ Local Boundary Correction,54,184,184,0,130,16,184,184,0,130
