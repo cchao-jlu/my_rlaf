@@ -12,30 +12,104 @@
 | --- | --- | --- |
 | `one_shot` / `oneshot` | One-shot | one-shot neural guidance baseline |
 | `old_compact` | Old Compact | stable reference baseline |
-| `online_consistent_boundary400` | Online-Consistent Selector | main selector |
+| `online_consistent_boundary400` | Online-Consistent Selector | neural-stage selector |
 | `local_reopen_guarded` | + Local Boundary Correction | boundary correction ablation |
+| `portfolio_e2e_local5_cadical55` | Local5 -> CaDiCaL55 Portfolio | main portfolio result |
 | `pairwise_veto` / `pairwise_veto_actual` | Pairwise Veto | negative branch |
 
 固定口径：
 
-- Online-Consistent Selector 是主线 selector。
-- + Local Boundary Correction 只作为 ablation，不作为新主模型。
+- 顶会主结果现在是 `Local5 -> CaDiCaL55 Portfolio`，不是 neural-only full400 表。
+- Online-Consistent Selector 和 + Local Boundary Correction 是 portfolio 的 neural-first stage / mechanism analysis。
+- + Local Boundary Correction 只作为 guarded neural-stage component，不作为 unrestricted neural main model。
 - 正式 + Local Boundary Correction full400 patch 是含 750 特征版本。
 - no750 只作为 diagnostic feature ablation；它的 open set 与正式 full400 patch 不同，不能替代正式结果。
+- portfolio-only evidence 必须拆分为 neural-first complement 和 second-stage CaDiCaL runtime-boundary evidence。
 
-## Table 1: Full400 Main Results
+## Table 1: Full400 Portfolio Main Results
 
 Caption:
 
-> Full400 solver-seed robustness results on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. One-shot is the neural guidance baseline without feedback refinement. Online-Consistent Selector is the main selector. + Local Boundary Correction is a guarded boundary correction ablation, not a separate main model.
+> End-to-end full400 portfolio robustness on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL baseline is a 60s standalone run. Repeats keep the model, selector, correction guard, solver binaries, and time split fixed.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{Full400 solver-seed robustness results on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. One-shot is the neural guidance baseline without feedback refinement. Online-Consistent Selector is the main selector. + Local Boundary Correction is a guarded boundary correction ablation, not a separate main model.}
-\label{tab:full400-main}
+\caption{End-to-end full400 portfolio robustness on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL baseline is a 60s standalone run. Repeats keep the model, selector, correction guard, solver binaries, and time split fixed.}
+\label{tab:portfolio-main}
+\begin{tabular}{lrrrrrr}
+\toprule
+Run & Solved & Local & C2 solves & C60 & Delta & C-only loss \\
+\midrule
+0 & 79 & 40 & 39 & 75 & +4 & 0 \\
+1 & 80 & 40 & 40 & 75 & +5 & 0 \\
+2 & 80 & 40 & 40 & 75 & +5 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Recommended text:
+
+The end-to-end neural-first/CDCL-second portfolio solves 79-80/200 instances over three full400 repeats, compared with 75/200 for standalone CaDiCaL 60s. It improves solved count by +4 to +5 with zero CaDiCaL-only losses. This is the main top-conference result, but the paper must split the portfolio-only evidence: three stable instances are solved by the Local first stage within 5s, while the remaining portfolio-only cases are second-stage CaDiCaL runtime-boundary evidence.
+
+Sources:
+
+- `docs/portfolio_e2e_local5_cadical55_stability.md`
+- `runs/analysis/portfolio_e2e_local5_cadical55/repeat_stability_summary.csv`
+- `runs/analysis/portfolio_e2e_local5_cadical55/repeat_stability_aggregate.csv`
+- `runs/analysis/portfolio_e2e_local5_cadical55/repeat_instance_overlap.csv`
+
+## Table 2: Portfolio Claim Split
+
+Caption:
+
+> Portfolio-only evidence split by source. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while standalone CaDiCaL 60s times out. Runtime-boundary evidence means the instance is solved by the second-stage CaDiCaL 55s run, not by the neural first stage.
+
+LaTeX:
+
+```latex
+\begin{table}[t]
+\centering
+\caption{Portfolio-only evidence split by source. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while standalone CaDiCaL 60s times out. Runtime-boundary evidence means the instance is solved by the second-stage CaDiCaL 55s run, not by the neural first stage.}
+\label{tab:portfolio-claim-split}
+\begin{tabular}{p{0.46\linewidth}rrr}
+\toprule
+Evidence class & Inst. & PO reps & Local reps \\
+\midrule
+Stable neural-first complement & 3 & 9 & 9 \\
+Stable second-stage runtime boundary & 1 & 3 & 0 \\
+Unstable second-stage runtime boundary & 1 & 2 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Recommended text:
+
+The strict neural-first complement consists of `3sat_132.cnf`, `3sat_140.cnf`, and `3sat_25.cnf`. `3sat_111.cnf` is stable portfolio-only evidence but is solved by the second-stage CaDiCaL run; `3sat_48.cnf` appears in two of three repeats and is also a second-stage cutoff/runtime boundary case. Therefore, the paper may report total portfolio solved count, but must not describe the entire +4/+5 portfolio delta as neural solves.
+
+Sources:
+
+- `docs/portfolio_claim_split.md`
+- `runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split.csv`
+- `runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split_summary.csv`
+
+## Table 3: Neural-Stage Mechanism Results
+
+Caption:
+
+> Neural-stage full400 solver-seed robustness on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. These rows explain the neural first stage used in the portfolio; they are not the top-line strong-CDCL result.
+
+LaTeX:
+
+```latex
+\begin{table}[t]
+\centering
+\caption{Neural-stage full400 solver-seed robustness on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. These rows explain the neural first stage used in the portfolio; they are not the top-line strong-CDCL result.}
+\label{tab:neural-stage}
 \begin{tabular}{lrrrr}
 \toprule
 Method & Solved & Mean time (s) & Median time (s) & Solved std \\
@@ -51,7 +125,7 @@ Old Compact & 54.0 & 46.278 & 60.373 & 0.0 \\
 
 Recommended text:
 
-Online-Consistent Selector is stable over One-shot across seeds 1/2/3, improving solved count from 48/200 to 53/200. Old Compact remains a strong matched baseline at 54/200. + Local Boundary Correction matches Old Compact solved count and gives the lowest mean time, so its role remains guarded boundary repair rather than an unrestricted main-model upgrade.
+Online-Consistent Selector is stable over One-shot across seeds 1/2/3, improving solved count from 48/200 to 53/200. Old Compact remains a strong matched neural-stage reference at 54/200. + Local Boundary Correction matches Old Compact solved count and gives the lowest mean time. This table explains the Local first-stage component used in the portfolio; it should not be presented as beating CaDiCaL.
 
 Sources:
 
@@ -60,28 +134,28 @@ Sources:
 - `runs/analysis/full400_seed_robustness/seed_summary.csv`
 - `runs/analysis/full400_seed_robustness/per_instance_summary.csv`
 
-Historical single-run sources remain useful context but should not be the main table:
+Historical single-run sources remain useful context but should not be used as a main table:
 
 - `docs/online_consistent_boundary400_full400_eval.md`
 - `docs/local_reopen_guarded_full400_eval.md`
 - `docs/compact_risk_full400_eval.md`
 
-## Table 2: Stability Validation
+## Table 4: Stability Validation
 
 Caption:
 
-> Full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.
+> Neural-stage full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{Full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.}
+\caption{Neural-stage full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.}
 \label{tab:full400-stability}
 \begin{tabular}{lrrrr}
 \toprule
-Method & Repeat solved & Seed solved & Seed solved std & Seed mean time (s) \\
+Method & Repeat & Seed & Std & Mean (s) \\
 \midrule
 One-shot & 48.0 & 48.0 & 0.0 & 47.665 \\
 Online-Consistent Selector & 53.0 & 53.0 & 0.0 & 46.324 \\
@@ -94,7 +168,7 @@ Old Compact & 54.0 & 54.0 & 0.0 & 46.278 \\
 
 Recommended text:
 
-The stability analysis supports the same interpretation as the main full400 table. Online-Consistent Selector is stable over One-shot, Old Compact remains the strongest uncorrected reference in solved count, and + Local Boundary Correction matches Old Compact solved count while giving the lowest mean time. The older bootstrap / repeated-split table remains useful historical single-run evidence but should not replace the full400 repeated and seed-robustness results.
+The neural-stage stability analysis supports the same interpretation as the mechanism table. Online-Consistent Selector is stable over One-shot, Old Compact remains the strongest uncorrected neural-stage reference in solved count, and + Local Boundary Correction matches Old Compact solved count while giving the lowest mean time. Portfolio-level stability is reported separately in Table 1.
 
 Sources:
 
@@ -103,7 +177,7 @@ Sources:
 - `runs/analysis/full400_repeated_runtime/summary.csv`
 - `runs/analysis/full400_seed_robustness/method_summary.csv`
 
-## Table 3: Ablation Matrix
+## Table 5: Ablation Matrix
 
 Caption:
 
@@ -142,15 +216,15 @@ Sources:
 - `runs/analysis/local_reopen_guarded_full400_open_set.csv`
 - `runs/analysis/new_closed_old_on_local_reopen_gate_no750_best_selection.csv`
 
-## Figure 1: Full400 Cactus Plot
+## Figure 1: Neural-Stage Cactus Plot
 
 Recommended title:
 
-> Cactus plot on 3SAT-400 full400.
+> Neural-stage cactus plot on 3SAT-400 full400.
 
 Caption:
 
-> Cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases.
+> Neural-stage cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases. This is a mechanism figure for the neural first stage, not the portfolio main result.
 
 Paper-ready legend names:
 
@@ -172,7 +246,7 @@ Recommended LaTeX:
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.78\linewidth]{figures/fig_full400_cactus_paper.pdf}
-\caption{Cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases.}
+\caption{Neural-stage cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases. This is a mechanism figure for the neural first stage, not the portfolio main result.}
 \label{fig:full400-cactus}
 \end{figure}
 ```
@@ -304,14 +378,14 @@ Sources:
 
 Caption:
 
-> Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.
+> Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are neural-stage 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.
 
 LaTeX:
 
 ```latex
 \begin{table}[t]
 \centering
-\caption{Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.}
+\caption{Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are neural-stage 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.}
 \label{tab:generalization-baseline}
 \begin{tabular}{llrrr}
 \toprule

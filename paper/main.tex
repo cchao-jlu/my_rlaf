@@ -12,7 +12,7 @@
 
 \graphicspath{{../figures/}{figures/}}
 
-\title{Online-Consistent Event-Conditioned Guidance for SAT Solving}
+\title{Neural-First CDCL Portfolios with Online-Consistent Event Guidance}
 \author{Anonymous Authors}
 \date{}
 
@@ -21,26 +21,26 @@
 \maketitle
 
 \begin{abstract}
-Learning-guided SAT solvers face a practical tension. One-shot neural guidance is efficient because the neural model is queried only once before search, but it remains open-loop: it cannot react to what the CDCL solver observes during search. Fully dynamic neural branching can condition on solver state, but frequent neural calls inside the branching loop introduce substantial wall-clock overhead and can harm complete-solver reliability. This paper studies a conservative middle ground: low-frequency CDCL event traces are used to decide whether neural feedback should be activated at all.
+Learning-guided SAT solvers face a practical tension. One-shot neural guidance is efficient because the neural model is queried only once before search, but it remains open-loop: it cannot react to what the CDCL solver observes during search. Fully dynamic neural branching can condition on solver state, but frequent neural calls inside the branching loop introduce substantial wall-clock overhead and can harm complete-solver reliability. This paper studies a conservative neural-first portfolio: a low-budget neural-guided stage uses CDCL event traces to decide whether feedback should be activated, and unsolved instances fall back to a strong CDCL solver.
 
-We propose an Online-Consistent Selector for event-conditioned SAT guidance. The solver first obtains a one-shot neural guidance prior, runs short warmup probes to collect CDCL events, and then applies a conservative risk/recovery controller to choose between the one-shot path and an event-adapted guidance path. The selector is trained from same-evidence branch counterfactuals and is designed to recover hard or timeout instances while avoiding lost solutions and unnecessary slowdowns. As an ablation, we further study a guarded Local Boundary Correction that reopens a small set of over-conservative selector decisions under a candidate manifest.
+We propose an Online-Consistent Selector for event-conditioned SAT guidance. The neural first stage obtains a one-shot guidance prior, runs short warmup probes to collect CDCL events, and applies a conservative risk/recovery controller to choose between the one-shot path and an event-adapted guidance path. A guarded Local Boundary Correction reopens a small set of over-conservative selector decisions under a candidate manifest. We then use this guarded neural stage in a simple sequential portfolio: run Local Boundary Correction for at most 5s, then run CaDiCaL for at most 55s on unsolved instances.
 
-On 200 held-out 3SAT-400 instances, the Online-Consistent Selector improves the one-shot neural guidance baseline from 48/200 to 53/200 solved instances under Glucose seeds 1, 2, and 3, with zero solved-count variance across seeds. Old Compact remains a strong matched baseline at 54/200. Guarded Local Boundary Correction matches the Old Compact solved count and gives the lowest mean wall-clock time, 45.914s, supporting its role as a boundary repair ablation rather than a separate unrestricted primary method. These results suggest that sparse, event-conditioned, risk-controlled intervention is a practical way to use solver feedback without turning SAT solving into per-branching neural inference.
+On 200 held-out 3SAT-400 instances, standalone CaDiCaL with a 60s limit solves 75/200. The end-to-end Local5--CaDiCaL55 portfolio solves 79--80/200 over three full repeats, improving solved count by +4 to +5 with zero CaDiCaL-only losses. The strict neural-first complement consists of three stable instances solved by the 5s Local stage while CaDiCaL 60s times out; additional portfolio-only cases are second-stage CaDiCaL cutoff/runtime-boundary evidence. Neural-stage results explain the mechanism: Online-Consistent Selector improves one-shot guidance from 48/200 to 53/200 under seeds 1, 2, and 3, while guarded Local Boundary Correction reaches 54/200. These results support a cautious complementarity claim: sparse, risk-controlled neural guidance can be a useful first stage for a strong CDCL portfolio.
 \end{abstract}
 
 \section{Introduction}
 
-Modern CDCL SAT solvers are highly optimized, and even useful learned guidance can be harmful if it is inserted at the wrong point in the solving loop. One-shot neural guidance is attractive because it queries a graph neural network once before search and then lets the solver run normally, but this efficiency comes with an open-loop limitation: the guidance cannot react to conflicts, propagations, learnt clauses, or activity patterns observed during search. Dynamic neural branching can use such solver state, but frequent neural inference inside the branching loop creates wall-clock overhead and can introduce reliability risks for a complete solver. This paper asks whether solver feedback can be used more selectively: not to replace the branching heuristic at every decision, but to decide when neural feedback should be activated at all.
+Modern CDCL SAT solvers are highly optimized, and even useful learned guidance can be harmful if it is inserted at the wrong point in the solving loop. One-shot neural guidance is attractive because it queries a graph neural network once before search and then lets the solver run normally, but this efficiency comes with an open-loop limitation: the guidance cannot react to conflicts, propagations, learnt clauses, or activity patterns observed during search. Dynamic neural branching can use such solver state, but frequent neural inference inside the branching loop creates wall-clock overhead and can introduce reliability risks for a complete solver. This paper asks whether neural guidance can be used as a cheap complementary first stage for a strong CDCL solver, rather than as an unconditional replacement for CDCL search.
 
 The central difficulty is asymmetric risk. A learned adapter can recover hard instances or reduce long-tail runtime, but it can also lose instances that the base one-shot path solves or slow easy instances enough to erase the gains. Therefore, a useful feedback mechanism should not simply maximize adapter usage. It should intervene only when observed solver evidence suggests meaningful recovery potential and low slowdown or lost-solution risk.
 
-We study this problem in the setting of RLAF-style one-shot SAT guidance \cite{rlaf}. The solver first predicts a neural guidance prior from the CNF graph. It then performs low-budget warmup probes under that prior and collects CDCL event traces. These traces provide variable-level and graph-level evidence about the actual search trajectory. An Online-Consistent Selector uses this evidence to decide whether to run the final solve with event-adapted guidance or with the safer one-shot guidance.
+We study this problem in the setting of RLAF-style one-shot SAT guidance \cite{rlaf}. The neural stage first predicts a guidance prior from the CNF graph. It then performs low-budget warmup probes under that prior and collects CDCL event traces. These traces provide variable-level and graph-level evidence about the actual search trajectory. An Online-Consistent Selector uses this evidence to decide whether to run the final neural-stage solve with event-adapted guidance or with the safer one-shot guidance. Unsolved instances are then passed to CaDiCaL in a fixed second stage.
 
-Our main contribution is not a more complex branching model. Instead, it is a conservative control layer around neural feedback:
+Our main contribution is not a more complex branching model. Instead, it is a conservative neural-first portfolio with an evidence-driven control layer:
 \begin{enumerate}
-    \item We propose an event-conditioned online selector that uses real CDCL event traces to decide whether neural feedback should be activated.
+    \item We propose an event-conditioned online selector that uses real CDCL event traces to decide whether neural feedback should be activated in a low-budget first stage.
     \item We introduce conservative risk control for neural SAT guidance, separating recovery potential from slowdown and lost-solution risk.
-    \item We present guarded Local Boundary Correction, a constrained boundary-repair ablation for over-conservative selector errors.
+    \item We demonstrate an end-to-end neural-first/CDCL-second portfolio that improves over standalone CaDiCaL on full400 while preserving CaDiCaL-solved instances.
 \end{enumerate}
 
 \section{Related Work}
@@ -51,8 +51,8 @@ Neural SAT methods inject learned predictions into complete solvers in several w
 \paragraph{Solver-state and trace-based learning.}
 Several systems use solver-internal information rather than only static CNF structure. Graph-Q-SAT and RDC-SAT condition learned decisions on evolving solver states \cite{graphqsat,rdcsat}, while trace-supervised systems such as ImitSAT and NeuroSelect show that CDCL traces, clauses, activities, and other solver artifacts can provide useful learning signals \cite{imitsat,neuroselect}. Our use of solver feedback is narrower. We do not learn a full branching policy, splitting policy, or clause-deletion policy. Instead, we collect event traces at configured intervention points and use them for a single risk-controlled activation decision.
 
-\paragraph{Risk-controlled neural intervention.}
-Portfolio and per-instance algorithm selection have long been important in SAT solving \cite{satzilla,kotthoff}. Our selector is narrower than a solver portfolio: it decides whether to activate neural feedback for a given instance, not which solver to run. This decision is still risk-sensitive. A heuristic that improves a few hard instances can be undesirable if it loses solutions or slows many easy instances. We therefore separate recovery evidence from slowdown and lost-solution risk, and report solved count, wall-clock mean, and per-instance behavior rather than a single aggregate metric.
+\paragraph{Risk-controlled neural intervention and portfolios.}
+Portfolio and per-instance algorithm selection have long been important in SAT solving \cite{satzilla,kotthoff}. SATzilla-style systems choose among solvers or configurations using instance features. Our setting is different: the first stage is a neural-guided CDCL workflow that decides whether event feedback should be activated, and the second stage is a fixed CaDiCaL fallback. The decision is still risk-sensitive. A neural heuristic that improves a few hard instances can be undesirable if it loses solutions or slows many easy instances. We therefore separate recovery evidence from slowdown and lost-solution risk, and report solved count, wall-clock mean, per-instance overlap, and portfolio-only evidence rather than a single aggregate metric.
 
 \paragraph{Event-conditioned identity.}
 Static message-passing GNNs are limited by neighborhood aggregation, often analyzed through the Weisfeiler-Leman hierarchy \cite{gnnpowerful,morriswl}. SAT instances can contain variables that are structurally similar in the CNF graph but behave differently once CDCL search begins. CDCL event traces provide search-induced distinctions through decisions, propagations, conflicts, learnt-literal occurrences, and activity. We do not claim that these traces solve GNN expressivity limits; rather, they provide practical online evidence for deciding when feedback is useful.
@@ -137,23 +137,72 @@ The boxed procedure below summarizes the inference-time workflow. The key proper
 
 \section{Experiments}
 
-We evaluate whether online-consistent conservative selection can improve one-shot neural SAT guidance under real wall-clock evaluation. The main questions are: whether the selector improves the full 3SAT-400 test set, whether the improvement is stable, and whether guarded local correction can repair a small number of over-conservative boundary decisions without becoming a new global model.
+We evaluate whether online-consistent conservative selection can provide a useful neural first stage for a strong CDCL portfolio under real wall-clock evaluation. The main questions are: whether the end-to-end Local5--CaDiCaL55 schedule improves over standalone CaDiCaL 60s, whether the improvement is stable, and how much of the portfolio-only evidence comes from neural-first complementarity rather than second-stage runtime-boundary behavior.
 
 \subsection{Experimental Setup}
 
-The main benchmark is \texttt{data/test/3sat/400/*.cnf}, containing 200 held-out 3SAT-400 instances. All full400 conclusions come from real wall-clock runs rather than offline estimates or stale selector caches. Each instance uses a nominal 60s solve limit; the external guard is 65s, so a small number of solver-reported CPU times may slightly exceed 60s. As a solver-default reference, unweighted Glucose solves 13/200 instances with mean time 57.615s and median time 60.000s under this full400 protocol.
+The main benchmark is \texttt{data/test/3sat/400/*.cnf}, containing 200 held-out 3SAT-400 instances. All full400 conclusions come from real wall-clock runs rather than offline estimates or stale selector caches. Standalone baselines use a nominal 60s solve limit; the external guard is 65s, so a small number of solver-reported CPU times may slightly exceed 60s. As solver-default references, unweighted Glucose solves 13/200 instances and CaDiCaL solves 75/200 instances under this full400 protocol.
 
-We compare the one-shot neural guidance baseline, Old Compact, the Online-Consistent Selector, and guarded Local Boundary Correction. Pairwise Veto, compact-stable variants, polarity/SBE variants, and no750 boundary variants are treated as negative results or diagnostics, not as the main method.
+The main portfolio runs guarded Local Boundary Correction for at most 5s, then runs CaDiCaL for at most 55s on instances not solved by the neural first stage. We also report neural-stage mechanism results comparing the one-shot neural guidance baseline, Old Compact, the Online-Consistent Selector, and guarded Local Boundary Correction. Pairwise Veto, compact-stable variants, polarity/SBE variants, and no750 boundary variants are treated as negative results or diagnostics, not as the main method.
 
-\subsection{Main Full400 Results}
+\subsection{Main Full400 Portfolio Results}
 
-Table~\ref{tab:full400-main} gives the main full400 solver-seed robustness results. Online-Consistent Selector is stable over One-shot across seeds 1, 2, and 3, improving solved count from 48/200 to 53/200. Old Compact remains a strong matched baseline at 54/200. Local Boundary Correction matches Old Compact solved count and gives the lowest mean time, so its role is guarded boundary repair rather than an unrestricted main-model upgrade.
+Table~\ref{tab:portfolio-main} gives the main end-to-end portfolio result. The Local5--CaDiCaL55 portfolio solves 79--80/200 instances over three full400 repeats, compared with 75/200 for standalone CaDiCaL 60s. The portfolio improves solved count by +4 to +5 and has zero CaDiCaL-only losses in all three repeats.
 
 \begin{table}[t]
 \centering
-\caption{Full400 solver-seed robustness results on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. One-shot is the neural guidance baseline without feedback refinement. Online-Consistent Selector is the main selector. + Local Boundary Correction is a guarded boundary correction ablation, not a separate main model.}
-\label{tab:full400-main}
-\begin{tabular}{lrrrr}
+\caption{End-to-end full400 portfolio robustness on 200 held-out 3SAT-400 instances. The portfolio runs + Local Boundary Correction for at most 5s, then CaDiCaL for at most 55s on unsolved instances. CaDiCaL baseline is a 60s standalone run. Repeats keep the model, selector, correction guard, solver binaries, and time split fixed.}
+\label{tab:portfolio-main}
+\begin{tabular}{lrrrrrr}
+\toprule
+Run & Solved & Local & C2 solves & C60 & Delta & C-only loss \\
+\midrule
+0 & 79 & 40 & 39 & 75 & +4 & 0 \\
+1 & 80 & 40 & 40 & 75 & +5 & 0 \\
+2 & 80 & 40 & 40 & 75 & +5 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:portfolio-claim-split} splits the portfolio-only evidence by source. This distinction is important: the paper does not claim that neural guidance alone contributes the entire +4/+5 delta. The strict neural-first complement consists of three stable instances solved by the Local first stage within 5s while standalone CaDiCaL 60s times out. The remaining portfolio-only evidence is second-stage CaDiCaL cutoff/runtime-boundary behavior.
+
+\begin{table}[t]
+\centering
+\caption{Portfolio-only evidence split by source. Neural-first complement means + Local Boundary Correction solves the instance within the 5s first-stage budget while standalone CaDiCaL 60s times out. Runtime-boundary evidence means the instance is solved by the second-stage CaDiCaL 55s run, not by the neural first stage.}
+\label{tab:portfolio-claim-split}
+\begin{tabular}{p{0.46\linewidth}rrr}
+\toprule
+Evidence class & Inst. & PO reps & Local reps \\
+\midrule
+Stable neural-first complement & 3 & 9 & 9 \\
+Stable second-stage runtime boundary & 1 & 3 & 0 \\
+Unstable second-stage runtime boundary & 1 & 2 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.78\linewidth]{fig_full400_cactus_paper.pdf}
+\caption{Neural-stage cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases. This is a mechanism figure for the neural first stage, not the portfolio main result.}
+\label{fig:full400-cactus}
+\end{figure}
+
+\subsection{Instance-Level Behavior}
+
+The portfolio improvement is not uniform across all instances. Stable neural-first complement comes from \texttt{3sat\_132.cnf}, \texttt{3sat\_140.cnf}, and \texttt{3sat\_25.cnf}. The stable runtime-boundary portfolio-only case is \texttt{3sat\_111.cnf}, which is solved by the second-stage CaDiCaL 55s run in all repeats but not by the independent CaDiCaL 60s baseline run. \texttt{3sat\_48.cnf} appears in two of three repeats and is also a second-stage cutoff/runtime-boundary case.
+
+Within the neural first stage, decision audits identify two important boundary classes. In \texttt{new\_opened\_old\_off} cases, the new selector opens an adapter branch that the old compact selector closed, such as \texttt{3sat\_140.cnf}, which drops from 41.083s to 4.339s. In \texttt{new\_closed\_old\_on} cases, the new selector closes a branch that earlier evidence opened. This includes correctly avoided slowdowns such as \texttt{3sat\_82.cnf}, but also over-conservative misses such as \texttt{3sat\_46.cnf} and \texttt{3sat\_196.cnf}. These boundary misses motivate the guarded Local Boundary Correction ablation.
+
+\subsection{Neural-Stage Stability Validation}
+
+The portfolio uses guarded Local Boundary Correction as its neural first stage. Table~\ref{tab:neural-stage} reports the neural-stage full400 solver-seed robustness that explains this component. Online-Consistent Selector is stable over One-shot across seeds 1, 2, and 3, improving solved count from 48/200 to 53/200. Old Compact remains a strong matched neural-stage reference at 54/200. Local Boundary Correction matches Old Compact solved count and gives the lowest mean time, so its role is guarded boundary repair rather than an unrestricted neural main model.
+
+\begin{table}[t]
+\centering
+\caption{Neural-stage full400 solver-seed robustness on 200 held-out 3SAT-400 instances. Values are means over Glucose seeds 1, 2, and 3. These rows explain the neural first stage used in the portfolio; they are not the top-line strong-CDCL result.}
+\label{tab:neural-stage}
+\begin{tabular}{p{0.34\linewidth}rrrr}
 \toprule
 Method & Solved & Mean time (s) & Median time (s) & Solved std \\
 \midrule
@@ -165,28 +214,15 @@ Old Compact & 54.0 & 46.278 & 60.373 & 0.0 \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.78\linewidth]{fig_full400_cactus_paper.pdf}
-\caption{Cactus plot over solved instances on the full 3SAT-400 test set. Curves sort solved instances by wall-clock solving time. Online-Consistent Selector recovers most of the One-shot timeout loss. Local Boundary Correction matches Old Compact solved count and further reduces mean time by repairing a small set of guarded boundary cases.}
-\label{fig:full400-cactus}
-\end{figure}
-
-\subsection{Instance-Level Behavior}
-
-The full400 improvement is not uniform across all instances; it is concentrated in hard and timeout cases. Decision audits identify two important boundary classes. In \texttt{new\_opened\_old\_off} cases, the new selector opens an adapter branch that the old compact selector closed, such as \texttt{3sat\_140.cnf}, which drops from 41.083s to 4.339s. In \texttt{new\_closed\_old\_on} cases, the new selector closes a branch that earlier evidence opened. This includes correctly avoided slowdowns such as \texttt{3sat\_82.cnf}, but also over-conservative misses such as \texttt{3sat\_46.cnf} and \texttt{3sat\_196.cnf}. These boundary misses motivate the guarded Local Boundary Correction ablation.
-
-\subsection{Stability Validation}
-
-Stability validation uses only the final full400 per-instance results. We do not reuse old selector caches or retrain the main model. Table~\ref{tab:full400-stability} reports runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3.
+Neural-stage stability validation uses only the final full400 per-instance results. We do not reuse old selector caches or retrain the main model. Table~\ref{tab:full400-stability} reports runtime and solver-seed robustness for the neural stage. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3.
 
 \begin{table}[t]
 \centering
-\caption{Full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.}
+\caption{Neural-stage full400 runtime and solver-seed robustness. Same-seed repeats use three full400 reruns with the default seed. Solver-seed robustness uses Glucose seeds 1, 2, and 3. The model, thresholds, and Local Boundary Correction guard are unchanged.}
 \label{tab:full400-stability}
 \begin{tabular}{lrrrr}
 \toprule
-Method & Repeat solved & Seed solved & Seed solved std & Seed mean time (s) \\
+Method & Repeat & Seed & Std & Mean (s) \\
 \midrule
 One-shot & 48.0 & 48.0 & 0.0 & 47.665 \\
 Online-Consistent Selector & 53.0 & 53.0 & 0.0 & 46.324 \\
@@ -196,7 +232,7 @@ Old Compact & 54.0 & 54.0 & 0.0 & 46.278 \\
 \end{tabular}
 \end{table}
 
-The stability analysis supports the raw full400 interpretation. Online-Consistent Selector is a stable improvement over One-shot, Old Compact remains the strongest uncorrected reference in solved count, and Local Boundary Correction matches Old Compact solved count while giving the lowest mean time.
+The neural-stage stability analysis supports the same interpretation as the mechanism table. Online-Consistent Selector is stable over One-shot, Old Compact remains the strongest uncorrected neural-stage reference in solved count, and Local Boundary Correction matches Old Compact solved count while giving the lowest mean time. Portfolio-level stability is reported in Table~\ref{tab:portfolio-main}.
 
 \subsection{Local Boundary Correction Ablation}
 
@@ -224,15 +260,15 @@ The negative results help explain why the paper does not continue adding selecto
 
 \section{Discussion and Limitations}
 
-The experiments support a conservative interpretation. Neural feedback is not uniformly beneficial across all instances. It produces large gains on a small number of hard or timeout cases, but it can also introduce slowdowns or lost solutions. The Online-Consistent Selector is valuable because it makes adapter activation conditional on evidence from the actual CDCL trajectory, while keeping the final intervention sparse.
+The experiments support a conservative portfolio interpretation. Neural feedback is not uniformly beneficial across all instances, and the neural-guided Glucose workflow alone does not dominate CaDiCaL. Its value is as a cheap first stage that creates a small but stable complement to CaDiCaL while preserving fallback coverage. The Online-Consistent Selector is valuable because it makes adapter activation conditional on evidence from the actual CDCL trajectory, while keeping the final intervention sparse.
 
 Local Boundary Correction exposes a remaining limitation: conservative risk control can close useful branches. The guarded correction repairs a small number of these boundary errors, but it is not a new global selector; under the 3-seed full400 protocol it matches Old Compact solved count and reduces mean runtime. The official boundary correction uses the 750-feature guarded rule; no750 remains a diagnostic feature ablation.
 
-The current evidence is strongest on the full 3SAT-400 test set. Appendix results on 3SAT-300 and 3SAT-350 show that the Online-Consistent Selector does not collapse on smaller held-out sizes, and the broader appendix table includes Glucose default and Old Compact references. These remain generality and baseline robustness checks rather than a new cross-scale claim. The runtime robustness evidence is also scoped: it covers same-seed repeats and seeds 1, 2, and 3, not cross-machine reproducibility.
+The portfolio result also has a sharp claim boundary. The total portfolio improvement is +4 to +5 solved instances, but the strict neural-first complement is three stable instances. Other portfolio-only cases are solved by the second-stage CaDiCaL run and should be treated as cutoff/runtime-boundary evidence, not neural solves. The current evidence is strongest on the full 3SAT-400 test set. Appendix results on 3SAT-300 and 3SAT-350 show that the Online-Consistent Selector does not collapse on smaller held-out sizes, and the broader appendix table includes Glucose default and Old Compact references. These remain generality and baseline robustness checks rather than a new cross-scale claim. The runtime robustness evidence is also scoped: it covers same-seed repeats and seeds 1, 2, and 3 for the neural stage plus three full portfolio repeats, not cross-machine reproducibility.
 
 \section{Conclusion}
 
-This paper studies event-conditioned neural SAT guidance as a conservative intervention problem. Rather than calling a neural model at every branching decision, the solver collects low-frequency CDCL event traces, uses an Online-Consistent Selector to decide whether event-adapted guidance should be activated, and optionally applies a guarded Local Boundary Correction for a narrow class of over-conservative boundary cases. On held-out 3SAT-400 instances, this approach improves the one-shot neural guidance baseline from 48/200 to 53/200 solved instances under seeds 1, 2, and 3; guarded Local Boundary Correction matches the Old Compact solved count at 54/200 and gives the lowest mean wall-clock time. The results suggest that solver feedback is most useful when treated as sparse evidence for risk-controlled activation, not as an unconditional replacement for the baseline solver path.
+This paper studies event-conditioned neural SAT guidance as a conservative first stage for a CDCL portfolio. Rather than calling a neural model at every branching decision, the solver collects low-frequency CDCL event traces, uses an Online-Consistent Selector to decide whether event-adapted guidance should be activated, and applies a guarded Local Boundary Correction for a narrow class of over-conservative boundary cases. On held-out 3SAT-400 instances, the resulting Local5--CaDiCaL55 portfolio solves 79--80/200 instances over three repeats, compared with 75/200 for standalone CaDiCaL 60s, with zero CaDiCaL-only losses. The strict neural-first complement is small but stable: three CaDiCaL-unsolved instances are solved within the 5s Local stage. The results suggest that solver feedback is most useful when treated as sparse evidence for risk-controlled portfolio complementarity, not as an unconditional replacement for a strong CDCL solver.
 
 \clearpage
 \appendix
@@ -245,7 +281,7 @@ Table~\ref{tab:repeated-runtime-audit} reports the scoped same-seed repeated run
 \centering
 \caption{Same-seed repeated runtime audit for the key recovered-timeout and guarded boundary-correction claims.}
 \label{tab:repeated-runtime-audit}
-\begin{tabular}{llll}
+\begin{tabular}{p{0.18\linewidth}p{0.38\linewidth}p{0.10\linewidth}p{0.24\linewidth}}
 \toprule
 Instance & Comparison & Stable? & Interpretation \\
 \midrule
@@ -265,13 +301,13 @@ Instance & Comparison & Stable? & Interpretation \\
 
 \section{300/350 Generality Check}
 
-Table~\ref{tab:generalization-baseline} reports the broader generalization and baseline robustness check. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. CaDiCaL default is included as a stronger unguided CDCL reference, not as a neural baseline. Local Boundary Correction is only evaluated on the 400-boundary setting.
+Table~\ref{tab:generalization-baseline} reports the broader generalization and baseline robustness check. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are neural-stage 3-seed solver robustness results. CaDiCaL default is included as a stronger unguided CDCL reference, not as a neural baseline. Local Boundary Correction is only evaluated on the 400-boundary setting.
 
 \begin{table}[h]
 \centering
-\caption{Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are the main 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.}
+\caption{Generalization and baseline robustness across held-out 3SAT sizes. The 300/350 rows are single-run appendix checks under the frozen protocol. The 400 neural rows are neural-stage 3-seed solver robustness results. Local Boundary Correction is only evaluated on the 400-boundary setting.}
 \label{tab:generalization-baseline}
-\begin{tabular}{llrrr}
+\begin{tabular}{rp{0.34\linewidth}rrr}
 \toprule
 Size & Method & Solved & Mean time (s) & Median time (s) \\
 \midrule
@@ -295,7 +331,7 @@ Size & Method & Solved & Mean time (s) & Median time (s) \\
 
 \section{Artifact Sources}
 
-The main source documents for this draft are \texttt{docs/paper\_intro\_abstract\_draft.md}, \texttt{docs/paper\_method\_section\_draft.md}, \texttt{docs/paper\_experiment\_section\_draft.md}, \texttt{docs/paper\_related\_work\_outline.md}, and \texttt{docs/paper\_tables\_and\_figures.md}. The paper-ready cactus plot is \texttt{figures/fig\_full400\_cactus\_paper.pdf}. The reproducibility package is tracked in \texttt{docs/paper\_reproducibility.md} and \texttt{docs/paper\_artifact\_manifest.md}. Checkpoints remain external artifacts or Git LFS candidates.
+This draft is assembled from the portfolio stability audit, the portfolio claim split, the paper claim migration audit, and the existing method, experiment, related-work, and table source documents under \texttt{docs/}. The current cactus plot is a neural-stage mechanism figure, not the portfolio main result. The reproducibility package is tracked in the paper reproducibility and artifact-manifest documents. Checkpoints remain external artifacts or Git LFS candidates.
 
 \bibliographystyle{plain}
 \bibliography{references}
