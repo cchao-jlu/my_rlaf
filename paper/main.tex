@@ -164,6 +164,13 @@ Run & Solved & Local & C2 solves & C60 & Delta & C-only loss \\
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig_portfolio_full400_paper.pdf}
+\caption{Portfolio main result on 200 held-out 3SAT-400 instances. Left: standalone CaDiCaL 60s solves 75/200, while the end-to-end Local5--CaDiCaL55 portfolio solves 79, 80, and 80 instances over three repeats with zero CaDiCaL-only losses. Right: portfolio-only evidence split by source; three stable instances are strict neural-first complements, while the remaining portfolio-only evidence comes from second-stage CaDiCaL runtime-boundary behavior.}
+\label{fig:portfolio-main}
+\end{figure}
+
 Table~\ref{tab:portfolio-claim-split} splits the portfolio-only evidence by source. This distinction is important: the paper does not claim that neural guidance alone contributes the entire +4/+5 delta. The strict neural-first complement consists of three stable instances solved by the Local first stage within 5s while standalone CaDiCaL 60s times out. The remaining portfolio-only evidence is second-stage CaDiCaL cutoff/runtime-boundary behavior.
 
 \begin{table}[t]

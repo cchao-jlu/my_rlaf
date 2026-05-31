@@ -216,7 +216,36 @@ Sources:
 - `runs/analysis/local_reopen_guarded_full400_open_set.csv`
 - `runs/analysis/new_closed_old_on_local_reopen_gate_no750_best_selection.csv`
 
-## Figure 1: Neural-Stage Cactus Plot
+## Figure 1: Portfolio Main Figure
+
+Recommended title:
+
+> Local5 -> CaDiCaL55 portfolio on 3SAT-400.
+
+Caption:
+
+> Portfolio main result on 200 held-out 3SAT-400 instances. Left: standalone CaDiCaL 60s solves 75/200, while the end-to-end Local5 -> CaDiCaL55 portfolio solves 79, 80, and 80 instances over three repeats with zero CaDiCaL-only losses. Right: portfolio-only evidence split by source; three stable instances are strict neural-first complements, while the remaining portfolio-only evidence comes from second-stage CaDiCaL runtime-boundary behavior.
+
+Recommended LaTeX:
+
+```latex
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig_portfolio_full400_paper.pdf}
+\caption{Portfolio main result on 200 held-out 3SAT-400 instances. Left: standalone CaDiCaL 60s solves 75/200, while the end-to-end Local5 -> CaDiCaL55 portfolio solves 79, 80, and 80 instances over three repeats with zero CaDiCaL-only losses. Right: portfolio-only evidence split by source; three stable instances are strict neural-first complements, while the remaining portfolio-only evidence comes from second-stage CaDiCaL runtime-boundary behavior.}
+\label{fig:portfolio-main}
+\end{figure}
+```
+
+Sources:
+
+- `figures/fig_portfolio_full400_paper.pdf`
+- `figures/fig_portfolio_full400_paper.svg`
+- `figures/make_portfolio_results_paper.py`
+- `runs/analysis/portfolio_e2e_local5_cadical55/repeat_stability_summary.csv`
+- `runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split_summary.csv`
+
+## Figure 2: Neural-Stage Cactus Plot
 
 Recommended title:
 
