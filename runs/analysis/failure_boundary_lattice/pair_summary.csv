@@ -1,0 +1,9 @@
+comparison,left_solved,right_solved,left_only,right_only,both,union
+Online vs One-shot,53,48,5,0,48,53
+Local vs Online,54,53,1,0,53,54
+Local vs Glucose,54,13,42,1,12,55
+Local vs CaDiCaL-all,54,75,5,26,49,80
+Local vs March-all,54,184,0,130,54,184
+Online vs March-all,53,184,0,131,53,184
+CaDiCaL-all vs March-all,75,184,0,109,75,184
+Portfolio-all vs March-all,79,184,0,105,79,184

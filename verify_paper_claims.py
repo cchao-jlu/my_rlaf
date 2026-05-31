@@ -39,6 +39,8 @@ def main() -> None:
     march_overlap = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv")
     strong_gate = pd.read_csv(ROOT / "runs/analysis/stronger_cdcl_gate/summary.csv")
     solver_availability = pd.read_csv(ROOT / "runs/analysis/stronger_cdcl_gate/solver_availability.csv")
+    lattice_methods = pd.read_csv(ROOT / "runs/analysis/failure_boundary_lattice/method_summary.csv")
+    lattice_pairs = pd.read_csv(ROOT / "runs/analysis/failure_boundary_lattice/pair_summary.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -135,6 +137,36 @@ def main() -> None:
     ].astype(bool)
     require(not missing_external.any(), "Kissat/MapleSAT/CryptoMiniSat unexpectedly available; rerun stronger-CDCL gate")
 
+    lattice_counts = {row["method"]: int(row["solved"]) for _, row in lattice_methods.iterrows()}
+    expected_lattice_counts = {
+        "Glucose default": 13,
+        "One-shot": 48,
+        "Online-Consistent Selector": 53,
+        "Old Compact": 54,
+        "+ Local Boundary Correction": 54,
+        "CaDiCaL any-repeat": 80,
+        "CaDiCaL all-repeat": 75,
+        "March strict-60 all-repeat": 184,
+        "Local5 -> CaDiCaL55 any-repeat": 80,
+        "Local5 -> CaDiCaL55 all-repeat": 79,
+    }
+    require(lattice_counts == expected_lattice_counts, f"Unexpected lattice method counts: {lattice_counts}")
+    lattice_pair_rows = {row["comparison"]: row for _, row in lattice_pairs.iterrows()}
+    expected_lattice_pairs = {
+        "Online vs One-shot": (5, 0),
+        "Local vs Online": (1, 0),
+        "Local vs CaDiCaL-all": (5, 26),
+        "Local vs March-all": (0, 130),
+        "Online vs March-all": (0, 131),
+        "CaDiCaL-all vs March-all": (0, 109),
+        "Portfolio-all vs March-all": (0, 105),
+    }
+    for key, (left_only, right_only) in expected_lattice_pairs.items():
+        row = lattice_pair_rows.get(key)
+        require(row is not None, f"Missing lattice pair row: {key}")
+        require(int(row["left_only"]) == left_only, f"Unexpected lattice left_only for {key}: {row['left_only']}")
+        require(int(row["right_only"]) == right_only, f"Unexpected lattice right_only for {key}: {row['right_only']}")
+
     stale_patterns = [
         "50/200",
         "56/200",
@@ -167,6 +199,7 @@ def main() -> None:
     print(f"overlap_counts={expected_overlap}")
     print("march_strict60=184 x3, march_external65=192 x3, stable_instances=200")
     print(f"stronger_cdcl_gate={expected_gate}")
+    print(f"failure_boundary_lattice={expected_lattice_counts}")
 
 
 if __name__ == "__main__":

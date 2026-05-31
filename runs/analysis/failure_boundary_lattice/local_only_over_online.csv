@@ -1,0 +1,2 @@
+file_key,glucose_solved,one_shot_solved,online_solved,old_compact_solved,local_correction_solved,cadical_solved_repeats,march_solved_strict60_repeats,portfolio_solved_repeats,pattern
+3sat_188.cnf,False,False,False,True,True,0,3,0,0011

@@ -1,0 +1,11 @@
+method,solved
+Glucose default,13
+One-shot,48
+Online-Consistent Selector,53
+Old Compact,54
++ Local Boundary Correction,54
+CaDiCaL any-repeat,80
+CaDiCaL all-repeat,75
+March strict-60 all-repeat,184
+Local5 -> CaDiCaL55 any-repeat,80
+Local5 -> CaDiCaL55 all-repeat,79

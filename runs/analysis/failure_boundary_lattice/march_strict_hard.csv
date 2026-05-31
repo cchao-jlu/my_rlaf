@@ -1,0 +1,17 @@
+file_key,glucose_solved,one_shot_solved,online_solved,old_compact_solved,local_correction_solved,cadical_solved_repeats,march_solved_strict60_repeats,portfolio_solved_repeats,pattern
+3sat_102.cnf,False,False,False,False,False,0,0,0,0000
+3sat_126.cnf,False,False,False,False,False,0,0,0,0000
+3sat_160.cnf,False,False,False,False,False,0,0,0,0000
+3sat_184.cnf,False,False,False,False,False,0,0,0,0000
+3sat_187.cnf,False,False,False,False,False,0,0,0,0000
+3sat_198.cnf,False,False,False,False,False,0,0,0,0000
+3sat_21.cnf,False,False,False,False,False,0,0,0,0000
+3sat_3.cnf,False,False,False,False,False,0,0,0,0000
+3sat_31.cnf,False,False,False,False,False,0,0,0,0000
+3sat_34.cnf,False,False,False,False,False,0,0,0,0000
+3sat_37.cnf,False,False,False,False,False,0,0,0,0000
+3sat_49.cnf,False,False,False,False,False,0,0,0,0000
+3sat_5.cnf,False,False,False,False,False,0,0,0,0000
+3sat_50.cnf,False,False,False,False,False,0,0,0,0000
+3sat_67.cnf,False,False,False,False,False,0,0,0,0000
+3sat_72.cnf,False,False,False,False,False,0,0,0,0000
