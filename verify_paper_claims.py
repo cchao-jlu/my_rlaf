@@ -45,6 +45,9 @@ def main() -> None:
     benchmark_march = pd.read_csv(ROOT / "runs/analysis/benchmark_suitability_gate/march_suitability_summary.csv")
     candidate_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/summary.csv")
     candidate_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/solver_overlap.csv")
+    gate450_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/summary.csv")
+    gate450_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/solver_overlap.csv")
+    gate450_hard = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/strong_solver_hard_subset.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -215,6 +218,20 @@ def main() -> None:
     }
     require(candidate_overlap_counts == expected_candidate_overlap, f"Unexpected candidate overlap counts: {candidate_overlap_counts}")
 
+    gate450_counts = {
+        str(row["solver"]): (int(row["total"]), int(row["solved"]), int(row["unknown"]))
+        for _, row in gate450_summary.iterrows()
+    }
+    expected_gate450_counts = {
+        "cadical": (24, 11, 13),
+        "march": (24, 6, 18),
+    }
+    require(gate450_counts == expected_gate450_counts, f"Unexpected 3SAT-450 gate counts: {gate450_counts}")
+    gate450_overlap_row = gate450_overlap.iloc[0]
+    require(int(gate450_overlap_row["both_unknown"]) == 13, "Unexpected 3SAT-450 both-unknown count")
+    require(int(gate450_overlap_row["union_solved"]) == 11, "Unexpected 3SAT-450 union solved count")
+    require(len(gate450_hard) == 13, f"Unexpected 3SAT-450 hard subset size: {len(gate450_hard)}")
+
     stale_patterns = [
         "50/200",
         "56/200",
@@ -250,6 +267,7 @@ def main() -> None:
     print(f"failure_boundary_lattice={expected_lattice_counts}")
     print(f"benchmark_suitability_march_gate={expected_march_gate}")
     print(f"benchmark_candidate_smoke={expected_candidate_counts}")
+    print(f"benchmark_3sat450_gate={expected_gate450_counts}, both_unknown=13")
 
 
 if __name__ == "__main__":
