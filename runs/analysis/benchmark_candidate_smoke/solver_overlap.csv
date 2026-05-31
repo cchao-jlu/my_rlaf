@@ -1,0 +1,5 @@
+family,size,total,both_solved,march_only,cadical_only,both_unknown,union_solved
+3sat,450,8,2,0,3,3,5
+3sat,500,8,1,1,0,6,2
+coloring,400,8,8,0,0,0,8
+coloring,500,8,7,0,1,0,8

@@ -43,6 +43,8 @@ def main() -> None:
     lattice_pairs = pd.read_csv(ROOT / "runs/analysis/failure_boundary_lattice/pair_summary.csv")
     benchmark_datasets = pd.read_csv(ROOT / "runs/analysis/benchmark_suitability_gate/dataset_inventory.csv")
     benchmark_march = pd.read_csv(ROOT / "runs/analysis/benchmark_suitability_gate/march_suitability_summary.csv")
+    candidate_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/summary.csv")
+    candidate_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/solver_overlap.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -186,6 +188,33 @@ def main() -> None:
     }
     require(march_gate == expected_march_gate, f"Unexpected benchmark suitability March gate: {march_gate}")
 
+    candidate_counts = {
+        (str(row["family"]), int(row["size"]), str(row["solver"])): (int(row["total"]), int(row["solved"]))
+        for _, row in candidate_summary.iterrows()
+    }
+    expected_candidate_counts = {
+        ("3sat", 450, "cadical"): (8, 5),
+        ("3sat", 450, "march"): (8, 2),
+        ("3sat", 500, "cadical"): (8, 1),
+        ("3sat", 500, "march"): (8, 2),
+        ("coloring", 400, "cadical"): (8, 8),
+        ("coloring", 400, "march"): (8, 8),
+        ("coloring", 500, "cadical"): (8, 8),
+        ("coloring", 500, "march"): (8, 7),
+    }
+    require(candidate_counts == expected_candidate_counts, f"Unexpected candidate smoke counts: {candidate_counts}")
+    candidate_overlap_counts = {
+        (str(row["family"]), int(row["size"])): (int(row["both_unknown"]), int(row["union_solved"]))
+        for _, row in candidate_overlap.iterrows()
+    }
+    expected_candidate_overlap = {
+        ("3sat", 450): (3, 5),
+        ("3sat", 500): (6, 2),
+        ("coloring", 400): (0, 8),
+        ("coloring", 500): (0, 8),
+    }
+    require(candidate_overlap_counts == expected_candidate_overlap, f"Unexpected candidate overlap counts: {candidate_overlap_counts}")
+
     stale_patterns = [
         "50/200",
         "56/200",
@@ -220,6 +249,7 @@ def main() -> None:
     print(f"stronger_cdcl_gate={expected_gate}")
     print(f"failure_boundary_lattice={expected_lattice_counts}")
     print(f"benchmark_suitability_march_gate={expected_march_gate}")
+    print(f"benchmark_candidate_smoke={expected_candidate_counts}")
 
 
 if __name__ == "__main__":
