@@ -1,0 +1,10 @@
+solver,path,present,executable,role
+Glucose,solvers/glucose/simp/glucose_static,True,True,available baseline
+Weighted Glucose,solvers/glucose_weighted/simp/glucose_static,True,True,available neural workflow solver
+Weighted Glucose release,solvers/glucose_weighted/simp/glucose_release,True,True,available neural workflow solver
+CaDiCaL,solvers/cadical/cadical,True,True,available stronger CDCL baseline
+March,solvers/march/march_nh,True,True,available lookahead solver baseline
+Weighted March,solvers/march_weighted/march_nh,True,True,available weighted lookahead solver
+Kissat,solvers/kissat/kissat,False,False,missing external stronger CDCL gate
+MapleSAT,solvers/maplesat/maplesat,False,False,missing external stronger CDCL gate
+CryptoMiniSat,solvers/cryptominisat/cryptominisat5,False,False,missing external stronger CDCL gate

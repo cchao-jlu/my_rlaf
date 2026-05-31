@@ -418,14 +418,29 @@ instances (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`) in all three strict-6
 repeats. This removes the current strong-SAT-baseline complementarity claim;
 March must be reported in the baseline discussion or used to justify a pivot
 toward failure-boundary / risk control rather than performance superiority.
-runs/cadical/solver_stats_full400_cpu60.csv
-runs/analysis/cadical_default_full400_summary.csv
-runs/analysis/cadical_default_full400_comparison.csv
+
+## Stronger-CDCL Gate Audit
+
+After March, run the stronger-CDCL gate audit:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python audit_stronger_cdcl_gate.py
 ```
 
-Interpretation: CaDiCaL default is stronger than the neural-guided Glucose
-workflow on full400 (`75/200` solved). It should be presented as a strong CDCL
-reference, not as part of the neural-method main table.
+Current result:
+
+```text
+available executable stronger baselines: CaDiCaL, March
+missing external solver families: Kissat, MapleSAT, CryptoMiniSat
+March strict-hard instances: 16
+Online / Local / Local5->CaDiCaL55 / CaDiCaL solves on March strict-hard: 0
+```
+
+Interpretation: the current checkout does not contain Kissat, MapleSAT, or
+CryptoMiniSat artifacts, and the current neural/portfolio workflow has no
+complement on the repeated-March strict-hard tail. Reopening a top-conference
+performance route requires an external stronger-solver artifact gate rather
+than more selector tuning.
 
 ## Repeated Runtime Appendix
 

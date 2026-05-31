@@ -144,6 +144,14 @@ Sources:
 - `runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv`
 - `runs/analysis/march_full400_cpu60/strict_complement_keys.csv`
 
+Submission gate note:
+
+`docs/stronger_cdcl_gate_audit.md` should be checked before any performance
+submission. It shows that the current checkout has no Kissat / MapleSAT /
+CryptoMiniSat binary and that the repeated-March strict-hard subset has zero
+neural, CaDiCaL, or Local5 -> CaDiCaL55 portfolio solves. This is not a main
+paper table, but it is a claim-positioning gate.
+
 ## Table 4: Portfolio Claim Split
 
 Caption:

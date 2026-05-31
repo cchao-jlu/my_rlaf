@@ -37,6 +37,8 @@ def main() -> None:
     march = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/strict60_summary.csv")
     march_repeats = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/strict60_repeat_summary.csv")
     march_overlap = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv")
+    strong_gate = pd.read_csv(ROOT / "runs/analysis/stronger_cdcl_gate/summary.csv")
+    solver_availability = pd.read_csv(ROOT / "runs/analysis/stronger_cdcl_gate/solver_availability.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -114,6 +116,24 @@ def main() -> None:
         or "no solved-count complement against repeated March strict-60" in paper,
         "paper/main.tex must state March removes current strong-baseline complementarity",
     )
+    gate_counts = {row["item"]: int(row["value"]) for _, row in strong_gate.iterrows()}
+    expected_gate = {
+        "available_executable_strong_solvers": 2,
+        "missing_external_solver_families": 3,
+        "march_strict60_hard_instances": 16,
+        "neural_solved_on_march_hard": 0,
+        "online_solved_on_march_hard": 0,
+        "portfolio_solved_repeats_on_march_hard": 0,
+        "cadical_solved_repeats_on_march_hard": 0,
+    }
+    for key, expected in expected_gate.items():
+        actual = gate_counts.get(key)
+        require(actual == expected, f"Unexpected stronger-CDCL gate count for {key}: {actual}")
+    missing_external = solver_availability.loc[
+        solver_availability["solver"].isin(["Kissat", "MapleSAT", "CryptoMiniSat"]),
+        "executable",
+    ].astype(bool)
+    require(not missing_external.any(), "Kissat/MapleSAT/CryptoMiniSat unexpectedly available; rerun stronger-CDCL gate")
 
     stale_patterns = [
         "50/200",
@@ -146,6 +166,7 @@ def main() -> None:
     print(f"neural_counts={neural_counts}")
     print(f"overlap_counts={expected_overlap}")
     print("march_strict60=184 x3, march_external65=192 x3, stable_instances=200")
+    print(f"stronger_cdcl_gate={expected_gate}")
 
 
 if __name__ == "__main__":

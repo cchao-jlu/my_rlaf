@@ -1,0 +1,17 @@
+file_key,march_solved_external65_repeats,cadical_solved_repeats,one_shot_solved,online_solved,old_compact_solved,local_correction_solved,portfolio_solved_repeats,pattern
+3sat_102.cnf,0,0,False,False,False,False,0,0000
+3sat_126.cnf,0,0,False,False,False,False,0,0000
+3sat_160.cnf,3,0,False,False,False,False,0,0000
+3sat_184.cnf,3,0,False,False,False,False,0,0000
+3sat_187.cnf,3,0,False,False,False,False,0,0000
+3sat_198.cnf,3,0,False,False,False,False,0,0000
+3sat_21.cnf,1,0,False,False,False,False,0,0000
+3sat_3.cnf,0,0,False,False,False,False,0,0000
+3sat_31.cnf,0,0,False,False,False,False,0,0000
+3sat_34.cnf,3,0,False,False,False,False,0,0000
+3sat_37.cnf,0,0,False,False,False,False,0,0000
+3sat_49.cnf,0,0,False,False,False,False,0,0000
+3sat_5.cnf,3,0,False,False,False,False,0,0000
+3sat_50.cnf,0,0,False,False,False,False,0,0000
+3sat_67.cnf,2,0,False,False,False,False,0,0000
+3sat_72.cnf,3,0,False,False,False,False,0,0000

@@ -1,0 +1,8 @@
+item,value,interpretation
+available_executable_strong_solvers,2,CaDiCaL and March are the available stronger-solver baselines in this checkout.
+missing_external_solver_families,3,"Kissat, MapleSAT, and CryptoMiniSat binaries are absent from this checkout."
+march_strict60_hard_instances,16,Instances unsolved by March under strict 60s in all three repeats.
+neural_solved_on_march_hard,0,Local Boundary Correction solves none of the repeated-March strict-hard subset.
+online_solved_on_march_hard,0,Online-Consistent Selector solves none of the repeated-March strict-hard subset.
+portfolio_solved_repeats_on_march_hard,0,The Local5 -> CaDiCaL55 portfolio has no solved repeat on the repeated-March strict-hard subset.
+cadical_solved_repeats_on_march_hard,0,CaDiCaL has no solved repeat on the repeated-March strict-hard subset.

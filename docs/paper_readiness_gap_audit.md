@@ -9,6 +9,7 @@
 
 - 结果是否只在 3SAT-400 上成立？这一项已有 300/350/400 generalization / baseline robustness table，但主 claim 仍限定在 full400。
 - 相比强 CDCL 是否仍有意义？Glucose default 不是瓶颈；CaDiCaL repeat audit 已经削弱 portfolio solved-count delta；March strict-60 baseline `184/200` 进一步消除了当前 neural / Local 对 strong SAT baseline 的 solved-count complement。
+- March strict-hard tail 上是否还有补集？没有。March strict-60 三次都解不了的 16 个实例，当前 One-shot / Online / Old Compact / Local / Local5 -> CaDiCaL55 portfolio / CaDiCaL repeats 全部也没解。
 - single-run wall-clock 是否受运行噪声影响？这一项已有 full400 same-seed repeats 和 solver-seed robustness，剩余问题是是否需要更多机器/环境复现。
 - 复现 Table 1 / Figure 1 是否有清晰入口？这一项已有 `docs/paper_reproducibility.md` 和 `docs/paper_artifact_manifest.md`。
 
@@ -121,6 +122,14 @@ Repeated March audit adds a stronger baseline from an existing solver family:
   `3sat_140.cnf`, `3sat_147.cnf`, and `3sat_188.cnf`, in all three repeats.
 - Local solved / March unsolved-all is `0`; March-all solved / Local unsolved is `130`.
 
+Stronger-CDCL gate audit:
+
+- 当前 checkout 只有 `CaDiCaL` 和 `March` 是可执行 stronger-solver baselines。
+- `Kissat`、`MapleSAT`、`CryptoMiniSat` 二进制均不存在，不能声称已经覆盖这些 solver families。
+- March strict-60 三次都未解的 hard subset 有 `16` 个实例。
+- 在这 16 个实例上，Online-Consistent Selector、Local Boundary Correction、Local5 -> CaDiCaL55 portfolio 和 CaDiCaL repeats 的 solved count 全部为 `0`。
+- 因此当前方法没有覆盖 repeated-March hard tail；若要恢复性能路线，必须引入外部 solver artifact 并重跑同口径 gate。
+
 Sources:
 
 ```text
@@ -132,6 +141,8 @@ runs/analysis/cadical_repeated_neural_overlap/summary.csv
 runs/analysis/cadical_repeated_neural_overlap/local_only_solved_cadical_unsolved_all.csv
 runs/analysis/march_full400_cpu60/strict60_summary.csv
 runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv
+runs/analysis/stronger_cdcl_gate/summary.csv
+runs/analysis/stronger_cdcl_gate/march_strict_hard_overlap.csv
 ```
 
 ### Status
@@ -145,7 +156,7 @@ runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv
 - 相对 RLAF-style one-shot neural guidance baseline，Online-Consistent Selector 是稳定改进。
 - 相对 Glucose default，neural guidance 明显更强。
 - 相对 CaDiCaL，不能声称 robust dominance。证据只支持 cautious complementarity / boundary-sensitive risk-control framing。
-- 相对 March，当前 neural workflow 和 Local Boundary Correction 没有 solved-count complementarity；March strict60 在三次 repeats 中稳定 `184/200`，大幅强于 Local5 -> CaDiCaL55 portfolio `79-80/200`。
+- 相对 March，当前 neural workflow 和 Local Boundary Correction 没有 solved-count complementarity；March strict60 在三次 repeats 中稳定 `184/200`，大幅强于 Local5 -> CaDiCaL55 portfolio `79-80/200`，且 March strict-hard 16 个实例上当前方法没有任何补集。
 
 因此 baseline sufficiency 的状态不是简单的 placement pending。Glucose default 已 resolved；CaDiCaL baseline 已经揭示 claim 风险；March baseline 进一步说明当前结果不能支撑顶会性能论文。必须在投稿前完成定位重写。
 
@@ -156,6 +167,7 @@ Resolved:
 - 已补 solver default / unguided Glucose 300/350/400 baseline。
 - 已补 CaDiCaL 60s full400 baseline repeats 和 repeated-CaDiCaL overlap audit。
 - 已补 March full400 strict-60 baseline audit，三次 repeats 的 solved count 和 per-instance solved pattern 都稳定。
+- 已补 stronger-CDCL gate audit，确认当前 checkout 缺 Kissat/MapleSAT/CryptoMiniSat，且 March strict-hard tail 上 neural/portfolio/CaDiCaL 都为 0 解。
 - 在实验设置中明确 One-shot 是 neural baseline，不是 solver default。
 
 Must fix before submission:
@@ -166,6 +178,9 @@ Must fix before submission:
 - 更合适的主线是 neural guidance failure boundary + risk-controlled
   intervention / negative evidence；如果坚持顶会，必须提出新的硬贡献或
   新 benchmark protocol，不能沿用当前性能叙事。
+- 如果坚持性能路线，下一步必须先补外部 Kissat/MapleSAT/CryptoMiniSat
+  artifact gate，而不是继续调 selector。判定标准是：neural/portfolio
+  是否能稳定解出外部强 solver 三次 repeats 都未解的实例。
 - 正文必须同时报告 `75, 80, 80` CaDiCaL repeats 和 `79, 80, 80` portfolio
   repeats，不能只报原始 `75 -> 79/80`。
 - Local Boundary Correction 只能说在 strict repeated-CaDiCaL 口径下打开
@@ -385,7 +400,7 @@ Can defer to appendix / rebuttal:
 ```text
 Writing readiness: medium for a risk-control / negative-results manuscript
 Submission readiness: low for a top-conference performance-improvement claim
-Evidence risk: repeated March strict-60 baseline (184/200 in all three repeats) dominates current neural and portfolio results. The strongest defensible claim is no longer strong-CDCL complementarity; it is failure-boundary analysis and risk-controlled neural intervention under a weaker neural-guided Glucose workflow.
+Evidence risk: repeated March strict-60 baseline (184/200 in all three repeats) dominates current neural and portfolio results, and the March strict-hard tail has zero neural/portfolio solves. The strongest defensible claim is no longer strong-CDCL complementarity; it is failure-boundary analysis and risk-controlled neural intervention under a weaker neural-guided Glucose workflow.
 ```
 
 不能继续按旧的 neural-only、portfolio-dominance 或 strong-CDCL-complementarity 叙事推进。投稿前剩余需要决策的核心是 claim positioning，其次才是 packaging：
