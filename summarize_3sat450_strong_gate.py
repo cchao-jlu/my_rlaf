@@ -50,6 +50,7 @@ def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     frame = load_raw()
     frame.to_csv(OUT_DIR / "combined.csv", index=False)
+    repeat_count = int(frame["repeat"].nunique())
 
     summary_rows = []
     for (solver_name, repeat), group in frame.groupby(["solver_name", "repeat"], sort=True):
@@ -71,14 +72,16 @@ def main() -> None:
     summary = pd.DataFrame(summary_rows).sort_values(["solver", "repeat"])
     summary.to_csv(OUT_DIR / "summary.csv", index=False)
 
-    pivot = frame.pivot_table(index="file_key", columns="solver_name", values="solved", aggfunc="first")
-    if not {"march", "cadical"}.issubset(pivot.columns):
-        raise ValueError("Expected both march and cadical raw results")
-    march = pivot["march"].astype(bool)
-    cadical = pivot["cadical"].astype(bool)
-    overlap = pd.DataFrame(
-        [
+    repeat_overlap_rows = []
+    for repeat, group in frame.groupby("repeat", sort=True):
+        pivot = group.pivot_table(index="file_key", columns="solver_name", values="solved", aggfunc="first")
+        if not {"march", "cadical"}.issubset(pivot.columns):
+            raise ValueError(f"Expected both march and cadical raw results for repeat {repeat}")
+        march = pivot["march"].astype(bool)
+        cadical = pivot["cadical"].astype(bool)
+        repeat_overlap_rows.append(
             {
+                "repeat": int(repeat),
                 "total": int(len(pivot)),
                 "both_solved": int((march & cadical).sum()),
                 "march_only": int((march & ~cadical).sum()),
@@ -86,12 +89,49 @@ def main() -> None:
                 "both_unknown": int((~march & ~cadical).sum()),
                 "union_solved": int((march | cadical).sum()),
             }
+        )
+    repeat_overlap = pd.DataFrame(repeat_overlap_rows).sort_values("repeat")
+    repeat_overlap.to_csv(OUT_DIR / "solver_overlap_by_repeat.csv", index=False)
+
+    stable_rows = []
+    for (solver_name, file_key), group in frame.groupby(["solver_name", "file_key"], sort=True):
+        solved_repeats = int(group["solved"].sum())
+        stable_rows.append(
+            {
+                "solver": solver_name,
+                "file_key": file_key,
+                "repeats": int(len(group)),
+                "solved_repeats": solved_repeats,
+                "solved_any": solved_repeats > 0,
+                "solved_all": solved_repeats == len(group),
+                "unsolved_all": solved_repeats == 0,
+            }
+        )
+    stable = pd.DataFrame(stable_rows)
+    stable.to_csv(OUT_DIR / "solver_instance_repeats.csv", index=False)
+
+    stable_pivot = stable.pivot_table(index="file_key", columns="solver", values="solved_any", aggfunc="first")
+    if not {"march", "cadical"}.issubset(stable_pivot.columns):
+        raise ValueError("Expected both march and cadical stable repeat rows")
+    march_any = stable_pivot["march"].astype(bool)
+    cadical_any = stable_pivot["cadical"].astype(bool)
+    stable_overlap = pd.DataFrame(
+        [
+            {
+                "repeats": repeat_count,
+                "total": int(len(stable_pivot)),
+                "both_solved_any": int((march_any & cadical_any).sum()),
+                "march_only_any": int((march_any & ~cadical_any).sum()),
+                "cadical_only_any": int((~march_any & cadical_any).sum()),
+                "both_unsolved_all": int((~march_any & ~cadical_any).sum()),
+                "union_solved_any": int((march_any | cadical_any).sum()),
+            }
         ]
     )
-    overlap.to_csv(OUT_DIR / "solver_overlap.csv", index=False)
+    stable_overlap.to_csv(OUT_DIR / "solver_overlap_stable.csv", index=False)
 
-    hard = pivot.loc[~march & ~cadical].reset_index()
-    hard.to_csv(OUT_DIR / "strong_solver_hard_subset.csv", index=False)
+    stable_hard = stable_pivot.loc[~march_any & ~cadical_any].reset_index()
+    stable_hard.to_csv(OUT_DIR / "strong_solver_hard_subset.csv", index=False)
 
     lines = [
         "# 3SAT-450 Strong-Solver Gate",
@@ -105,7 +145,11 @@ def main() -> None:
         "```text",
         "data/benchmark_3sat450_gate/3sat/450/*.cnf",
         "runs/analysis/benchmark_3sat450_gate/raw/march_repeat0.csv",
+        "runs/analysis/benchmark_3sat450_gate/raw/march_repeat1.csv",
+        "runs/analysis/benchmark_3sat450_gate/raw/march_repeat2.csv",
         "runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat0.csv",
+        "runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat1.csv",
+        "runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat2.csv",
         "```",
         "",
         "## Solver Summary",
@@ -115,40 +159,48 @@ def main() -> None:
             ["solver", "repeat", "total", "solved", "unknown", "mean_time", "median_time", "max_time", "external_timeouts"],
         ),
         "",
-        "## March / CaDiCaL Overlap",
+        "## March / CaDiCaL Overlap By Repeat",
         "",
         *markdown_table(
-            overlap,
-            ["total", "both_solved", "march_only", "cadical_only", "both_unknown", "union_solved"],
+            repeat_overlap,
+            ["repeat", "total", "both_solved", "march_only", "cadical_only", "both_unknown", "union_solved"],
+        ),
+        "",
+        "## Stable March / CaDiCaL Overlap",
+        "",
+        *markdown_table(
+            stable_overlap,
+            ["repeats", "total", "both_solved_any", "march_only_any", "cadical_only_any", "both_unsolved_all", "union_solved_any"],
         ),
         "",
         "## Strong-Solver-Hard Subset",
         "",
-        *markdown_table(hard, ["file_key", "cadical", "march"]),
+        *markdown_table(stable_hard, ["file_key", "cadical", "march"]),
         "",
         "## Decision",
         "",
         "- 3SAT-450 remains nontrivial beyond the 8-instance smoke: March and",
         "  CaDiCaL both leave a nonempty hard subset under the 60s gate.",
-        "- This gate is still repeat0 only. It is sufficient to justify expanding",
-        "  to March/CaDiCaL repeats on the same 24-instance set, but not enough",
-        "  to claim stable strong-solver-hard complementarity.",
-        "- The next experiment should run repeats 1 and 2 for March and CaDiCaL,",
-        "  then evaluate the frozen neural workflow only on the repeated",
-        "  strong-solver-hard subset.",
+        f"- This gate currently has {repeat_count} repeat(s). The repeated",
+        "  March/CaDiCaL solved patterns are stable in the current run.",
+        "- The next experiment should evaluate the frozen neural workflow only on",
+        "  the repeated strong-solver-hard subset.",
         "",
         "Generated artifacts:",
         "",
         "```text",
         "runs/analysis/benchmark_3sat450_gate/combined.csv",
         "runs/analysis/benchmark_3sat450_gate/summary.csv",
-        "runs/analysis/benchmark_3sat450_gate/solver_overlap.csv",
+        "runs/analysis/benchmark_3sat450_gate/solver_overlap_by_repeat.csv",
+        "runs/analysis/benchmark_3sat450_gate/solver_overlap_stable.csv",
+        "runs/analysis/benchmark_3sat450_gate/solver_instance_repeats.csv",
         "runs/analysis/benchmark_3sat450_gate/strong_solver_hard_subset.csv",
         "```",
     ]
     DOC_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(summary.to_string(index=False))
-    print(overlap.to_string(index=False))
+    print(repeat_overlap.to_string(index=False))
+    print(stable_overlap.to_string(index=False))
     print(DOC_PATH.relative_to(ROOT))
 
 

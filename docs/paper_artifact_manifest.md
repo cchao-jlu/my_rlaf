@@ -43,7 +43,7 @@ the formal guarded Local Boundary Correction rule.
 | Failure-boundary solved-set lattice | `docs/failure_boundary_lattice_audit.md`; `runs/analysis/failure_boundary_lattice/{combined,method_summary,pair_summary,online_recovered_from_oneshot,local_only_over_online,glucose_only_vs_local,local_only_vs_march,march_strict_hard}.csv` | `audit_failure_boundary_lattice.py` | Yes | No for frozen-table regeneration |
 | Benchmark suitability gate | `docs/benchmark_suitability_gate.md`; `runs/analysis/benchmark_suitability_gate/{dataset_inventory,solver_inventory,march_suitability_summary}.csv`; March 250/300/350 smoke CSVs and per-size summaries under `runs/analysis/benchmark_suitability_smoke/` | `audit_benchmark_suitability_gate.py`; `run_external_solver_baseline.py`; `summarize_external_solver_baseline.py` | Yes | CNF dataset only for rerun |
 | Benchmark candidate smoke | `docs/benchmark_candidate_smoke.md`; `runs/analysis/benchmark_candidate_smoke/{combined,summary,solver_overlap}.csv`; generated candidate CNFs under `data/benchmark_candidates/` | `run_benchmark_candidate_smoke.py`; `summarize_benchmark_candidate_smoke.py`; `run_external_solver_baseline.py` | Yes | Candidate CNFs are tracked for smoke reproducibility only |
-| 3SAT-450 strong-solver gate | `docs/benchmark_3sat450_gate.md`; `runs/analysis/benchmark_3sat450_gate/{combined,summary,solver_overlap,strong_solver_hard_subset}.csv`; raw March/CaDiCaL repeat0 CSVs; generated 24-instance CNF set under `data/benchmark_3sat450_gate/` | `run_3sat450_strong_gate.py`; `summarize_3sat450_strong_gate.py`; `run_external_solver_baseline.py` | Yes | Candidate CNFs are tracked for gate reproducibility only |
+| 3SAT-450 strong-solver gate | `docs/benchmark_3sat450_gate.md`; `runs/analysis/benchmark_3sat450_gate/{combined,summary,solver_overlap_by_repeat,solver_overlap_stable,solver_instance_repeats,strong_solver_hard_subset}.csv`; raw March/CaDiCaL repeats 0/1/2 CSVs; generated 24-instance CNF set under `data/benchmark_3sat450_gate/` | `run_3sat450_strong_gate.py`; `summarize_3sat450_strong_gate.py`; `run_external_solver_baseline.py` | Yes | Candidate CNFs are tracked for gate reproducibility only |
 | Claim consistency gate | `paper/main.tex`; `docs/paper_tables_and_figures.md`; portfolio, neural-stage, repeated-CaDiCaL overlap, March, stronger-CDCL gate, failure-boundary lattice, benchmark-suitability, benchmark-candidate smoke, and 3SAT-450 gate CSVs | `verify_paper_claims.py` | Yes | No |
 | Optional appendix: boundary open-set audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv`; `runs/analysis/local_reopen_guarded_full400_guidance_audit.csv`; `data/new_closed_old_on_boundary/manifest.csv` | `summarize_local_reopen_guarded_full400_eval.py`; `configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml` | Yes | Checkpoints and CNF datasets only for full rerun |
 
@@ -127,10 +127,16 @@ runs/analysis/benchmark_candidate_smoke/march_3sat_500_repeat0.csv
 runs/analysis/benchmark_candidate_smoke/march_coloring_400_repeat0.csv
 runs/analysis/benchmark_candidate_smoke/march_coloring_500_repeat0.csv
 runs/analysis/benchmark_3sat450_gate/raw/march_repeat0.csv
+runs/analysis/benchmark_3sat450_gate/raw/march_repeat1.csv
+runs/analysis/benchmark_3sat450_gate/raw/march_repeat2.csv
 runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat0.csv
+runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat1.csv
+runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat2.csv
 runs/analysis/benchmark_3sat450_gate/combined.csv
 runs/analysis/benchmark_3sat450_gate/summary.csv
-runs/analysis/benchmark_3sat450_gate/solver_overlap.csv
+runs/analysis/benchmark_3sat450_gate/solver_overlap_by_repeat.csv
+runs/analysis/benchmark_3sat450_gate/solver_overlap_stable.csv
+runs/analysis/benchmark_3sat450_gate/solver_instance_repeats.csv
 runs/analysis/benchmark_3sat450_gate/strong_solver_hard_subset.csv
 ```
 

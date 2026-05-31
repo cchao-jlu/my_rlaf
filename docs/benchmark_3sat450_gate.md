@@ -9,7 +9,11 @@ Inputs:
 ```text
 data/benchmark_3sat450_gate/3sat/450/*.cnf
 runs/analysis/benchmark_3sat450_gate/raw/march_repeat0.csv
+runs/analysis/benchmark_3sat450_gate/raw/march_repeat1.csv
+runs/analysis/benchmark_3sat450_gate/raw/march_repeat2.csv
 runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat0.csv
+runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat1.csv
+runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat2.csv
 ```
 
 ## Solver Summary
@@ -17,13 +21,25 @@ runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat0.csv
 | solver | repeat | total | solved | unknown | mean_time | median_time | max_time | external_timeouts |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | cadical | 0 | 24 | 11 | 13 | 38.994 | 60.000 | 60.000 | 0 |
+| cadical | 1 | 24 | 11 | 13 | 38.974 | 60.000 | 60.000 | 0 |
+| cadical | 2 | 24 | 11 | 13 | 38.951 | 60.000 | 60.000 | 0 |
 | march | 0 | 24 | 6 | 18 | 46.196 | 60.000 | 60.000 | 18 |
+| march | 1 | 24 | 6 | 18 | 46.198 | 60.000 | 60.000 | 18 |
+| march | 2 | 24 | 6 | 18 | 46.209 | 60.000 | 60.000 | 18 |
 
-## March / CaDiCaL Overlap
+## March / CaDiCaL Overlap By Repeat
 
-| total | both_solved | march_only | cadical_only | both_unknown | union_solved |
-| --- | --- | --- | --- | --- | --- |
-| 24 | 6 | 0 | 5 | 13 | 11 |
+| repeat | total | both_solved | march_only | cadical_only | both_unknown | union_solved |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0 | 24 | 6 | 0 | 5 | 13 | 11 |
+| 1 | 24 | 6 | 0 | 5 | 13 | 11 |
+| 2 | 24 | 6 | 0 | 5 | 13 | 11 |
+
+## Stable March / CaDiCaL Overlap
+
+| repeats | total | both_solved_any | march_only_any | cadical_only_any | both_unsolved_all | union_solved_any |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3 | 24 | 6 | 0 | 5 | 13 | 11 |
 
 ## Strong-Solver-Hard Subset
 
@@ -47,18 +63,18 @@ runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat0.csv
 
 - 3SAT-450 remains nontrivial beyond the 8-instance smoke: March and
   CaDiCaL both leave a nonempty hard subset under the 60s gate.
-- This gate is still repeat0 only. It is sufficient to justify expanding
-  to March/CaDiCaL repeats on the same 24-instance set, but not enough
-  to claim stable strong-solver-hard complementarity.
-- The next experiment should run repeats 1 and 2 for March and CaDiCaL,
-  then evaluate the frozen neural workflow only on the repeated
-  strong-solver-hard subset.
+- This gate currently has 3 repeat(s). The repeated
+  March/CaDiCaL solved patterns are stable in the current run.
+- The next experiment should evaluate the frozen neural workflow only on
+  the repeated strong-solver-hard subset.
 
 Generated artifacts:
 
 ```text
 runs/analysis/benchmark_3sat450_gate/combined.csv
 runs/analysis/benchmark_3sat450_gate/summary.csv
-runs/analysis/benchmark_3sat450_gate/solver_overlap.csv
+runs/analysis/benchmark_3sat450_gate/solver_overlap_by_repeat.csv
+runs/analysis/benchmark_3sat450_gate/solver_overlap_stable.csv
+runs/analysis/benchmark_3sat450_gate/solver_instance_repeats.csv
 runs/analysis/benchmark_3sat450_gate/strong_solver_hard_subset.csv
 ```

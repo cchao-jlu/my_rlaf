@@ -46,7 +46,8 @@ def main() -> None:
     candidate_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/summary.csv")
     candidate_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/solver_overlap.csv")
     gate450_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/summary.csv")
-    gate450_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/solver_overlap.csv")
+    gate450_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/solver_overlap_by_repeat.csv")
+    gate450_stable_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/solver_overlap_stable.csv")
     gate450_hard = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/strong_solver_hard_subset.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
@@ -219,17 +220,25 @@ def main() -> None:
     require(candidate_overlap_counts == expected_candidate_overlap, f"Unexpected candidate overlap counts: {candidate_overlap_counts}")
 
     gate450_counts = {
-        str(row["solver"]): (int(row["total"]), int(row["solved"]), int(row["unknown"]))
+        (str(row["solver"]), int(row["repeat"])): (int(row["total"]), int(row["solved"]), int(row["unknown"]))
         for _, row in gate450_summary.iterrows()
     }
     expected_gate450_counts = {
-        "cadical": (24, 11, 13),
-        "march": (24, 6, 18),
+        ("cadical", 0): (24, 11, 13),
+        ("cadical", 1): (24, 11, 13),
+        ("cadical", 2): (24, 11, 13),
+        ("march", 0): (24, 6, 18),
+        ("march", 1): (24, 6, 18),
+        ("march", 2): (24, 6, 18),
     }
     require(gate450_counts == expected_gate450_counts, f"Unexpected 3SAT-450 gate counts: {gate450_counts}")
-    gate450_overlap_row = gate450_overlap.iloc[0]
-    require(int(gate450_overlap_row["both_unknown"]) == 13, "Unexpected 3SAT-450 both-unknown count")
-    require(int(gate450_overlap_row["union_solved"]) == 11, "Unexpected 3SAT-450 union solved count")
+    for _, row in gate450_overlap.iterrows():
+        require(int(row["both_unknown"]) == 13, f"Unexpected 3SAT-450 repeat both-unknown count: {row.to_dict()}")
+        require(int(row["union_solved"]) == 11, f"Unexpected 3SAT-450 repeat union solved count: {row.to_dict()}")
+    gate450_stable_row = gate450_stable_overlap.iloc[0]
+    require(int(gate450_stable_row["repeats"]) == 3, "Unexpected 3SAT-450 stable repeat count")
+    require(int(gate450_stable_row["both_unsolved_all"]) == 13, "Unexpected 3SAT-450 stable hard count")
+    require(int(gate450_stable_row["union_solved_any"]) == 11, "Unexpected 3SAT-450 stable union count")
     require(len(gate450_hard) == 13, f"Unexpected 3SAT-450 hard subset size: {len(gate450_hard)}")
 
     stale_patterns = [
