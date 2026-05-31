@@ -66,6 +66,31 @@ Historical evaluation notes such as compact-risk markdown files are useful
 context, but the minimal paper reproducibility package treats the tracked CSVs
 and paper docs above as the authoritative inputs.
 
+## Claim Consistency Gate
+
+Before editing or submitting the paper, run the claim verifier:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python verify_paper_claims.py
+```
+
+The verifier checks that `paper/main.tex` and `docs/paper_tables_and_figures.md`
+remain consistent with the frozen CSV evidence:
+
+- portfolio repeats: `79, 80, 80`;
+- repeated CaDiCaL 60s: `75, 80, 80`;
+- matched deltas: `+4, 0, 0`;
+- neural-stage counts: One-shot `48`, Online `53`, Old Compact `54`, Local
+  Boundary Correction `54`;
+- repeated-CaDiCaL overlap: Local/CaDiCaL strict complement `3`,
+  Online/CaDiCaL strict complement `2`, Local-only boundary contribution `1`;
+- stale historical single-run claims such as `50/200`, `56/200`,
+  `47.752`, `46.222`, and `45.498` are absent from `paper/main.tex`;
+- forbidden positive claims such as robust CaDiCaL dominance are absent.
+
+This gate is intentionally narrow: it checks paper-claim consistency, not
+whether the project has achieved a top-conference result.
+
 ## Regenerate From Frozen CSV Artifacts
 
 Regenerate the Online-Consistent full400 summary and per-instance tables:

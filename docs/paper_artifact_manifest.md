@@ -38,6 +38,7 @@ the formal guarded Local Boundary Correction rule.
 | Optional appendix: Glucose default baseline | `runs/glucose/solver_stats_full400_cpu60.csv`; `runs/analysis/glucose_default_full400_summary.csv`; `docs/glucose_default_full400_eval.md` | `run_glucose_default_full400_cpu60.py` | Yes | CNF dataset only for rerun |
 | Optional appendix: CaDiCaL default baseline | `runs/cadical/solver_stats_full400_cpu60.csv`; `runs/analysis/cadical_default_full400_summary.csv`; `runs/analysis/cadical_default_full400_comparison.csv`; `docs/cadical_default_full400_eval.md` | `run_cadical_default_full400_cpu60.py` | Yes | CNF dataset only for rerun |
 | Stronger-CDCL gate: external solver baseline | `runs/external_solvers/<solver>_full400_cpu60.csv`; `runs/analysis/external_solvers/<solver>_full400_cpu60/{repeat_summary,aggregate,instance_summary}.csv` after a binary is provided | `run_external_solver_baseline.py`; `summarize_external_solver_baseline.py` | Runner: Yes; solver binary/results: No until provided | External Kissat/MapleSAT/CryptoMiniSat binary plus CNF dataset |
+| Claim consistency gate | `paper/main.tex`; `docs/paper_tables_and_figures.md`; portfolio, neural-stage, and repeated-CaDiCaL overlap CSVs | `verify_paper_claims.py` | Yes | No |
 | Optional appendix: boundary open-set audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv`; `runs/analysis/local_reopen_guarded_full400_guidance_audit.csv`; `data/new_closed_old_on_boundary/manifest.csv` | `summarize_local_reopen_guarded_full400_eval.py`; `configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml` | Yes | Checkpoints and CNF datasets only for full rerun |
 
 ## Tracked Guided Result Inputs
@@ -97,6 +98,7 @@ run_glucose_default_full400_cpu60.py
 run_cadical_default_full400_cpu60.py
 run_external_solver_baseline.py
 summarize_external_solver_baseline.py
+verify_paper_claims.py
 run_repeated_runtime_audit.py
 summarize_generalization_baseline.py
 ```
