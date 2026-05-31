@@ -1,0 +1,8 @@
+solver,path,executable,role
+Glucose,solvers/glucose/simp/glucose_static,True,unguided CDCL baseline
+Weighted Glucose,solvers/glucose_weighted/simp/glucose_static,True,neural workflow solver
+CaDiCaL,solvers/cadical/cadical,True,strong CDCL baseline
+March,solvers/march/march_nh,True,lookahead baseline
+Kissat,solvers/kissat/kissat,False,missing external strong-solver gate
+MapleSAT,solvers/maplesat/maplesat,False,missing external strong-solver gate
+CryptoMiniSat,solvers/cryptominisat/cryptominisat5,False,missing external strong-solver gate

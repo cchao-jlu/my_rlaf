@@ -1,0 +1,5 @@
+size,protocol,total,solved,unknown,mean_time,median_time,max_time,external_timeouts,source,solved_rate
+250,smoke20,20,20,0,0.15960175916552538,0.1195265655405819,0.4340549241751432,0,runs/analysis/benchmark_suitability_smoke/march_250_smoke.csv,1.0
+300,smoke20,20,20,0,0.7287153926678002,0.5496728890575469,2.48241883283481,0,runs/analysis/benchmark_suitability_smoke/march_300_smoke.csv,1.0
+350,smoke20,20,20,0,4.251400951831601,2.3515674001537263,12.719320826232432,0,runs/analysis/benchmark_suitability_smoke/march_350_smoke.csv,1.0
+400,full200_repeat3_strict60,200,184,16,26.712528713748323,28.844285646841552,60.0,8,runs/analysis/march_full400_cpu60/strict60_summary.csv,0.92

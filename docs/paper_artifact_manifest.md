@@ -41,7 +41,8 @@ the formal guarded Local Boundary Correction rule.
 | March strong-baseline audit | `runs/march/solver_stats_full400_cpu60.csv`; `runs/analysis/march_full400_cpu60/strict60_summary.csv`; `runs/analysis/march_full400_cpu60/strict60_repeat_summary.csv`; `runs/analysis/march_full400_cpu60/strict60_instance_summary.csv`; `runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv`; `docs/march_full400_baseline_audit.md` | `run_external_solver_baseline.py`; `audit_march_full400_baseline.py` | Yes | CNF dataset only for rerun |
 | Stronger-CDCL gate audit | `runs/analysis/stronger_cdcl_gate/solver_availability.csv`; `runs/analysis/stronger_cdcl_gate/summary.csv`; `runs/analysis/stronger_cdcl_gate/march_strict_hard_overlap.csv`; `docs/stronger_cdcl_gate_audit.md` | `audit_stronger_cdcl_gate.py` | Yes | External Kissat/MapleSAT/CryptoMiniSat binaries only if extending the gate |
 | Failure-boundary solved-set lattice | `docs/failure_boundary_lattice_audit.md`; `runs/analysis/failure_boundary_lattice/{combined,method_summary,pair_summary,online_recovered_from_oneshot,local_only_over_online,glucose_only_vs_local,local_only_vs_march,march_strict_hard}.csv` | `audit_failure_boundary_lattice.py` | Yes | No for frozen-table regeneration |
-| Claim consistency gate | `paper/main.tex`; `docs/paper_tables_and_figures.md`; portfolio, neural-stage, repeated-CaDiCaL overlap, March, stronger-CDCL gate, and failure-boundary lattice CSVs | `verify_paper_claims.py` | Yes | No |
+| Benchmark suitability gate | `docs/benchmark_suitability_gate.md`; `runs/analysis/benchmark_suitability_gate/{dataset_inventory,solver_inventory,march_suitability_summary}.csv`; March 250/300/350 smoke CSVs and per-size summaries under `runs/analysis/benchmark_suitability_smoke/` | `audit_benchmark_suitability_gate.py`; `run_external_solver_baseline.py`; `summarize_external_solver_baseline.py` | Yes | CNF dataset only for rerun |
+| Claim consistency gate | `paper/main.tex`; `docs/paper_tables_and_figures.md`; portfolio, neural-stage, repeated-CaDiCaL overlap, March, stronger-CDCL gate, failure-boundary lattice, and benchmark-suitability CSVs | `verify_paper_claims.py` | Yes | No |
 | Optional appendix: boundary open-set audit | `runs/analysis/local_reopen_guarded_full400_open_set.csv`; `runs/analysis/local_reopen_guarded_full400_guidance_audit.csv`; `data/new_closed_old_on_boundary/manifest.csv` | `summarize_local_reopen_guarded_full400_eval.py`; `configs/config_eval_guided_solver_local_reopen_guarded_full400.yaml` | Yes | Checkpoints and CNF datasets only for full rerun |
 
 ## Tracked Guided Result Inputs
@@ -94,6 +95,24 @@ runs/analysis/failure_boundary_lattice/local_only_over_online.csv
 runs/analysis/failure_boundary_lattice/glucose_only_vs_local.csv
 runs/analysis/failure_boundary_lattice/local_only_vs_march.csv
 runs/analysis/failure_boundary_lattice/march_strict_hard.csv
+runs/analysis/benchmark_suitability_smoke/march_250_smoke.csv
+runs/analysis/benchmark_suitability_smoke/march_300_smoke.csv
+runs/analysis/benchmark_suitability_smoke/march_350_smoke.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_250/aggregate.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_250/instance_summary.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_250/repeat_summary.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_250/unstable_instances.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_300/aggregate.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_300/instance_summary.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_300/repeat_summary.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_300/unstable_instances.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_350/aggregate.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_350/instance_summary.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_350/repeat_summary.csv
+runs/analysis/benchmark_suitability_smoke/summary_march_350/unstable_instances.csv
+runs/analysis/benchmark_suitability_gate/dataset_inventory.csv
+runs/analysis/benchmark_suitability_gate/solver_inventory.csv
+runs/analysis/benchmark_suitability_gate/march_suitability_summary.csv
 ```
 
 ## Tracked Scripts And Configs
@@ -111,6 +130,7 @@ run_external_solver_baseline.py
 summarize_external_solver_baseline.py
 audit_march_full400_baseline.py
 audit_failure_boundary_lattice.py
+audit_benchmark_suitability_gate.py
 verify_paper_claims.py
 run_repeated_runtime_audit.py
 summarize_generalization_baseline.py

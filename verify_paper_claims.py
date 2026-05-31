@@ -41,6 +41,8 @@ def main() -> None:
     solver_availability = pd.read_csv(ROOT / "runs/analysis/stronger_cdcl_gate/solver_availability.csv")
     lattice_methods = pd.read_csv(ROOT / "runs/analysis/failure_boundary_lattice/method_summary.csv")
     lattice_pairs = pd.read_csv(ROOT / "runs/analysis/failure_boundary_lattice/pair_summary.csv")
+    benchmark_datasets = pd.read_csv(ROOT / "runs/analysis/benchmark_suitability_gate/dataset_inventory.csv")
+    benchmark_march = pd.read_csv(ROOT / "runs/analysis/benchmark_suitability_gate/march_suitability_summary.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -167,6 +169,23 @@ def main() -> None:
         require(int(row["left_only"]) == left_only, f"Unexpected lattice left_only for {key}: {row['left_only']}")
         require(int(row["right_only"]) == right_only, f"Unexpected lattice right_only for {key}: {row['right_only']}")
 
+    dataset_inventory = {
+        int(row["size"]): int(row["instances"])
+        for _, row in benchmark_datasets.iterrows()
+    }
+    require(dataset_inventory == {250: 200, 300: 200, 350: 200, 400: 200}, f"Unexpected benchmark inventory: {dataset_inventory}")
+    march_gate = {
+        int(row["size"]): (str(row["protocol"]), int(row["total"]), int(row["solved"]))
+        for _, row in benchmark_march.iterrows()
+    }
+    expected_march_gate = {
+        250: ("smoke20", 20, 20),
+        300: ("smoke20", 20, 20),
+        350: ("smoke20", 20, 20),
+        400: ("full200_repeat3_strict60", 200, 184),
+    }
+    require(march_gate == expected_march_gate, f"Unexpected benchmark suitability March gate: {march_gate}")
+
     stale_patterns = [
         "50/200",
         "56/200",
@@ -200,6 +219,7 @@ def main() -> None:
     print("march_strict60=184 x3, march_external65=192 x3, stable_instances=200")
     print(f"stronger_cdcl_gate={expected_gate}")
     print(f"failure_boundary_lattice={expected_lattice_counts}")
+    print(f"benchmark_suitability_march_gate={expected_march_gate}")
 
 
 if __name__ == "__main__":
