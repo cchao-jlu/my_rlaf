@@ -1,0 +1,2 @@
+solver_name,repeat,total,solved,unknown,mean_time,median_time,mean_wall_time,external_timeouts
+march_weighted,0,5,0,5,5.0,5.0,6.0030234975740315,5

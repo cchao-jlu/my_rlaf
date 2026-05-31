@@ -1,0 +1,2 @@
+solver_name,repeats,solved_mean,solved_std,solved_min,solved_max,mean_time_mean,mean_time_std
+march_weighted,1,0.0,0.0,0,0,5.0,0.0

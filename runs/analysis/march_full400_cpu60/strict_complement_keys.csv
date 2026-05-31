@@ -1,0 +1,4 @@
+file_key,one_shot_solved,online_solved,local_correction_solved,cadical_solved_repeats,march_solved_strict60,march_wall_time,pattern
+3sat_140.cnf,True,True,True,0,True,8.050108323339373,1111
+3sat_147.cnf,True,True,True,0,True,35.587177332956344,1111
+3sat_188.cnf,False,False,True,0,True,15.664388957899064,0011

@@ -26,6 +26,7 @@
 - no750 只作为 diagnostic feature ablation；它的 open set 与正式 full400 patch 不同，不能替代正式结果。
 - portfolio-only evidence 必须拆分为 neural-first complement 和 second-stage CaDiCaL runtime-boundary evidence。
 - full overlap evidence 也要单独报告：Local/CaDiCaL strict complement 是 3 个实例，Online/CaDiCaL strict complement 是 2 个实例，Local-only strict boundary contribution 是 1 个实例。
+- March strict-60 baseline 是当前最强 baseline：184/200，mean capped time 26.702s。它解掉 CaDiCaL-strict complement 的 `3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`，所以不能再写 strong-SAT-baseline complementarity claim。
 
 ## Table 1: Full400 Portfolio Main Results
 
@@ -96,7 +97,7 @@ Local Correction open set; CaDiCaL solved all & 2/4 \\
 
 Recommended text:
 
-The full repeated-baseline overlap audit separates neural-workflow recovery from strong-CDCL complementarity. Local Boundary Correction solves three instances that CaDiCaL misses in all three repeats: `3sat_140.cnf`, `3sat_147.cnf`, and `3sat_188.cnf`. Online-Consistent Selector already solves `3sat_140.cnf` and `3sat_147.cnf`, leaving `3sat_188.cnf` as the only strict Local-only gain beyond Online and repeated CaDiCaL. The five one-shot timeouts recovered by Online are all solved by CaDiCaL in all three repeats. Therefore, Online recovery supports the neural workflow, while the strong-CDCL complementarity claim must remain narrow.
+The full repeated-baseline overlap audit separates neural-workflow recovery from CaDiCaL-specific complementarity. Local Boundary Correction solves three instances that CaDiCaL misses in all three repeats: `3sat_140.cnf`, `3sat_147.cnf`, and `3sat_188.cnf`. Online-Consistent Selector already solves `3sat_140.cnf` and `3sat_147.cnf`, leaving `3sat_188.cnf` as the only strict Local-only gain beyond Online and repeated CaDiCaL. The five one-shot timeouts recovered by Online are all solved by CaDiCaL in all three repeats. After the March audit, this should not be described as strong-SAT-baseline complementarity.
 
 Sources:
 
@@ -106,7 +107,42 @@ Sources:
 - `runs/analysis/cadical_repeated_neural_overlap/local_only_solved_cadical_unsolved_all.csv`
 - `runs/analysis/cadical_repeated_neural_overlap/oneshot_timeout_recovered_by_online.csv`
 
-## Table 3: Portfolio Claim Split
+## Table 3: March Strong-Baseline Audit
+
+Caption:
+
+> March full400 baseline using the existing unweighted March binary. Because the current March runner uses an external 65s guard rather than an internal 60s limit, strict 60s treats solutions with wall time greater than 60s as timeouts.
+
+LaTeX:
+
+```latex
+\begin{table}[t]
+\centering
+\caption{March full400 baseline using the existing unweighted March binary. Because the current March runner uses an external 65s guard rather than an internal 60s limit, strict 60s treats solutions with wall time greater than 60s as timeouts.}
+\label{tab:march-baseline}
+\begin{tabular}{lrrrr}
+\toprule
+Solver & Solved ext-65 & Solved strict-60 & Mean strict-60 (s) & Median strict-60 (s) \\
+\midrule
+March & 192 & 184 & 26.702 & 28.759 \\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+Recommended text:
+
+The March baseline changes the interpretation of the strong-baseline story. Under strict 60s, March solves 184/200, far above the Local5 -> CaDiCaL55 portfolio and all neural-guided Glucose variants. It solves all three Local-solved / repeated-CaDiCaL-unsolved instances (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`). Therefore the current evidence cannot support a strong-SAT-baseline complementarity or performance claim; the defensible direction is risk-controlled neural feedback and failure-boundary analysis.
+
+Sources:
+
+- `docs/march_full400_baseline_audit.md`
+- `runs/march/solver_stats_full400_cpu60.csv`
+- `runs/analysis/march_full400_cpu60/strict60_summary.csv`
+- `runs/analysis/march_full400_cpu60/neural_vs_march_overlap.csv`
+- `runs/analysis/march_full400_cpu60/strict_complement_keys.csv`
+
+## Table 4: Portfolio Claim Split
 
 Caption:
 
@@ -142,7 +178,7 @@ Sources:
 - `runs/analysis/portfolio_e2e_local5_cadical55/portfolio_claim_split_summary.csv`
 - `runs/analysis/cadical_repeat_stability/key_boundary_audit.csv`
 
-## Table 4: Neural-Stage Mechanism Results
+## Table 5: Neural-Stage Mechanism Results
 
 Caption:
 
@@ -185,7 +221,7 @@ Historical single-run sources remain useful context but should not be used as a 
 - `docs/local_reopen_guarded_full400_eval.md`
 - `docs/compact_risk_full400_eval.md`
 
-## Table 5: Stability Validation
+## Table 6: Stability Validation
 
 Caption:
 
@@ -222,7 +258,7 @@ Sources:
 - `runs/analysis/full400_repeated_runtime/summary.csv`
 - `runs/analysis/full400_seed_robustness/method_summary.csv`
 
-## Table 6: Ablation Matrix
+## Table 7: Ablation Matrix
 
 Caption:
 

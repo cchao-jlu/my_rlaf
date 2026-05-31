@@ -1,0 +1,6 @@
+solver_name,file_key,repeats,solved_repeats,stable_solved,time_mean,time_min,time_max,results
+march,3sat_0.cnf,1,0,True,5.0,5.0,5.0,UNKNOWN
+march,3sat_1.cnf,1,0,True,5.0,5.0,5.0,UNKNOWN
+march,3sat_10.cnf,1,1,True,3.296550948172808,3.296550948172808,3.296550948172808,SATISFIABLE
+march,3sat_100.cnf,1,1,True,0.3046097490005195,0.3046097490005195,0.3046097490005195,SATISFIABLE
+march,3sat_101.cnf,1,0,True,5.0,5.0,5.0,UNKNOWN

@@ -34,6 +34,7 @@ def main() -> None:
     portfolio = pd.read_csv(ROOT / "runs/analysis/cadical_repeat_stability/portfolio_vs_cadical_repeats.csv")
     neural = pd.read_csv(ROOT / "runs/analysis/full400_seed_robustness/method_summary.csv")
     overlap = pd.read_csv(ROOT / "runs/analysis/cadical_repeated_neural_overlap/summary.csv")
+    march = pd.read_csv(ROOT / "runs/analysis/march_full400_cpu60/strict60_summary.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -87,6 +88,18 @@ def main() -> None:
     require("3sat\\_147.cnf" in paper, "paper/main.tex must name 3sat_147 in full overlap audit")
     require("CaDiCaL solved all & 2/4" in paper, "paper/main.tex must state CaDiCaL solves 2/4 Local open set")
 
+    march_row = march.iloc[0]
+    require(int(march_row["solved_strict60"]) == 184, "Unexpected March strict-60 solved count")
+    require(int(march_row["solved_external65"]) == 192, "Unexpected March external-65 solved count")
+    require(int(march_row["solved_after_60_before_65"]) == 8, "Unexpected March after-60 count")
+    require("184/200" in paper, "paper/main.tex must state March strict-60 184/200")
+    require("March" in paper, "paper/main.tex must discuss March baseline")
+    require(
+        "removes the current strong-baseline complementarity claim" in paper
+        or "no solved-count complement against this March run" in paper,
+        "paper/main.tex must state March removes current strong-baseline complementarity",
+    )
+
     stale_patterns = [
         "50/200",
         "56/200",
@@ -117,6 +130,7 @@ def main() -> None:
     print(f"portfolio={portfolio_solved}, cadical={cadical_solved}, deltas={deltas}")
     print(f"neural_counts={neural_counts}")
     print(f"overlap_counts={expected_overlap}")
+    print("march_strict60=184, march_external65=192")
 
 
 if __name__ == "__main__":

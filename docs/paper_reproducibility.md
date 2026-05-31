@@ -84,6 +84,7 @@ remain consistent with the frozen CSV evidence:
   Boundary Correction `54`;
 - repeated-CaDiCaL overlap: Local/CaDiCaL strict complement `3`,
   Online/CaDiCaL strict complement `2`, Local-only boundary contribution `1`;
+- March strong baseline: strict-60 `184/200` and external-65 `192/200`;
 - stale historical single-run claims such as `50/200`, `56/200`,
   `47.752`, `46.222`, and `45.498` are absent from `paper/main.tex`;
 - forbidden positive claims such as robust CaDiCaL dominance are absent.
@@ -377,6 +378,45 @@ Decision rule for paper use:
   repeated runs, then portfolio/complementarity framing becomes stronger.
 - Do not tune the neural selector based on external-solver results; this gate is
   only a baseline robustness audit.
+
+## March Baseline Audit
+
+The repository already contains an unweighted March binary. It can be audited
+with the generic external solver runner:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python run_external_solver_baseline.py \
+  --solver solvers/march/march_nh \
+  --solver-name march \
+  --input 'data/test/3sat/400/*.cnf' \
+  --output runs/march/solver_stats_full400_cpu60.csv \
+  --limit 60 \
+  --timeout 65 \
+  --workers 8 \
+  --repeat 0 \
+  --cmd-template '{solver} {file}'
+```
+
+Because this March runner has no internal 60s limit, summarize it with the
+strict-60 audit:
+
+```bash
+/home/sunshixin/anaconda3/envs/rlaf/bin/python audit_march_full400_baseline.py
+```
+
+Current result:
+
+```text
+external-65 solved: 192/200
+strict-60 solved: 184/200
+mean strict-60 time: 26.702s
+```
+
+Interpretation: March solves all three Local-solved / repeated-CaDiCaL-unsolved
+instances (`3sat_140.cnf`, `3sat_147.cnf`, `3sat_188.cnf`). This removes the
+current strong-SAT-baseline complementarity claim; March must be reported in the
+baseline discussion or used to justify a pivot toward failure-boundary / risk
+control rather than performance superiority.
 runs/cadical/solver_stats_full400_cpu60.csv
 runs/analysis/cadical_default_full400_summary.csv
 runs/analysis/cadical_default_full400_comparison.csv
