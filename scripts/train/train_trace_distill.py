@@ -43,7 +43,7 @@ def load_trace_payload(path: str) -> tuple[list, object | None]:
     raise ValueError(f"Trace distillation file must contain a graph list or a dict with key 'graphs': {path}")
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="config_train_trace_distill")
+@hydra.main(version_base=None, config_path="../../configs", config_name="config_train_trace_distill")
 def main(cfg: DictConfig) -> None:
     OmegaConf.resolve(cfg)
     print(OmegaConf.to_yaml(cfg))

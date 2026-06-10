@@ -7,11 +7,11 @@ from pathlib import Path
 import pandas as pd
 import torch
 
-from audit_adapter_permutation_consistency import build_consistency_frame
-from audit_adapter_negative_cases import label_negative_cases
-from audit_adapter_permutation_alignment import inverse_align_new_to_old
-from build_symmetry_family_heldout_trace import cnf_id_to_manifest_row
-from summarize_adapter_family_heldout_multiseed import summarize_multiseed, summarize_seed_runs
+from scripts.symmetry.audit_adapter_permutation_consistency import build_consistency_frame
+from scripts.symmetry.audit_adapter_negative_cases import label_negative_cases
+from scripts.symmetry.audit_adapter_permutation_alignment import inverse_align_new_to_old
+from scripts.symmetry.build_symmetry_family_heldout_trace import cnf_id_to_manifest_row
+from scripts.symmetry.summarize_adapter_family_heldout_multiseed import summarize_multiseed, summarize_seed_runs
 
 
 class AdapterPermutationConsistencyTests(unittest.TestCase):

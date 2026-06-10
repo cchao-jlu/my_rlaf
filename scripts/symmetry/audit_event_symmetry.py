@@ -16,7 +16,7 @@ from src.solving.budget import apply_rollout_budget
 from src.solving.state import attach_var_event_state_batch, event_state_dim
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def orbit_entropy(variable_orbits: dict[int, str]) -> float:

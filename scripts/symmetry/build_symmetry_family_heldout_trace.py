@@ -8,7 +8,7 @@ import pandas as pd
 import torch
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def int_value(value: Any) -> int:

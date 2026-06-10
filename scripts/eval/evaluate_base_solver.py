@@ -53,7 +53,7 @@ def print_solver_metrics(solver_stats: pd.DataFrame) -> None:
     )
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="config_eval_base_solver")
+@hydra.main(version_base=None, config_path="../../configs", config_name="config_eval_base_solver")
 def main(cfg: DictConfig):
     OmegaConf.resolve(cfg)
 

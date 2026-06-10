@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import pandas as pd
 import torch
 
-from evaluate_guided_solver import add_total_time_columns
+from scripts.eval.evaluate_guided_solver import add_total_time_columns
 
 
 def graph(cnf_id: int, gpu_time: float) -> SimpleNamespace:

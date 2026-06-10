@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 METHOD_ORDER = [
     "plain_unguided_glucose",
     "neutral_weighted_glucose",

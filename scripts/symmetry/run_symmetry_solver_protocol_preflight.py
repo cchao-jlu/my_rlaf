@@ -21,7 +21,7 @@ from src.solving.solver import solve_cnf
 from src.solving.state import attach_var_event_state, event_state_dim
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CHECKPOINT = ROOT / "runs/GNN_Glucose_3SAT_SymmetryTraceAdapter_NegGatePermConsVC_W05/best.pt"
 DEFAULT_MANIFEST = ROOT / "runs/analysis/symmetry_stress_manifest.csv"
 DEFAULT_PER_INSTANCE = ROOT / "runs/analysis/symmetry_solver_protocol_preflight_per_instance.csv"

@@ -10,7 +10,7 @@ from src.model.model import GNN, init_model
 from src.policy.evaluate import sample_var_params
 from src.solving.state import EVENT_VAR_STATE_DIM, EVENT_VAR_STATE_DIM_ENHANCED, EVENT_VAR_STATE_DIM_POLARITY
 from src.training.trace_distill import freeze_non_adapter_parameters
-from evaluate_guided_solver import _attach_selector_feature_overrides
+from scripts.eval.evaluate_guided_solver import _attach_selector_feature_overrides
 
 
 def make_graph() -> HeteroData:

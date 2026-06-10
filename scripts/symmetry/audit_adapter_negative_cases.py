@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def bool_series(frame: pd.DataFrame, column: str, default: bool = False) -> pd.Series:

@@ -127,7 +127,7 @@ def add_total_time_columns(
     return solver_stats
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="config_eval_guided_solver")
+@hydra.main(version_base=None, config_path="../../configs", config_name="config_eval_guided_solver")
 def main(cfg: DictConfig):
     OmegaConf.resolve(cfg)
 

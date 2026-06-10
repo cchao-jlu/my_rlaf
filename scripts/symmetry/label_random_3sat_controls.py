@@ -11,7 +11,7 @@ from typing import Any
 import pandas as pd
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 SOLVED = {"SATISFIABLE", "UNSATISFIABLE"}
 DEFAULT_MANIFEST = ROOT / "runs/analysis/symmetry_runtime_protocol_v1_manifest.csv"
 DEFAULT_OUT_MANIFEST = ROOT / "runs/analysis/symmetry_runtime_protocol_v1_manifest_labeled.csv"

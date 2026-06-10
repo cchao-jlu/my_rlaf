@@ -17,7 +17,7 @@ import pandas as pd
 from src.solving.solver import stdout_to_results_dict
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MANIFEST = ROOT / "runs/analysis/symmetry_stress_manifest.csv"
 DEFAULT_OUT = ROOT / "runs/analysis/symmetry_weighted_glucose_path_audit.csv"
 DEFAULT_BY_BASE = ROOT / "runs/analysis/symmetry_weighted_glucose_path_audit_by_base.csv"

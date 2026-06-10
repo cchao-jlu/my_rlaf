@@ -45,7 +45,7 @@ def make_dimacs_dataset(path, transform, lazy: bool) -> DimacsCNFDataset:
         )
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="config_generate_trace_distillation")
+@hydra.main(version_base=None, config_path="../../configs", config_name="config_generate_trace_distillation")
 def main(cfg: DictConfig) -> None:
     OmegaConf.resolve(cfg)
     print(OmegaConf.to_yaml(cfg))

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -9,14 +10,20 @@ import pandas as pd
 import torch
 from torch_geometric.loader import DataLoader
 
-from audit_cached_adapter_symmetry import sample_id_value, stats_by_key
-from build_symmetry_family_heldout_trace import cnf_id_to_manifest_row, event_manifest, graph_cnf_id, load_trace_payload
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.symmetry.audit_cached_adapter_symmetry import sample_id_value, stats_by_key
+from scripts.symmetry.build_symmetry_family_heldout_trace import (
+    cnf_id_to_manifest_row,
+    event_manifest,
+    graph_cnf_id,
+    load_trace_payload,
+)
 from src.data.symmetry import orbit_validity, read_orbits_json
 from src.model.model import load_checkpoint
 from src.solving.state import event_state_dim
-
-
-ROOT = Path(__file__).resolve().parent
 
 
 def read_json(path: Path) -> dict[str, Any]:
