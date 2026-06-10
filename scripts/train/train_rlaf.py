@@ -1,4 +1,6 @@
 import os
+import sys
+from pathlib import Path
 
 import hydra
 import numpy as np
@@ -10,7 +12,11 @@ from omegaconf import DictConfig, OmegaConf
 from torch_geometric.loader import DataLoader
 from torch_geometric.seed import seed_everything
 
-from evaluate_guided_solver import load_checkpoint
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.eval.evaluate_guided_solver import load_checkpoint
 from src.data.dataset import DimacsCNFDataset, RLTrainingDataset
 from src.policy.evaluate import compute_solver_stats, sample_random_var_params, sample_var_params
 from src.model.model import GNN, init_model, init_transform
@@ -177,7 +183,7 @@ def build_feedback_state_loader(
     )
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="config_train_rlaf")
+@hydra.main(version_base=None, config_path="../../configs", config_name="config_train_rlaf")
 def main(cfg: DictConfig):
     OmegaConf.resolve(cfg)
     print(OmegaConf.to_yaml(cfg))

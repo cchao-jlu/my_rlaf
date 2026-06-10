@@ -15,7 +15,7 @@ from src.data.symmetry import (
 )
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def event_audit_role(instance: SymmetryCNF) -> str:

@@ -680,7 +680,7 @@ vertex_cover_torus valid event ladder，并重建 trace / 重跑 adapter 三类�
 - `docs/symmetry_adapter_neggate_permutation_alignment_audit.md`：NegGate 逐变量 `P^{-1} y(P(CNF))` 对齐审计。
 - `docs/symmetry_adapter_neggate_negative_case_audit.md`：NegGate negative guardrail；`no_activity_event_nonzero` violation 从 36/36 变为 0/36。
 - `run_adapter_family_heldout_multiseed.py`：正式 9 family x 3 seeds 的 NegGate heldout adapter 训练和 cached audit runner。
-- `summarize_adapter_family_heldout_multiseed.py`：seed-level 与 bootstrap heldout 汇总。
+- `scripts/symmetry/summarize_adapter_family_heldout_multiseed.py`：seed-level 与 bootstrap heldout 汇总。
 - `runs/GNN_Glucose_3SAT_SymmetryTraceAdapter_NegGate_Heldout*_Seed*/best.pt`：27 个 heldout multi-seed adapter-only checkpoints。
 - `runs/analysis/symmetry_adapter_neggate_heldout_*_seed*_orbits.csv`：27 个 heldout cached orbit audit 明细。
 - `docs/symmetry_adapter_neggate_family_heldout_multiseed_audit.md`：NegGate family-heldout multi-seed 主表；8 个有 valid heldout rows 的 family 都是 3/3 positive-gain seeds。

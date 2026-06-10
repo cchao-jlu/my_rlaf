@@ -152,7 +152,7 @@ def load_checkpoint(ckpt_path: str) -> tuple[GNN, AddNodeFeatures]:
     return model, transform
 
 
-@hydra.main(version_base=None, config_path="configs", config_name="config_train_supervised")
+@hydra.main(version_base=None, config_path="../../configs", config_name="config_train_supervised")
 def main(cfg: DictConfig):
     OmegaConf.resolve(cfg)
     print(OmegaConf.to_yaml(cfg))

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -9,7 +10,11 @@ import pandas as pd
 import torch
 from torch_geometric.loader import DataLoader
 
-from audit_event_symmetry import (
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.symmetry.audit_event_symmetry import (
     add_identity_gain_columns,
     adapter_family_summary,
     annotate_event_row_validity,
@@ -22,13 +27,16 @@ from audit_event_symmetry import (
     orbit_entropy,
     tensor_orbit_rows,
 )
-from build_symmetry_family_heldout_trace import cnf_id_to_manifest_row, event_manifest, graph_cnf_id, int_value, load_trace_payload
+from scripts.symmetry.build_symmetry_family_heldout_trace import (
+    cnf_id_to_manifest_row,
+    event_manifest,
+    graph_cnf_id,
+    int_value,
+    load_trace_payload,
+)
 from src.data.symmetry import read_orbits_json
 from src.model.model import load_checkpoint
 from src.solving.state import event_state_dim
-
-
-ROOT = Path(__file__).resolve().parent
 
 
 def bool_series(frame: pd.DataFrame, column: str, default: bool = False) -> pd.Series:

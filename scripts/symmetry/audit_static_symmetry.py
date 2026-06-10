@@ -12,7 +12,7 @@ from src.data.symmetry import orbit_validity, read_orbits_json
 from src.model.model import load_checkpoint
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def make_dimacs_dataset(cnf_path: Path, transform) -> DimacsCNFDataset:

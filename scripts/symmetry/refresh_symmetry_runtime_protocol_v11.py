@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
-from run_symmetry_solver_protocol_preflight import (
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from scripts.symmetry.run_symmetry_solver_protocol_preflight import (
     build_attribution,
     markdown_table,
     summarize_attribution_by_base,
@@ -16,7 +21,6 @@ from run_symmetry_solver_protocol_preflight import (
 )
 
 
-ROOT = Path(__file__).resolve().parent
 DEFAULT_INPUT = ROOT / "runs/analysis/symmetry_runtime_protocol_v1_per_instance.csv"
 DEFAULT_MANIFEST = ROOT / "runs/analysis/symmetry_runtime_protocol_v1_manifest_labeled.csv"
 DEFAULT_PER_INSTANCE = ROOT / "runs/analysis/symmetry_runtime_protocol_v1_1_per_instance.csv"

@@ -8,7 +8,7 @@ from typing import Iterable
 import pandas as pd
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 
 
 NUMERIC_METRICS = [

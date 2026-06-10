@@ -3,7 +3,7 @@ import unittest
 
 import torch
 
-from train_rlaf import load_compatible_checkpoint
+from scripts.train.train_trace_distill import load_compatible_checkpoint
 
 
 class CheckpointInitTest(unittest.TestCase):

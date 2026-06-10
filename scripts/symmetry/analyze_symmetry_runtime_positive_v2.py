@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ATTRIBUTION = ROOT / "runs/analysis/symmetry_runtime_benchmark_v2_attribution.csv"
 DEFAULT_PER_INSTANCE = ROOT / "runs/analysis/symmetry_runtime_benchmark_v2_per_instance.csv"
 DEFAULT_ORBITS = ROOT / "runs/analysis/symmetry_patched_pretrue_w05_cached_adapter_orbits.csv"

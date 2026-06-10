@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 import torch
 
-from audit_event_symmetry import (
+from scripts.symmetry.audit_event_symmetry import (
     add_identity_gain_columns,
     annotate_event_row_validity,
     event_state_orbit_rows,

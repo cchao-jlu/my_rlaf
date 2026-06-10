@@ -12,6 +12,7 @@ included in this repository snapshot.
   solver wrappers, and trace-distillation utilities.
 - `configs/`: Hydra configs for baseline training/evaluation and trace
   distillation.
+- `scripts/`: command-line entry points, grouped by purpose.
 - `solvers/`: Glucose, weighted Glucose, March, and weighted March source used
   by the project. Built binaries are intentionally excluded.
 - `tests/`: unit and regression tests for core project behavior.
@@ -39,7 +40,7 @@ bash build_solvers.sh
 Train a baseline guided model:
 
 ```bash
-python train_rlaf.py model_name=GNN_Glucose_3SAT \
+python scripts/train/train_rlaf.py model_name=GNN_Glucose_3SAT \
   solver.solver=glucose \
   dataset.train_path='data/training/3sat/*/*.cnf' \
   dataset.val_path='data/validation/3sat/*/*.cnf'
@@ -48,7 +49,7 @@ python train_rlaf.py model_name=GNN_Glucose_3SAT \
 Evaluate a guided solver:
 
 ```bash
-python evaluate_guided_solver.py \
+python scripts/eval/evaluate_guided_solver.py \
   model_name=GNN_Glucose_3SAT \
   dataset.eval_path='data/test/3sat/450/*.cnf'
 ```
@@ -56,7 +57,7 @@ python evaluate_guided_solver.py \
 Evaluate an unguided solver:
 
 ```bash
-python evaluate_base_solver.py \
+python scripts/eval/evaluate_base_solver.py \
   solver.solver=glucose \
   dataset.eval_path='data/test/3sat/450/*.cnf'
 ```
@@ -64,8 +65,8 @@ python evaluate_base_solver.py \
 Generate and train trace distillation data:
 
 ```bash
-python generate_trace_distillation_data.py --config-name config_generate_trace_distillation
-python train_trace_distill.py --config-name config_train_trace_distill
+python scripts/data/generate_trace_distillation_data.py --config-name config_generate_trace_distillation
+python scripts/train/train_trace_distill.py --config-name config_train_trace_distill
 ```
 
 ## SAT Symmetry Mainline
