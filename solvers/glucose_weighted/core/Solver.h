@@ -218,6 +218,8 @@ public:
     // Constant for reducing clause
     int          lbSizeMinimizingClause;
     unsigned int lbLBDMinimizingClause;
+    unsigned int traceLowLBDThreshold;
+    bool collectEvents;
     bool useLCM; // See ijcai17 (Chu Min Li paper, related to vivif).
     bool LCMUpdateLBD; // Updates the LBD when shrinking/replacing a clause with the vivification
 
@@ -273,6 +275,22 @@ public:
 
     // Important stats completely related to search. Keep here
     uint64_t solves,starts,decisions,propagations,conflicts,conflictsRestarts;
+    vec<uint64_t> event_decisions;
+    vec<uint64_t> event_propagations;
+    vec<uint64_t> event_conflict_lits;
+    vec<uint64_t> event_learnt_lits;
+    vec<uint64_t> event_low_lbd_learnt_lits;
+    vec<uint64_t> event_useful_decisions;
+    vec<uint64_t> event_pos_decisions;
+    vec<uint64_t> event_neg_decisions;
+    vec<uint64_t> event_pos_propagations;
+    vec<uint64_t> event_neg_propagations;
+    vec<uint64_t> event_pos_conflict_lits;
+    vec<uint64_t> event_neg_conflict_lits;
+    vec<uint64_t> event_pos_assignments;
+    vec<uint64_t> event_neg_assignments;
+
+    void printEventStats();
 
 protected:
 

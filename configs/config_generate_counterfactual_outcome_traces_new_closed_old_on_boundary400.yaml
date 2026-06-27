@@ -1,0 +1,42 @@
+# @package _global_
+
+defaults:
+  - config_generate_counterfactual_outcome_traces_online_consistent_boundary400
+  - _self_
+
+# 只针对 full400 审计中的 new_closed_old_on 局部边界。
+# 目的：验证当前 boundary400 adapter 如果被强制打开，是否能恢复
+# 旧 compact 在 3sat_46/196 上的收益，同时避免 3sat_82/93 类样本退化。
+# 当前强制 adapter trace 另已把 3sat_188 修正为 recovered_timeout 正例。
+
+checkpoint: runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400Conservative/best.pt
+
+dataset:
+  path: "data/new_closed_old_on_boundary/3sat/400/*.cnf"
+  lazy: True
+
+counterfactual:
+  output_path: "data/counterfactual_trace/new_closed_old_on_boundary400_traces.pt"
+  output_csv: "data/counterfactual_trace/new_closed_old_on_boundary400_outcomes.csv"
+  warmup_stats_csv: "data/counterfactual_trace/new_closed_old_on_boundary400_warmup_stats.csv"
+  base_stats_csv: "data/counterfactual_trace/new_closed_old_on_boundary400_base_branch_stats.csv"
+  adapter_stats_csv: "data/counterfactual_trace/new_closed_old_on_boundary400_adapter_branch_stats.csv"
+  doc_path: "docs/counterfactual_outcome_trace_new_closed_old_on_boundary400.md"
+  max_num_batches: -1
+  use_cuda: True
+  warmup_conflicts: 2000
+  intervention_conflicts: [500, 1000, 2000]
+  warmup_cpu_lim: 15
+  final_cpu_lim: 60
+  # 强制生成 raw/current-adapter counterfactual，不经过当前 selector。
+  disable_adapter_selector: True
+  preserve_selector_feature_names: True
+  disable_adapter_base_rho_gate: True
+  disable_adapter_graph_gate: True
+
+loader:
+  batch_size: 10
+  num_workers: 0
+
+solver:
+  num_workers: 8

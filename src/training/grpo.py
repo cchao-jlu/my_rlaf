@@ -15,8 +15,10 @@ def get_grpo_advantage(
         solver_stats: pd.DataFrame,
         target_stat: str = "decisions",
 ) -> np.ndarray:
-    max_cost = solver_stats[target_stat].max()
-    solver_stats[target_stat] = solver_stats[target_stat].fillna(max_cost)
+    values = pd.to_numeric(solver_stats[target_stat], errors="coerce")
+    finite = np.isfinite(values.to_numpy(dtype=np.float64))
+    max_cost = values[finite].max() if finite.any() else 0.0
+    solver_stats[target_stat] = values.replace([np.inf, -np.inf], np.nan).fillna(max_cost)
 
     grouped = solver_stats[["cnf_id", target_stat]].groupby("cnf_id")
 
@@ -32,7 +34,7 @@ def get_grpo_advantage(
 
     eps = 1e-8
     advantage = - (target_val - target_mean) / (target_std + eps)
-    return advantage
+    return np.nan_to_num(advantage, nan=0.0, posinf=0.0, neginf=0.0)
 
 
 def objective(
@@ -45,7 +47,8 @@ def objective(
     g[advantage >= 0.0] *= 1 + clip_ratio
     g[advantage < 0.0] *= 1 - clip_ratio
 
-    prob_ratio = torch.exp(log_prob - log_prob_ref)
+    log_ratio = (log_prob - log_prob_ref).clamp(-20.0, 20.0)
+    prob_ratio = torch.exp(log_ratio)
     L = torch.minimum(prob_ratio * advantage, g)
 
     return L.mean(), prob_ratio
@@ -67,7 +70,12 @@ def train_grpo(
     scaler = torch.amp.GradScaler() if use_amp else None
     model.to(device)
     model.train()
-    epochs = steps // len(loader)
+    trainable_params = [param for param in model.parameters() if param.requires_grad]
+    steps = int(steps)
+    if steps <= 0:
+        raise ValueError("GRPO training requires steps > 0")
+    if not trainable_params:
+        raise ValueError("GRPO training has no trainable parameters")
 
     L_all = []
     prob_ratio_all = []
@@ -76,9 +84,10 @@ def train_grpo(
     num_steps = 0
 
     start_time = time.time()
-    for _ in range(epochs):
-
+    while num_steps < steps:
         for data in loader:
+            if num_steps >= steps:
+                break
             with torch.amp.autocast(device_type="cuda", enabled=use_amp):
                 optim.zero_grad()
                 data.to(device)
@@ -86,10 +95,16 @@ def train_grpo(
 
             with torch.amp.autocast(device_type="cuda", enabled=False):
                 y_var = y_var.float()
+                y_var = torch.nan_to_num(y_var, nan=0.0, posinf=8.0, neginf=-8.0)
                 var_params = data["var"].var_params.transpose(0, 1).float()
+                var_params = torch.nan_to_num(var_params, nan=1.0, posinf=1.0e3, neginf=1.0e-6)
+                var_params[:, :, 1].clamp_(min=1.0e-6, max=1.0e3)
                 log_prob_ref = data.log_prob.transpose(0, 1).float()
+                log_prob_ref = torch.nan_to_num(log_prob_ref, nan=0.0, posinf=0.0, neginf=0.0)
                 y_var_ref = data["var"].y_var_ref.float()
+                y_var_ref = torch.nan_to_num(y_var_ref, nan=0.0, posinf=8.0, neginf=-8.0)
                 advantage = data.stats.transpose(0, 1).float()
+                advantage = torch.nan_to_num(advantage, nan=0.0, posinf=0.0, neginf=0.0).clamp(-10.0, 10.0)
                 var_batch = data["lit"].batch[0::2]
 
                 log_prob = policy.log_prob(y_var, var_params, var_batch, scale_sigma=scale_sigma)
@@ -98,25 +113,38 @@ def train_grpo(
                 kl_div = policy.kl_div(y_var, y_var_ref, var_batch, scale_sigma=scale_sigma)
 
                 kl_div_mean = kl_div.mean()
+                if not torch.isfinite(kl_div_mean):
+                    kl_div_mean = torch.zeros((), dtype=L.dtype, device=L.device)
                 kl_div_all.append(kl_div_mean.item())
                 L_total = L - kl_penalty * kl_div_mean
+                if not torch.isfinite(L_total):
+                    continue
 
                 entropy = policy.entropy(y_var, var_batch, scale_sigma=scale_sigma)
+                if not torch.isfinite(entropy):
+                    entropy = torch.zeros((), dtype=L.dtype, device=L.device)
                 entropy_all.append(entropy.item())
 
                 if use_amp:
                     scaler.scale(L_total).backward()
                     scaler.unscale_(optim)
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    grad_norm = torch.nn.utils.clip_grad_norm_(trainable_params, 1.0)
+                    if not torch.isfinite(grad_norm):
+                        optim.zero_grad(set_to_none=True)
+                        scaler.update()
+                        continue
                     scaler.step(optim)
                     scaler.update()
                 else:
                     L_total.backward()
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                    grad_norm = torch.nn.utils.clip_grad_norm_(trainable_params, 1.0)
+                    if not torch.isfinite(grad_norm):
+                        optim.zero_grad(set_to_none=True)
+                        continue
                     optim.step()
 
                 L_all.append(L.item())
-                prob_ratio_all.append(prob_ratio.detach().cpu().numpy())
+                prob_ratio_all.append(prob_ratio.detach().cpu().numpy().reshape(-1))
 
                 global_step += 1
                 num_steps += 1

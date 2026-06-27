@@ -16,6 +16,34 @@ from src.solving.solver import solve_cnf
 import src.policy.policy as policy
 
 
+def sample_random_var_params(
+    loader: DataLoader,
+    num_samples: int = 1,
+    max_num_batches: int = -1,
+    weight_scale: float = 1.0,
+) -> list[HeteroData]:
+    data_list_all = []
+    for i, data in enumerate(loader):
+        data_list = data.to_data_list()
+        for graph in data_list:
+            num_vars = graph["lit"].num_nodes // 2
+            phase = torch.randint(
+                low=0,
+                high=2,
+                size=(num_vars, num_samples),
+                dtype=torch.float32,
+            )
+            weight = weight_scale * torch.ones((num_vars, num_samples), dtype=torch.float32)
+            graph["var"].num_nodes = num_vars
+            graph["var"].var_params = torch.stack([phase, weight], dim=-1)
+            data_list_all.append(graph)
+
+        if max_num_batches > -1 and i + 1 >= max_num_batches:
+            break
+
+    return data_list_all
+
+
 @torch.no_grad()
 def sample_var_params(
     model: torch.nn.Module,
@@ -26,6 +54,7 @@ def sample_var_params(
     use_mode: bool = False,
     scale_sigma: float = 0.1,
     add_timing: bool = False,
+    cache_var_features: bool = False,
 ) -> list[HeteroData]:
     """
         Sample variable parameterizations with a given model and attach them to the PyG graphs.
@@ -41,19 +70,27 @@ def sample_var_params(
     """
     model.to(device)
     model.eval()
+    use_cuda_timing = add_timing and torch.cuda.is_available() and str(device).startswith("cuda")
 
     data_list_all = []
     for i, data in enumerate(loader):
         if add_timing:
-            start = torch.cuda.Event(enable_timing=True)
-            end = torch.cuda.Event(enable_timing=True)
-            start.record()
+            if use_cuda_timing:
+                start = torch.cuda.Event(enable_timing=True)
+                end = torch.cuda.Event(enable_timing=True)
+                start.record()
+            else:
+                start_time = time.time()
 
         data.to(device)
         lit_batch = data["lit"].batch
         var_batch = lit_batch[0::2]
 
-        y_var = model(data)
+        if cache_var_features:
+            y_var, cache = model(data, return_cache=True)
+        else:
+            y_var = model(data)
+            cache = None
 
         if use_mode:
             var_params = policy.mode(y_var=y_var, scale_sigma=scale_sigma)
@@ -61,9 +98,12 @@ def sample_var_params(
             var_params = policy.sample(y_var=y_var, num_samples=num_samples, scale_sigma=scale_sigma)
 
         if add_timing:
-            end.record()
-            torch.cuda.synchronize()
-            gpu_time = start.elapsed_time(end) / 1.0e3
+            if use_cuda_timing:
+                end.record()
+                torch.cuda.synchronize()
+                gpu_time = start.elapsed_time(end) / 1.0e3
+            else:
+                gpu_time = time.time() - start_time
 
         log_prob = policy.log_prob(y_var, var_params, var_batch, scale_sigma=scale_sigma)
 
@@ -75,6 +115,12 @@ def sample_var_params(
         var_batch = var_batch.to("cpu")
         var_params = var_params.to("cpu").transpose(0, 1)
 
+        if cache is not None:
+            base_embedding = unbatch(cache["base_embedding"].detach().to("cpu"), var_batch)
+            base_y = unbatch(cache["base_y"].detach().to("cpu"), var_batch)
+        else:
+            base_embedding = None
+            base_y = None
         y_var = unbatch(y_var, var_batch)
         var_params = unbatch(var_params, var_batch)
 
@@ -83,6 +129,9 @@ def sample_var_params(
             data["var"].y_var_ref = y_var[j]
             data["var"].num_nodes = data["lit"].num_nodes // 2
             data["var"].var_params = var_params[j]
+            if cache_var_features and base_embedding is not None and base_y is not None:
+                data["var"].base_embedding = base_embedding[j]
+                data["var"].base_y = base_y[j]
 
             if add_timing:
                 data.gpu_time = gpu_time
@@ -117,13 +166,17 @@ def var_params_from_target_prediction(
 
     model.to(device)
     model.eval()
+    use_cuda_timing = add_timing and torch.cuda.is_available() and str(device).startswith("cuda")
 
     data_list_all = []
     for i, data in enumerate(loader):
         if add_timing:
-            start = torch.cuda.Event(enable_timing=True)
-            end = torch.cuda.Event(enable_timing=True)
-            start.record()
+            if use_cuda_timing:
+                start = torch.cuda.Event(enable_timing=True)
+                end = torch.cuda.Event(enable_timing=True)
+                start.record()
+            else:
+                start_time = time.time()
 
         data.to(device)
         lit_batch = data["lit"].batch
@@ -144,9 +197,12 @@ def var_params_from_target_prediction(
         var_params = torch.stack([phase, weight], dim=1).unsqueeze(0)
 
         if add_timing:
-            end.record()
-            torch.cuda.synchronize()
-            gpu_time = start.elapsed_time(end) / 1.0e3
+            if use_cuda_timing:
+                end.record()
+                torch.cuda.synchronize()
+                gpu_time = start.elapsed_time(end) / 1.0e3
+            else:
+                gpu_time = time.time() - start_time
 
         data.to("cpu")
         data_list = data.to_data_list()
@@ -204,7 +260,7 @@ def compute_solver_stats(
 
     start_time = time.time()
 
-    stats_dicts = Parallel(n_jobs=num_workers)(
+    stats_dicts = Parallel(n_jobs=num_workers, prefer="threads")(
         delayed(solver_pool_fn)(inp)
         for inp in iter_inputs()
     )

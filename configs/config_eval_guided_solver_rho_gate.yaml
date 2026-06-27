@@ -1,0 +1,36 @@
+# @package _global_
+
+defaults:
+  - config_eval_guided_solver_event_var
+  - _self_
+
+# Main robust slow-fast ablation checkpoint:
+# trace-pretrained gated residual adapter with a fixed graph-level base-rho gate.
+checkpoint: runs/GNN_Glucose_3SAT_TraceAdapter_GatedConflict_Scale025Clip05_RhoGateM024/best.pt
+
+save_file: eval_trace_adapter_rho_gate.csv
+
+dataset:
+  eval_path: "data/test/3sat/350/*.cnf"
+  lazy: True
+
+solver:
+  num_workers: 8
+  params:
+    cpu-lim: 60
+    rnd-freq: 0.0
+    K: 0.1
+
+loader:
+  batch_size: 20
+  num_workers: 0
+
+feedback_refinement:
+  enabled: True
+  state_type: event_var
+  event_state_features: enhanced
+  num_rounds: 1
+  state_momentum: 0.5
+  rollout_budget_type: conflicts
+  rollout_conflicts: 500
+  warmup_cpu_lim: 10

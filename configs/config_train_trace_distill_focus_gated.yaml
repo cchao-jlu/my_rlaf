@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - config_train_trace_distill_gated_small_residual
+  - _self_
+
+model_name: GNN_Glucose_3SAT_TraceAdapter_FocusGatedSmallResidual
+model_dir: runs/${model_name}
+
+trace:
+  label:
+    # Keep the conservative conflict/learnt/useful-decision target, but gate
+    # its strength by rollout focus. Diffuse warmup traces get lower residual
+    # targets and lower confidence instead of forcing a noisy update.
+    focus_gate_enabled: true
+    focus_topk_ratio: 0.10
+    focus_min_topk_mass: 0.45
+    focus_min_multiplier: 0.25
+    focus_power: 1.0

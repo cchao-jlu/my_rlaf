@@ -19,5 +19,5 @@ cd ../../..
 
 cd solvers/glucose_weighted/simp
 make clean
-make rs
+make r
 cd ../../..

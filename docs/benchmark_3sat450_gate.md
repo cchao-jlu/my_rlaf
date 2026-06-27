@@ -65,8 +65,11 @@ runs/analysis/benchmark_3sat450_gate/raw/cadical_repeat2.csv
   CaDiCaL both leave a nonempty hard subset under the 60s gate.
 - This gate currently has 3 repeat(s). The repeated
   March/CaDiCaL solved patterns are stable in the current run.
-- The next experiment should evaluate the frozen neural workflow only on
-  the repeated strong-solver-hard subset.
+- The frozen neural workflow has now been evaluated on the repeated
+  strong-solver-hard subset; see `docs/benchmark_3sat450_neural_gate.md`.
+  It solves 0/13 with One-shot and 0/13 with Online-Consistent Selector
+  across seeds 1/2/3, so this subset does not support a frozen-neural
+  complementarity claim.
 
 Generated artifacts:
 

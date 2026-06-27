@@ -45,10 +45,23 @@ def main() -> None:
     benchmark_march = pd.read_csv(ROOT / "runs/analysis/benchmark_suitability_gate/march_suitability_summary.csv")
     candidate_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/summary.csv")
     candidate_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_smoke/solver_overlap.csv")
+    candidate_neural_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_neural_triage/summary.csv")
+    candidate_neural_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_candidate_neural_triage/overlap.csv")
+    transition_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_transition_band/solver_overlap.csv")
+    transition_neural_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_transition_band_neural_triage/summary.csv")
+    transition_neural_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_transition_band_neural_triage/overlap.csv")
+    march_guidance_transition_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_march_guidance_transition_triage/summary.csv")
+    march_guidance_transition_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_march_guidance_transition_triage/overlap.csv")
+    march_guidance_transition_full_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_march_guidance_transition_full/strong_solver_overlap_summary.csv")
+    march_sample_instance = pd.read_csv(ROOT / "runs/analysis/benchmark_march_sample_portfolio_triage/instance_summary.csv")
+    march_sample_size = pd.read_csv(ROOT / "runs/analysis/benchmark_march_sample_portfolio_triage/size_summary.csv")
+    march_sample_focused = pd.read_csv(ROOT / "runs/analysis/benchmark_march_sample_portfolio_multiseed/focused_sample_portfolio_summary.csv")
     gate450_summary = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/summary.csv")
     gate450_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/solver_overlap_by_repeat.csv")
     gate450_stable_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/solver_overlap_stable.csv")
     gate450_hard = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_gate/strong_solver_hard_subset.csv")
+    gate450_neural = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_neural_gate/method_summary.csv")
+    gate450_neural_overlap = pd.read_csv(ROOT / "runs/analysis/benchmark_3sat450_neural_gate/strong_hard_neural_overlap.csv")
 
     portfolio_solved = portfolio["portfolio_solved"].astype(int).tolist()
     cadical_solved = portfolio["cadical_solved"].astype(int).tolist()
@@ -218,6 +231,168 @@ def main() -> None:
         ("coloring", 500): (0, 8),
     }
     require(candidate_overlap_counts == expected_candidate_overlap, f"Unexpected candidate overlap counts: {candidate_overlap_counts}")
+    candidate_neural_counts = {
+        (str(row["family"]), int(row["size"]), str(row["method"]), int(row["seed"])): (int(row["n"]), int(row["solved"]))
+        for _, row in candidate_neural_summary.iterrows()
+    }
+    expected_candidate_neural_counts = {}
+    for seed in [1, 2, 3]:
+        expected_candidate_neural_counts[("3sat", 450, "one_shot", seed)] = (3, 0)
+        expected_candidate_neural_counts[("3sat", 450, "online_consistent_boundary400", seed)] = (3, 0)
+        expected_candidate_neural_counts[("3sat", 500, "one_shot", seed)] = (6, 0)
+        expected_candidate_neural_counts[("3sat", 500, "online_consistent_boundary400", seed)] = (6, 0)
+    require(
+        candidate_neural_counts == expected_candidate_neural_counts,
+        f"Unexpected candidate neural triage counts: {candidate_neural_counts}",
+    )
+    candidate_neural_patterns = candidate_neural_overlap["pattern"].map(lambda value: str(value).zfill(2))
+    require(
+        set(candidate_neural_patterns) == {"00"},
+        f"Unexpected candidate neural triage patterns: {sorted(candidate_neural_patterns.unique())}",
+    )
+    candidate_neural_subset = {
+        (str(family), int(size)): int(count)
+        for (family, size), count in candidate_neural_overlap.groupby(["family", "size"]).size().items()
+    }
+    require(candidate_neural_subset == {("3sat", 450): 3, ("3sat", 500): 6}, f"Unexpected candidate neural subset: {candidate_neural_subset}")
+
+    transition_overlap_counts = {
+        int(row["size"]): (int(row["total"]), int(row["both_solved"]), int(row["march_only"]), int(row["cadical_only"]), int(row["both_unknown"]), int(row["union_solved"]))
+        for _, row in transition_overlap.iterrows()
+    }
+    expected_transition_overlap = {
+        410: (12, 4, 5, 0, 3, 9),
+        425: (12, 8, 1, 1, 2, 10),
+        440: (12, 4, 0, 2, 6, 6),
+    }
+    require(transition_overlap_counts == expected_transition_overlap, f"Unexpected transition-band overlap: {transition_overlap_counts}")
+    transition_neural_counts = {
+        (int(row["size"]), str(row["method"]), int(row["seed"])): (int(row["n"]), int(row["solved"]))
+        for _, row in transition_neural_summary.iterrows()
+    }
+    expected_transition_neural_counts = {}
+    for seed in [1, 2, 3]:
+        expected_transition_neural_counts[(410, "one_shot", seed)] = (3, 0)
+        expected_transition_neural_counts[(410, "online_consistent_boundary400", seed)] = (3, 0)
+        expected_transition_neural_counts[(425, "one_shot", seed)] = (2, 0)
+        expected_transition_neural_counts[(425, "online_consistent_boundary400", seed)] = (2, 0)
+        expected_transition_neural_counts[(440, "one_shot", seed)] = (6, 0)
+        expected_transition_neural_counts[(440, "online_consistent_boundary400", seed)] = (6, 0)
+    require(
+        transition_neural_counts == expected_transition_neural_counts,
+        f"Unexpected transition-band neural triage counts: {transition_neural_counts}",
+    )
+    transition_neural_patterns = transition_neural_overlap["pattern"].map(lambda value: str(value).zfill(2))
+    require(
+        set(transition_neural_patterns) == {"00"},
+        f"Unexpected transition-band neural triage patterns: {sorted(transition_neural_patterns.unique())}",
+    )
+    transition_neural_subset = {
+        int(size): int(count)
+        for size, count in transition_neural_overlap.groupby("size").size().items()
+    }
+    require(transition_neural_subset == {410: 3, 425: 2, 440: 6}, f"Unexpected transition-band neural subset: {transition_neural_subset}")
+    march_guidance_transition_counts = {
+        (int(row["size"]), int(row["seed"])): (int(row["n"]), int(row["solved"]))
+        for _, row in march_guidance_transition_summary.iterrows()
+    }
+    expected_march_guidance_transition_counts = {}
+    for seed in [1, 2, 3]:
+        expected_march_guidance_transition_counts[(410, seed)] = (3, 0)
+        expected_march_guidance_transition_counts[(425, seed)] = (2, 0)
+        expected_march_guidance_transition_counts[(440, seed)] = (6, 0)
+    require(
+        march_guidance_transition_counts == expected_march_guidance_transition_counts,
+        f"Unexpected March-guidance transition triage counts: {march_guidance_transition_counts}",
+    )
+    march_guidance_transition_subset = {
+        int(size): int(count)
+        for size, count in march_guidance_transition_overlap.groupby("size").size().items()
+    }
+    require(
+        march_guidance_transition_subset == {410: 3, 425: 2, 440: 6},
+        f"Unexpected March-guidance transition subset: {march_guidance_transition_subset}",
+    )
+    require(
+        int(march_guidance_transition_overlap["solved_seeds"].sum()) == 0,
+        "March-guidance transition triage unexpectedly solved at least one seed",
+    )
+    march_guidance_transition_full_counts = {
+        int(row["size"]): (
+            int(row["march_solved"]),
+            int(row["cadical_solved"]),
+            int(row["strong_union_solved"]),
+            int(row["march_guided_solved"]),
+            int(row["guided_only_vs_union"]),
+            int(row["guided_only_vs_march"]),
+            int(row["march_only_vs_guided"]),
+        )
+        for _, row in march_guidance_transition_full_summary.iterrows()
+    }
+    expected_march_guidance_transition_full = {
+        410: (9, 4, 9, 9, 0, 0, 0),
+        425: (9, 9, 10, 10, 0, 1, 0),
+        440: (4, 6, 6, 5, 0, 2, 1),
+    }
+    require(
+        march_guidance_transition_full_counts == expected_march_guidance_transition_full,
+        f"Unexpected March-guidance full transition overlap: {march_guidance_transition_full_counts}",
+    )
+    march_sample_size_counts = {
+        int(row["size"]): (int(row["instances"]), int(row["num_samples"]), int(row["solved_any"]), float(row["mean_solved_samples"]), int(row["max_solved_samples"]))
+        for _, row in march_sample_size.iterrows()
+    }
+    expected_march_sample_size = {
+        410: (3, 4, 1, 2 / 3, 2),
+        425: (2, 4, 0, 0.0, 0),
+        440: (6, 4, 0, 0.0, 0),
+    }
+    require(march_sample_size_counts.keys() == expected_march_sample_size.keys(), f"Unexpected sampled March sizes: {march_sample_size_counts}")
+    for size, expected in expected_march_sample_size.items():
+        actual = march_sample_size_counts[size]
+        require(actual[:3] == expected[:3], f"Unexpected sampled March count tuple for {size}: {actual}")
+        require(abs(actual[3] - expected[3]) < 1e-9, f"Unexpected sampled March mean for {size}: {actual[3]}")
+        require(actual[4] == expected[4], f"Unexpected sampled March max for {size}: {actual[4]}")
+    march_sample_solved = march_sample_instance[march_sample_instance["solved_any"].astype(bool)]
+    require(len(march_sample_instance) == 11, f"Unexpected sampled March instance count: {len(march_sample_instance)}")
+    require(len(march_sample_solved) == 1, f"Unexpected sampled March solved-any count: {len(march_sample_solved)}")
+    solved_row = march_sample_solved.iloc[0]
+    require(int(solved_row["size"]) == 410, f"Unexpected sampled March solved size: {solved_row.to_dict()}")
+    require(str(solved_row["file_key"]) == "3sat_2.cnf", f"Unexpected sampled March solved instance: {solved_row.to_dict()}")
+    require(int(solved_row["samples"]) == 4, f"Unexpected sampled March sample count: {solved_row.to_dict()}")
+    require(int(solved_row["solved_samples"]) == 2, f"Unexpected sampled March solved samples: {solved_row.to_dict()}")
+    require(abs(float(solved_row["best_time"]) - 31.813) < 1e-6, f"Unexpected sampled March best time: {solved_row.to_dict()}")
+    focused_rows = {
+        (int(row["size"]), str(row["file_key"])): row
+        for _, row in march_sample_focused.iterrows()
+    }
+    expected_focused = {
+        (410, "3sat_2.cnf"): (3, 16, 48, 37, 35, 3, 3),
+        (410, "3sat_3.cnf"): (3, 16, 48, 0, 0, 0, 0),
+        (410, "3sat_8.cnf"): (3, 16, 48, 0, 0, 0, 0),
+        (440, "3sat_8.cnf"): (3, 16, 48, 5, 4, 3, 2),
+    }
+    require(focused_rows.keys() == expected_focused.keys(), f"Unexpected focused sampled rows: {sorted(focused_rows)}")
+    for key, expected in expected_focused.items():
+        row = focused_rows[key]
+        actual = (
+            int(row["sample_seeds"]),
+            int(row["samples_per_seed"]),
+            int(row["total_samples"]),
+            int(row["returned_solved_samples"]),
+            int(row["strict60_solved_samples"]),
+            int(row["returned_solved_seeds"]),
+            int(row["strict60_solved_seeds"]),
+        )
+        require(actual == expected, f"Unexpected focused sampled values for {key}: {actual}")
+    require(
+        bool(focused_rows[(410, "3sat_2.cnf")]["strict60_solved_any"]),
+        "410/3sat_2.cnf should have strict-60 sampled complementarity",
+    )
+    require(
+        bool(focused_rows[(440, "3sat_8.cnf")]["strict60_solved_any"]),
+        "440/3sat_8.cnf should have strict-60 sampled complementarity",
+    )
 
     gate450_counts = {
         (str(row["solver"]), int(row["repeat"])): (int(row["total"]), int(row["solved"]), int(row["unknown"]))
@@ -240,6 +415,21 @@ def main() -> None:
     require(int(gate450_stable_row["both_unsolved_all"]) == 13, "Unexpected 3SAT-450 stable hard count")
     require(int(gate450_stable_row["union_solved_any"]) == 11, "Unexpected 3SAT-450 stable union count")
     require(len(gate450_hard) == 13, f"Unexpected 3SAT-450 hard subset size: {len(gate450_hard)}")
+    gate450_neural_counts = {
+        row["method"]: (int(row["seeds"]), float(row["solved_mean"]), int(row["solved_min"]), int(row["solved_max"]))
+        for _, row in gate450_neural.iterrows()
+    }
+    expected_gate450_neural = {
+        "one_shot": (3, 0.0, 0, 0),
+        "online_consistent_boundary400": (3, 0.0, 0, 0),
+    }
+    require(gate450_neural_counts == expected_gate450_neural, f"Unexpected 3SAT-450 neural gate counts: {gate450_neural_counts}")
+    require(len(gate450_neural_overlap) == 13, f"Unexpected 3SAT-450 neural overlap size: {len(gate450_neural_overlap)}")
+    gate450_patterns = gate450_neural_overlap["pattern"].map(lambda value: str(value).zfill(2))
+    require(
+        set(gate450_patterns) == {"00"},
+        f"Unexpected 3SAT-450 neural solved pattern: {sorted(gate450_patterns.unique())}",
+    )
 
     stale_patterns = [
         "50/200",
@@ -276,7 +466,14 @@ def main() -> None:
     print(f"failure_boundary_lattice={expected_lattice_counts}")
     print(f"benchmark_suitability_march_gate={expected_march_gate}")
     print(f"benchmark_candidate_smoke={expected_candidate_counts}")
+    print("benchmark_candidate_neural_triage=3sat450 0/3 x3, 3sat500 0/6 x3")
+    print("benchmark_transition_band=410/425/440 mixed strong-solver gate, neural 0/11 x3")
+    print("march_guidance_transition_triage=0/11 x3")
+    print("march_guidance_transition_full=guided_only_vs_union 0, guided_only_vs_march 3")
+    print("march_sample_portfolio_triage=1/11 solved-any, 3sat_2.cnf solved by 2/4 samples")
+    print("march_sample_portfolio_focused=410/3sat_2 strict60 35/48, 440/3sat_8 strict60 4/48")
     print(f"benchmark_3sat450_gate={expected_gate450_counts}, both_unknown=13")
+    print(f"benchmark_3sat450_neural_gate={expected_gate450_neural}, patterns=00 x13")
 
 
 if __name__ == "__main__":

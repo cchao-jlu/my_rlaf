@@ -23,6 +23,32 @@ training:
   target_stat: decisions
   num_samples: 40
   use_amp: True
+  feedback_input_mode: none
+  feedback_val_mode: none
+  feedback_model_warmup_prob: 0.3
+  feedback_warmup_cpu_lim: 1
+  feedback_warmup_num_samples: 1
+  feedback_random_weight: 1.0
+  composite_cpu_weight: 1.0
+  composite_conflicts_weight: 0.2
+  composite_decisions_weight: 0.0
+  composite_unsolved_penalty: 0.0
+  speedup_baseline: neutral_weighted
+  speedup_baseline_weight: 1.0
+  speedup_cpu_column: "CPU time"
+  speedup_cpu_weight: 1.0
+  speedup_conflicts_weight: 0.2
+  speedup_decisions_weight: 0.05
+  speedup_unsolved_penalty: 8.0
+  speedup_result_mismatch_penalty: 20.0
+  speedup_ratio_eps: 1.0e-6
+  speedup_log_ratio_clip: 2.0
+  feedback_state_type: global
+  feedback_event_state_features: legacy
+  feedback_state_momentum: 0.0
+  feedback_warmup_budget_type: cpu_time
+  feedback_warmup_conflicts: 500
+  feedback_trace_lbd: 2
 
 dataset:
   train_path: "data/training/3sat/*/*.cnf"
@@ -39,6 +65,7 @@ solver:
 model:
   channels: 256
   num_layers: 10
+  global_state_dim: 0
   aggr: [mean]
   feature_encoder: mlp
   dropout: 0.0

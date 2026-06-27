@@ -1,0 +1,40 @@
+# @package _global_
+
+defaults:
+  - config_generate_counterfactual_outcome_traces
+  - _self_
+
+# 面向 risk-controller 的下一版 counterfactual trace。
+# 与旧 500-conflict 单点标签相比，这版使用更长 warmup evidence，
+# 并只把较难实例上的明确收益标为 positive。
+
+dataset:
+  path: "data/selector_splits/3sat/selector_train/*/*.cnf"
+  lazy: True
+
+counterfactual:
+  output_path: "data/counterfactual_trace/risk_focused_multipoint_selector_train_300350_traces.pt"
+  output_csv: "data/counterfactual_trace/risk_focused_multipoint_selector_train_300350_outcomes.csv"
+  warmup_stats_csv: "data/counterfactual_trace/risk_focused_multipoint_selector_train_300350_warmup_stats.csv"
+  base_stats_csv: "data/counterfactual_trace/risk_focused_multipoint_selector_train_300350_base_branch_stats.csv"
+  adapter_stats_csv: "data/counterfactual_trace/risk_focused_multipoint_selector_train_300350_adapter_branch_stats.csv"
+  doc_path: "docs/counterfactual_outcome_trace_risk_focused_multipoint_selector_train_300350.md"
+  warmup_conflicts: 2000
+  intervention_conflicts: [500, 1000, 2000]
+  warmup_cpu_lim: 15
+  final_cpu_lim: 60
+  label:
+    positive_speedup_ratio: 0.75
+    negative_slowdown_ratio: 1.05
+    positive_weight: 4.0
+    negative_weight: 8.0
+    recovery_weight: 12.0
+    lost_weight: 24.0
+    speedup_weight: 4.0
+    slowdown_weight: 10.0
+    easy_slowdown_weight: 16.0
+    positive_min_base_time: 10.0
+    positive_min_delta_time: 1.0
+    negative_min_delta_time: 0.5
+    easy_base_time_cutoff: 10.0
+    easy_negative_delta_time: 0.25

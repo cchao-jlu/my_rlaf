@@ -1,0 +1,20 @@
+# @package _global_
+
+defaults:
+  - config_train_trace_distill_gated
+  - _self_
+
+model_name: GNN_Glucose_3SAT_TraceAdapter_GatedConflictSmallResidual
+model_dir: runs/${model_name}
+
+trace:
+  label:
+    # Small residual targets: keep only solver events that directly indicate
+    # conflict-core relevance, and avoid high-variance activity/propagation cues.
+    low_lbd_weight: 0.45
+    useful_decision_weight: 0.30
+    conflict_rank_weight: 0.25
+    propagation_rank_weight: 0.0
+    activity_rank_weight: 0.0
+    target_scale: 1.0
+    target_delta_clip: 0.5

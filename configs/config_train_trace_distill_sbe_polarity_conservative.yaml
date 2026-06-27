@@ -1,0 +1,28 @@
+# @package _global_
+
+defaults:
+  - config_train_trace_distill_sbe_polarity
+  - _self_
+
+model_name: GNN_Glucose_3SAT_TraceAdapter_SBEPolarityConservative
+model_dir: runs/${model_name}
+
+model:
+  event_adapter:
+    # The first polarity SBE run overrode the RLAF prior too strongly.  This
+    # version treats polarity as a small gated residual correction only.
+    delta_scale: 0.05
+    delta_clip: 0.5
+    base_rho_gate_threshold: -0.24
+
+trace:
+  data_path: "data/trace_distill/train_trace_polarity.pt"
+  event_state_features: polarity
+  label:
+    low_lbd_weight: 0.45
+    useful_decision_weight: 0.30
+    conflict_rank_weight: 0.25
+    propagation_rank_weight: 0.0
+    activity_rank_weight: 0.0
+    target_scale: 1.0
+    target_delta_clip: 0.5

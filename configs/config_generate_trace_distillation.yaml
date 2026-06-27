@@ -1,0 +1,52 @@
+# @package _global_
+
+defaults:
+  - config_train_rlaf_event_var
+  - _self_
+
+model_name: GNN_Glucose_3SAT_TraceData
+
+# Slow GNN checkpoint used to produce base_embedding/base_y and warmup guidance.
+from_checkpoint: runs/GNN_Glucose_3SAT_V1/best.pt
+
+dataset:
+  path: "data/training/3sat/*/*.cnf"
+  lazy: True
+
+trace:
+  output_path: "data/trace_distill/train_trace.pt"
+  stats_path: "data/trace_distill/train_trace_stats.csv"
+  num_samples: 1
+  max_num_batches: -1
+  use_mode: True
+  use_cuda: True
+  event_state_features: enhanced
+  state_momentum: 0.0
+  rollout_budget_type: conflicts
+  rollout_cpu_lim: 10
+  rollout_conflicts: 500
+  trace_lbd_threshold: 2
+  label:
+    low_lbd_weight: 0.35
+    useful_decision_weight: 0.25
+    conflict_rank_weight: 0.20
+    propagation_rank_weight: 0.10
+    activity_rank_weight: 0.10
+    target_scale: 2.0
+    target_delta_clip: null
+    min_target_mu: -4.0
+    max_target_mu: 4.0
+    rho_loss_weight: 0.0
+    mu_loss_weight: 1.0
+
+solver:
+  solver: glucose
+  num_workers: 8
+  params:
+    cpu-lim: 10
+    rnd-freq: 0.0
+    K: 0.1
+
+loader:
+  batch_size: 20
+  num_workers: 0

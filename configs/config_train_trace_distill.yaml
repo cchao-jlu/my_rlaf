@@ -1,0 +1,42 @@
+# @package _global_
+
+defaults:
+  - config_train_rlaf_event_var
+  - _self_
+
+model_name: GNN_Glucose_3SAT_TraceAdapter
+model_dir: runs/${model_name}
+
+# Initialize the slow GNN weights from the RLAF checkpoint; adapter parameters are trained below.
+from_checkpoint: runs/GNN_Glucose_3SAT_V1/best.pt
+
+trace:
+  data_path: "data/trace_distill/train_trace.pt"
+  relabel: True
+  label:
+    low_lbd_weight: 0.35
+    useful_decision_weight: 0.25
+    conflict_rank_weight: 0.20
+    propagation_rank_weight: 0.10
+    activity_rank_weight: 0.10
+    target_scale: 2.0
+    target_delta_clip: null
+    min_target_mu: -4.0
+    max_target_mu: 4.0
+    rho_loss_weight: 0.0
+    mu_loss_weight: 1.0
+
+training:
+  epochs: 20
+  freeze_backbone: True
+  use_cuda: True
+  use_amp: True
+  ckpt_interval: null
+
+loader:
+  batch_size: 20
+  num_workers: 0
+
+optim:
+  lr: 1e-4
+  weight_decay: 0.0

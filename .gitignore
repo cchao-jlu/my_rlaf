@@ -170,5 +170,47 @@ cython_debug/
 # Ruff stuff:
 .ruff_cache/
 
+# Local/editor state
+.codex
+.codex/
+.tmp/
+.vscode/
+activate
+base
+put
+eval_stage2_400
+feedback_refinement.enabled=True
+feedback_refinement.warmup_cpu_lim=1
+feedback_refinement.warmup_cpu_lim=1conda
+*.log
+*.diff
+*_note.txt
+my_rlaf_code_latest.tar.gz
+/*.pdf
+
+# Experiment outputs and generated datasets/checkpoints
+data/
+runs/
+outputs/
+wandb/
+*.pt
+*.pth
+*.ckpt
+*.tar.gz
+
+# Solver build products
+*.o
+*.or
+*.a
+*.so
+depend.mk
+solvers/**/glucose_static
+solvers/**/glucose_release
+solvers/**/march_nh
+solvers/**/march_weighted_nh
+glucose_weighted_static
+march_nh
+march_weighted_nh
+
 # PyPI configuration file
 .pypirc

@@ -1,0 +1,9 @@
+# @package _global_
+
+defaults:
+  - config_eval_guided_solver_sbe_polarity
+  - _self_
+
+checkpoint: runs/GNN_Glucose_3SAT_TraceAdapter_SBEPolarityConservative/best.pt
+
+save_file: eval_sbe_polarity_conservative.csv

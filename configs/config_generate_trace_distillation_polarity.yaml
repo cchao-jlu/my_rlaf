@@ -1,0 +1,14 @@
+# @package _global_
+
+defaults:
+  - config_generate_trace_distillation
+  - _self_
+
+model:
+  var_state_dim: 29
+
+trace:
+  output_path: "data/trace_distill/train_trace_polarity.pt"
+  stats_path: "data/trace_distill/train_trace_polarity_stats.csv"
+  event_state_features: polarity
+  use_cuda: False

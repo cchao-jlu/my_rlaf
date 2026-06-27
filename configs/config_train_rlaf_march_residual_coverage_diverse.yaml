@@ -1,0 +1,56 @@
+# @package _global_
+
+defaults:
+  - config_train_rlaf_march_residual_targeted
+  - _self_
+
+method: grpo
+
+model_name: GNN_March_3SAT_ResidualCoverageDiverse
+model_dir: runs/${model_name}
+
+from_checkpoint: runs/GNN_March_3SAT_ResidualTargetedIter22/last.pt
+
+val_interval: 2
+skip_initial_val: true
+ckpt_interval: null
+last_ckpt_interval: 1
+
+training:
+  iterations: 16
+  cnf_per_iter: 8
+  steps_per_iter: 8
+  num_samples: 8
+  kl_penalty: 0.25
+  target_stat: composite_diverse
+  composite_unsolved_penalty: 5.0
+  composite_cpu_weight: 1.0
+  composite_deadends_weight: 0.03
+  composite_conflicts_weight: 0.0
+  composite_decisions_weight: 0.05
+  composite_diversity_weight: 0.75
+  composite_diversity_unsolved_only: true
+  entropy_bonus: 0.002
+
+solver:
+  solver: march
+  num_workers: 8
+  params:
+    cpu-lim: 20
+    rnd-freq: null
+    K: null
+
+loader:
+  batch_size: 8
+  num_workers: 0
+
+optim:
+  lr: 1e-5
+  weight_decay: 0.0
+
+wandb:
+  project: RLAF
+  name: ${model_name}
+  mode: disabled
+
+seed: 1731

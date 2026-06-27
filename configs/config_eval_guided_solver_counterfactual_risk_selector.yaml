@@ -1,0 +1,37 @@
+# @package _global_
+
+defaults:
+  - config_eval_guided_solver_event_var
+  - _self_
+
+# 当前 EchoSAT risk-controlled slow-fast 配置。
+# checkpoint 保留 trace-pretrained gated residual adapter，但只有当
+# ultra-conservative counterfactual selector 预测翻车风险较低时才启用。
+checkpoint: runs/GNN_Glucose_3SAT_CounterfactualRiskSelectorSmall300350_UltraConservative/best.pt
+
+save_file: eval_counterfactual_risk_selector.csv
+
+dataset:
+  eval_path: "data/test/3sat/350/*.cnf"
+  lazy: True
+
+solver:
+  num_workers: 8
+  params:
+    cpu-lim: 60
+    rnd-freq: 0.0
+    K: 0.1
+
+loader:
+  batch_size: 20
+  num_workers: 0
+
+feedback_refinement:
+  enabled: True
+  state_type: event_var
+  event_state_features: enhanced
+  num_rounds: 1
+  state_momentum: 0.5
+  rollout_budget_type: conflicts
+  rollout_conflicts: 500
+  warmup_cpu_lim: 10

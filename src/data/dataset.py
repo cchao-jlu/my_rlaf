@@ -1,6 +1,6 @@
 from copy import copy
 from multiprocessing import Pool
-from typing import Literal, Callable, Optional
+from typing import Literal, Callable, Optional, Sequence
 from glob import glob
 
 import numpy as np
@@ -15,6 +15,27 @@ from src.solving.backbone import get_backbone_lits
 from src.solving.core import get_core_vars
 
 
+class LazyCNFList:
+    """Indexable CNF view that loads DIMACS files on demand."""
+
+    def __init__(self, files: Sequence[str], cache: bool = True):
+        self.files = list(files)
+        self.cache = bool(cache)
+        self._cache: dict[int, CNF] = {}
+
+    def __len__(self) -> int:
+        return len(self.files)
+
+    def __getitem__(self, idx: int) -> CNF:
+        idx = int(idx)
+        if self.cache and idx in self._cache:
+            return self._cache[idx]
+        cnf = CNF(from_file=self.files[idx])
+        if self.cache:
+            self._cache[idx] = cnf
+        return cnf
+
+
 class DimacsCNFDataset(Dataset):
     """
     This dataset class provides the functionality for:
@@ -25,8 +46,10 @@ class DimacsCNFDataset(Dataset):
 
     def __init__(
             self,
-            path: str,
+            path: str | Sequence[str],
             transform: Optional[Callable] = None,
+            lazy: bool = False,
+            lazy_cache: bool = True,
     ):
         """
         :param path: A pattern or directory path pointing to DIMACS CNF files.
@@ -35,22 +58,37 @@ class DimacsCNFDataset(Dataset):
         super().__init__()
         self.path = path
         self.transform = transform
+        self.lazy = bool(lazy)
+        self.lazy_cache = bool(lazy_cache)
 
-        # 1) Load CNFs from the specified path
-        self.cnf_dict = self._load_dimacs_files(self.path)
+        self.files = self._resolve_dimacs_files(self.path)
+        self.id_to_file = {i: fn for i, fn in enumerate(self.files)}
 
-        # 2) Convert CNFs to PyG data objects
-        self.id_to_file = {i: fn for i, fn in enumerate(self.cnf_dict.keys())}
-        self.cnf_list = [self.cnf_dict[self.id_to_file[i]] for i in range(len(self.cnf_dict))]
-        self.data_list = self._convert_to_pyg()
+        if self.lazy:
+            self.cnf_dict = {}
+            self.cnf_list = LazyCNFList(self.files, cache=self.lazy_cache)
+            self.data_list = None
+        else:
+            # 1) Load CNFs from the specified path
+            self.cnf_dict = self._load_dimacs_files(self.files)
 
-    def _load_dimacs_files(self, path: str) -> dict[str, CNF]:
-        """ Loads .dimacs files from the given path (glob pattern). """
-        files = list(glob(path))
+            # 2) Convert CNFs to PyG data objects
+            self.cnf_list = [self.cnf_dict[self.id_to_file[i]] for i in range(len(self.cnf_dict))]
+            self.data_list = self._convert_to_pyg()
+
+    def _resolve_dimacs_files(self, path: str | Sequence[str]) -> list[str]:
+        if isinstance(path, (list, tuple)):
+            files = [str(item) for item in path]
+        else:
+            files = list(glob(path))
         files.sort()
         if not files:
             raise ValueError(f"No DIMACS files found for path/pattern: {path}")
+        return files
 
+    def _load_dimacs_files(self, path: str | Sequence[str]) -> dict[str, CNF]:
+        """ Loads .dimacs files from the given path or file list. """
+        files = self._resolve_dimacs_files(path)
         cnf_dict = {}
         for f in tqdm(files, desc=f"Loading DIMACS files from '{path}'"):
             cnf_dict[f] = CNF(from_file=f)
@@ -71,11 +109,21 @@ class DimacsCNFDataset(Dataset):
             data_list.append(data)
         return data_list
 
+    def _convert_one_to_pyg(self, idx: int) -> HeteroData:
+        cnf = self.cnf_list[int(idx)]
+        data = cnf_to_pyg(f=cnf.clauses, num_var=cnf.nv)
+        if self.transform is not None:
+            data = self.transform(data)
+        data.cnf_id = torch.tensor(int(idx), dtype=torch.long)
+        return data
+
     def __getitem__(self, idx: int) -> HeteroData:
+        if self.lazy:
+            return self._convert_one_to_pyg(int(idx))
         return self.data_list[idx]
 
     def __len__(self) -> int:
-        return len(self.data_list)
+        return len(self.id_to_file)
 
     def len(self) -> int:
         return self.__len__()

@@ -91,6 +91,8 @@ static IntOption opt_chanseok_limit(_cred, "co", "Chanseok Oh: all learnt clause
 
 static IntOption opt_lb_size_minimzing_clause(_cm, "minSizeMinimizingClause", "The min size required to minimize clause", 30, IntRange(3, INT32_MAX));
 static IntOption opt_lb_lbd_minimzing_clause(_cm, "minLBDMinimizingClause", "The min LBD required to minimize clause", 6, IntRange(3, INT32_MAX));
+static IntOption opt_trace_low_lbd_threshold(_cat, "trace-lbd", "LBD threshold for trace-distillation useful learnt events", 2, IntRange(1, INT32_MAX));
+static BoolOption opt_collect_events(_cat, "collect-events", "Collect per-variable event traces for feedback refinement", false);
 static BoolOption opt_lcm(_cm, "lcm", "Use inprocessing vivif (ijcai17 paper)", true);
 static BoolOption opt_lcm_update_lbd(_cm, "lcm-update", "Updates LBD when doing LCM", false);
 
@@ -139,6 +141,8 @@ verbosity(0)
 , coLBDBound (opt_chanseok_limit)
 , lbSizeMinimizingClause(opt_lb_size_minimzing_clause)
 , lbLBDMinimizingClause(opt_lb_lbd_minimzing_clause)
+, traceLowLBDThreshold(opt_trace_low_lbd_threshold)
+, collectEvents(opt_collect_events)
 , useLCM(opt_lcm)
 , LCMUpdateLBD (opt_lcm_update_lbd)
 , var_decay(opt_var_decay)
@@ -227,6 +231,8 @@ Solver::Solver(const Solver &s) :
 , coLBDBound (opt_chanseok_limit)
 , lbSizeMinimizingClause(s.lbSizeMinimizingClause)
 , lbLBDMinimizingClause(s.lbLBDMinimizingClause)
+, traceLowLBDThreshold(s.traceLowLBDThreshold)
+, collectEvents(s.collectEvents)
 , useLCM(s.useLCM)
 , LCMUpdateLBD (s.LCMUpdateLBD)
 , var_decay(s.var_decay)
@@ -307,6 +313,20 @@ Solver::Solver(const Solver &s) :
     s.var_weight_init.memCopyTo(var_weight_init);
     s.var_weight_scale.memCopyTo(var_weight_scale);
     s.total_activity.memCopyTo(total_activity);
+    s.event_decisions.memCopyTo(event_decisions);
+    s.event_propagations.memCopyTo(event_propagations);
+    s.event_conflict_lits.memCopyTo(event_conflict_lits);
+    s.event_learnt_lits.memCopyTo(event_learnt_lits);
+    s.event_low_lbd_learnt_lits.memCopyTo(event_low_lbd_learnt_lits);
+    s.event_useful_decisions.memCopyTo(event_useful_decisions);
+    s.event_pos_decisions.memCopyTo(event_pos_decisions);
+    s.event_neg_decisions.memCopyTo(event_neg_decisions);
+    s.event_pos_propagations.memCopyTo(event_pos_propagations);
+    s.event_neg_propagations.memCopyTo(event_neg_propagations);
+    s.event_pos_conflict_lits.memCopyTo(event_pos_conflict_lits);
+    s.event_neg_conflict_lits.memCopyTo(event_neg_conflict_lits);
+    s.event_pos_assignments.memCopyTo(event_pos_assignments);
+    s.event_neg_assignments.memCopyTo(event_neg_assignments);
     s.seen.memCopyTo(seen);
     s.permDiff.memCopyTo(permDiff);
     s.polarity.memCopyTo(polarity);
@@ -398,6 +418,20 @@ Var Solver::newVar(bool sign, bool dvar, double weight_init, double weight_scale
     var_weight_init.push(weight_init);
     var_weight_scale.push(weight_scale);
     total_activity.push(0.0);
+    event_decisions.push(0);
+    event_propagations.push(0);
+    event_conflict_lits.push(0);
+    event_learnt_lits.push(0);
+    event_low_lbd_learnt_lits.push(0);
+    event_useful_decisions.push(0);
+    event_pos_decisions.push(0);
+    event_neg_decisions.push(0);
+    event_pos_propagations.push(0);
+    event_neg_propagations.push(0);
+    event_pos_conflict_lits.push(0);
+    event_neg_conflict_lits.push(0);
+    event_pos_assignments.push(0);
+    event_neg_assignments.push(0);
     seen.push(0);
     permDiff.push(0);
     polarity.push(sign);
@@ -743,6 +777,13 @@ void Solver::analyze(CRef confl, vec <Lit> &out_learnt, vec <Lit> &selectors, in
             if(!seen[var(q)]) {
                 if(level(var(q)) == 0) {
                 } else { // Here, the old case
+                    if(collectEvents) {
+                        event_conflict_lits[var(q)]++;
+                        if(sign(q))
+                            event_neg_conflict_lits[var(q)]++;
+                        else
+                            event_pos_conflict_lits[var(q)]++;
+                    }
                     if(!isSelector(var(q)))
                         varBumpActivity(var(q));
 
@@ -959,6 +1000,19 @@ void Solver::uncheckedEnqueue(Lit p, CRef from) {
     assert(value(p) == l_Undef);
     assigns[var(p)] = lbool(!sign(p));
     vardata[var(p)] = mkVarData(from, decisionLevel());
+    if(collectEvents) {
+        if(sign(p))
+            event_neg_assignments[var(p)]++;
+        else
+            event_pos_assignments[var(p)]++;
+        if(from != CRef_Undef) {
+            event_propagations[var(p)]++;
+            if(sign(p))
+                event_neg_propagations[var(p)]++;
+            else
+                event_pos_propagations[var(p)]++;
+        }
+    }
     trail.push_(p);
 }
 
@@ -1479,6 +1533,8 @@ lbool Solver::search(int nof_conflicts) {
             conflicts++;
             conflictC++;
             conflictsRestarts++;
+            if(!withinBudget())
+                return l_Undef;
             if(conflicts % 5000 == 0 && var_decay < max_var_decay)
                 var_decay += 0.01;
 
@@ -1515,6 +1571,18 @@ lbool Solver::search(int nof_conflicts) {
             selectors.clear();
 
             analyze(confl, learnt_clause, selectors, backtrack_level, nblevels, szWithoutSelectors);
+            if(collectEvents) {
+                bool lowLBDLearnt = nblevels <= traceLowLBDThreshold;
+                for(int i = 0; i < learnt_clause.size(); i++) {
+                    Var learntVar = var(learnt_clause[i]);
+                    event_learnt_lits[learntVar]++;
+                    if(lowLBDLearnt) {
+                        event_low_lbd_learnt_lits[learntVar]++;
+                        if(reason(learntVar) == CRef_Undef)
+                            event_useful_decisions[learntVar]++;
+                    }
+                }
+            }
 
             stats[sumSizes]+= learnt_clause.size();
             lbdQueue.push(nblevels);
@@ -1626,6 +1694,13 @@ lbool Solver::search(int nof_conflicts) {
                     // Model found:
                     return l_True;
                 }
+                if(collectEvents) {
+                    event_decisions[var(next)]++;
+                    if(sign(next))
+                        event_neg_decisions[var(next)]++;
+                    else
+                        event_pos_decisions[var(next)]++;
+                }
             }
 
             // Increase decision level and enqueue 'next'
@@ -1687,6 +1762,84 @@ void Solver::printIncrementalStats() {
     printf("c UNSAT Calls           : %d in %g seconds\n", nbUnsatCalls, totalTime4Unsat);
 
     printf("c--------------------------------------------------\n");
+}
+
+
+void Solver::printEventStats() {
+    printf("c event var_decisions");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_decisions[i]);
+    printf("\n");
+
+    printf("c event var_propagations");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_propagations[i]);
+    printf("\n");
+
+    printf("c event var_conflict_lits");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_conflict_lits[i]);
+    printf("\n");
+
+    printf("c event var_learnt_lits");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_learnt_lits[i]);
+    printf("\n");
+
+    printf("c event var_low_lbd_learnt_lits");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_low_lbd_learnt_lits[i]);
+    printf("\n");
+
+    printf("c event var_useful_decisions");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_useful_decisions[i]);
+    printf("\n");
+
+    printf("c event var_pos_decisions");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_pos_decisions[i]);
+    printf("\n");
+
+    printf("c event var_neg_decisions");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_neg_decisions[i]);
+    printf("\n");
+
+    printf("c event var_pos_propagations");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_pos_propagations[i]);
+    printf("\n");
+
+    printf("c event var_neg_propagations");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_neg_propagations[i]);
+    printf("\n");
+
+    printf("c event var_pos_conflict_lits");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_pos_conflict_lits[i]);
+    printf("\n");
+
+    printf("c event var_neg_conflict_lits");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_neg_conflict_lits[i]);
+    printf("\n");
+
+    printf("c event var_pos_assignments");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_pos_assignments[i]);
+    printf("\n");
+
+    printf("c event var_neg_assignments");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %" PRIu64, event_neg_assignments[i]);
+    printf("\n");
+
+    printf("c event var_activity");
+    for(int i = 0; i < nVars(); i++)
+        printf(" %.8g", activity[i]);
+    printf("\n");
 }
 
 

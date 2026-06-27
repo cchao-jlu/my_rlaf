@@ -23,6 +23,10 @@ loader:
   num_neighbors: 128
   num_workers: 0
 
+feedback_refinement:
+  enabled: False
+  warmup_cpu_lim: 1
+
 is_supervised: False
 # scale needed for supervised models
 pred_scale: 1.0

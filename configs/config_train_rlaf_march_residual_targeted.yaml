@@ -1,0 +1,89 @@
+# @package _global_
+
+defaults:
+  - config_train_rlaf
+  - _self_
+
+method: grpo
+
+model_name: GNN_March_3SAT_ResidualTargeted
+model_dir: runs/${model_name}
+
+from_checkpoint: runs/GNN_March_3SAT/best.pt
+
+val_interval: 1
+skip_initial_val: false
+ckpt_interval: null
+last_ckpt_interval: 1
+
+training:
+  iterations: 40
+  cnf_per_iter: 24
+  steps_per_iter: 24
+  clip_ratio: 0.2
+  beta: 1.0
+  kl_penalty: 0.2
+  target_stat: composite
+  num_samples: 16
+  use_amp: true
+  feedback_input_mode: none
+  feedback_state_type: global
+  feedback_event_state_features: legacy
+  feedback_state_momentum: 0.0
+  feedback_val_mode: none
+  feedback_model_warmup_prob: 0.3
+  feedback_warmup_budget_type: cpu_time
+  feedback_warmup_cpu_lim: 1
+  feedback_warmup_conflicts: 500
+  feedback_warmup_num_samples: 1
+  feedback_random_weight: 1.0
+  composite_unsolved_penalty: 5.0
+  composite_cpu_weight: 1.0
+  composite_deadends_weight: 0.05
+  composite_conflicts_weight: 0.0
+  composite_decisions_weight: 0.1
+
+dataset:
+  train_path: "runs/analysis/benchmark_transition_band_residual_large/residual_split_seed1729/cnf/residual_train/*/*.cnf"
+  val_path: "runs/analysis/benchmark_transition_band_residual_large/residual_split_seed1729/cnf/residual_dev/*/*.cnf"
+  lazy: false
+  lazy_val: false
+
+solver:
+  solver: march
+  num_workers: 8
+  params:
+    cpu-lim: 60
+    rnd-freq: null
+    K: null
+
+model:
+  channels: 256
+  num_layers: 10
+  global_state_dim: 0
+  var_state_dim: 0
+  aggr: [mean]
+  feature_encoder: mlp
+  dropout: 0.0
+  feature_set: rich
+  separate_encoders: true
+  learnable_sigma: true
+  event_adapter:
+    enabled: false
+
+scale_sigma: 0.1
+
+loader:
+  batch_size: 8
+  num_workers: 0
+
+optim:
+  lr: 1e-5
+  weight_decay: 0.0
+
+wandb:
+  project: RLAF
+  name: ${model_name}
+  mode: disabled
+
+seed: 1729

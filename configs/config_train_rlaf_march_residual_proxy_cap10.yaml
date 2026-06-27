@@ -1,0 +1,47 @@
+# @package _global_
+
+defaults:
+  - config_train_rlaf_march_residual_targeted
+  - _self_
+
+model_name: GNN_March_3SAT_ResidualProxyCap10
+model_dir: runs/${model_name}
+
+from_checkpoint: runs/GNN_March_3SAT/best.pt
+
+val_interval: 2
+skip_initial_val: false
+ckpt_interval: null
+last_ckpt_interval: 1
+
+training:
+  iterations: 8
+  cnf_per_iter: 16
+  steps_per_iter: 8
+  num_samples: 8
+  kl_penalty: 0.2
+  target_stat: composite
+  composite_unsolved_penalty: 5.0
+  composite_cpu_weight: 1.0
+  composite_deadends_weight: 0.05
+  composite_conflicts_weight: 0.0
+  composite_decisions_weight: 0.1
+
+solver:
+  solver: march
+  num_workers: 8
+  params:
+    cpu-lim: 10
+    rnd-freq: null
+    K: null
+
+loader:
+  batch_size: 8
+  num_workers: 0
+
+wandb:
+  project: RLAF
+  name: ${model_name}
+  mode: disabled
+
+seed: 1729

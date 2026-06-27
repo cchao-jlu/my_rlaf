@@ -19,12 +19,55 @@ SOLVER_BIN_PATHS = {
 STATS = ["decisions", "conflicts", "propagations", "restarts", "CPU time"]
 
 
+def subprocess_timeout(params: dict[str, Any], margin: float = 10.0) -> float | None:
+    cpu_lim = params.get("cpu-lim")
+    if cpu_lim is None:
+        return None
+    try:
+        return max(1.0, float(cpu_lim) + float(margin))
+    except (TypeError, ValueError):
+        return None
+
+
+def timeout_result(exc: subprocess.TimeoutExpired) -> dict[str, Any]:
+    stdout = exc.stdout or ""
+    stderr = exc.stderr or ""
+    if isinstance(stdout, bytes):
+        stdout = stdout.decode("utf-8", errors="replace")
+    if isinstance(stderr, bytes):
+        stderr = stderr.decode("utf-8", errors="replace")
+    stats = stdout_to_results_dict(stdout)
+    stats.setdefault("Result", "INDETERMINATE")
+    stats["solver_returncode"] = -9
+    stats["solver_timeout"] = True
+    stats["solver_stdout_bytes"] = len(stdout.encode("utf-8", errors="replace"))
+    stats["solver_stderr_bytes"] = len(stderr.encode("utf-8", errors="replace"))
+    return stats
+
+
+def _parse_event_values(raw: str) -> list[float]:
+    values = []
+    for part in raw.strip().split():
+        try:
+            value = float(part)
+        except ValueError:
+            continue
+        values.append(value)
+    return values
+
+
 def stdout_to_results_dict(stdout: str) -> dict[str, Any]:
     """ Parse a string of solver outputs into a results dictionary """
     stats = {}
 
     for line in stdout.splitlines():
         line = line.strip()
+        if line.startswith("c event "):
+            parts = line.split(maxsplit=3)
+            if len(parts) == 4:
+                key = f"event_{parts[2]}"
+                stats[key] = _parse_event_values(parts[3])
+            continue
         for stat in STATS:
             if line.startswith(f"c {stat}") or line.startswith(stat):
                 _, value_part = line.split(':', 1)
@@ -86,6 +129,7 @@ def solve_cnf(
     """
 
     dimacs_str = cnf_to_dimacs(f, var_params=var_params)
+    timeout = subprocess_timeout(params)
 
     if solver != "march":
         if var_params is None:
@@ -99,13 +143,27 @@ def solve_cnf(
             assert seed > 0
             call.append(f"-rnd-seed={seed}")
 
-        call += [f"-{key}={val}" for key, val in params.items()]
+        for key, val in params.items():
+            if isinstance(val, bool):
+                if val:
+                    call.append(f"-{key}")
+            else:
+                call.append(f"-{key}={val}")
 
         # Write the DIMACS string to a temporary file and pass it as stdin
         with tempfile.TemporaryFile(mode='w+') as tmp_file:
             tmp_file.write(dimacs_str)
             tmp_file.seek(0)
-            result = subprocess.run(call, capture_output=True, text=True, stdin=tmp_file)
+            try:
+                result = subprocess.run(
+                    call,
+                    capture_output=True,
+                    text=True,
+                    stdin=tmp_file,
+                    timeout=timeout,
+                )
+            except subprocess.TimeoutExpired as exc:
+                return timeout_result(exc)
     else:
 
         if var_params is None:
@@ -120,8 +178,23 @@ def solve_cnf(
         with open(tmp_file_name, "w") as f:
             f.write(dimacs_str)
         call.append(tmp_file_name)
-        result = subprocess.run(call, capture_output=True, text=True, cwd=os.getcwd())
-        os.remove(tmp_file_name)
+        try:
+            result = subprocess.run(
+                call,
+                capture_output=True,
+                text=True,
+                cwd=os.getcwd(),
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired as exc:
+            return timeout_result(exc)
+        finally:
+            if os.path.exists(tmp_file_name):
+                os.remove(tmp_file_name)
 
     stats = stdout_to_results_dict(result.stdout)
+    stats["solver_returncode"] = int(result.returncode)
+    stats["solver_timeout"] = False
+    stats["solver_stdout_bytes"] = len(result.stdout.encode("utf-8", errors="replace"))
+    stats["solver_stderr_bytes"] = len(result.stderr.encode("utf-8", errors="replace"))
     return stats

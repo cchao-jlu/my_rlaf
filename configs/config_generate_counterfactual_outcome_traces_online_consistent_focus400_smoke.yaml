@@ -1,0 +1,53 @@
+# @package _global_
+
+defaults:
+  - config_generate_counterfactual_outcome_traces_hard_recovery_400
+  - _self_
+
+# Online-consistent boundary trace smoke。
+# 目的不是训练新 selector，而是验证 trace 生成路径与正式 full400
+# pairwise+veto 评估使用同一 checkpoint、同一 multi-point evidence、
+# 同一 selector feature override 路径。
+
+checkpoint: runs/GNN_Glucose_3SAT_TwoStageRiskControllerBoundaryPairwiseRecoveryPositiveFloorSlowdownVeto/best.pt
+
+dataset:
+  path: "data/eval_focus/3sat/400/*.cnf"
+  lazy: True
+
+counterfactual:
+  output_path: "data/counterfactual_trace/online_consistent_focus400_smoke_traces.pt"
+  output_csv: "data/counterfactual_trace/online_consistent_focus400_smoke_outcomes.csv"
+  warmup_stats_csv: "data/counterfactual_trace/online_consistent_focus400_smoke_warmup_stats.csv"
+  base_stats_csv: "data/counterfactual_trace/online_consistent_focus400_smoke_base_branch_stats.csv"
+  adapter_stats_csv: "data/counterfactual_trace/online_consistent_focus400_smoke_adapter_branch_stats.csv"
+  doc_path: "docs/counterfactual_outcome_trace_online_consistent_focus400_smoke.md"
+  max_num_batches: 1
+  use_cuda: True
+  warmup_conflicts: 2000
+  intervention_conflicts: [500, 1000, 2000]
+  multi_point_feature_names:
+    - base_rho_mean
+    - base_rho_std
+    - base_rho_range
+    - delta_abs_mean
+    - delta_mu_abs_mean
+    - event_entropy_norm
+    - event_top05_mass
+    - event_top10_mass
+    - rho_event_corr
+    - rho_event_top10_overlap
+    - event_conf_learnt_log_max
+  warmup_cpu_lim: 15
+  final_cpu_lim: 60
+  disable_adapter_selector: True
+  preserve_selector_feature_names: True
+  disable_adapter_base_rho_gate: True
+  disable_adapter_graph_gate: True
+
+loader:
+  batch_size: 7
+  num_workers: 0
+
+solver:
+  num_workers: 7

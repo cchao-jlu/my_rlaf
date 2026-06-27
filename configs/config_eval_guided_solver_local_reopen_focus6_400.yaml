@@ -1,0 +1,11 @@
+# @package _global_
+
+defaults:
+  - config_eval_guided_solver_online_consistent_focus6_400
+  - _self_
+
+checkpoint: runs/GNN_Glucose_3SAT_TwoStageRiskControllerOnlineConsistentBoundary400LocalReopenOverride/best.pt
+save_file: eval_local_reopen_focus6_400.csv
+
+feedback_refinement:
+  intervention_conflicts: [500, 750, 1000, 2000]

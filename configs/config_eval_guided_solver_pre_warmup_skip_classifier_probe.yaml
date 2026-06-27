@@ -1,0 +1,35 @@
+# @package _global_
+
+defaults:
+  - config_eval_guided_solver_counterfactual_risk_selector
+  - _self_
+
+checkpoint: runs/GNN_Glucose_3SAT_TwoStageRiskControllerCompactRiskEvidence300350400_EasySlowdownFilterFull400Calibrated/best.pt
+save_file: eval_pre_warmup_skip_full400_conservative_classifier.csv
+
+dataset:
+  eval_path: "data/test/3sat/400/*.cnf"
+
+feedback_refinement:
+  pre_warmup_skip:
+    enabled: true
+    mode: linear_classifier
+    feature_names:
+      - 'base_rho_mean'
+      - 'base_rho_std'
+      - 'base_rho_range'
+    weights:
+      - -0.057260993868112564
+      - 0.08445312827825546
+      - -0.019259808585047722
+    bias: -1.8542224168777466
+    threshold: 0.15510427951812744
+    feature_mean:
+      - -0.27066361904144287
+      - 2.3528976440429688
+      - 27.755390167236328
+    feature_std:
+      - 0.13486774265766144
+      - 0.22922906279563904
+      - 2.6562514305114746
+    max_skip_fraction: 0.03

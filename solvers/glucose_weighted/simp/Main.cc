@@ -90,6 +90,8 @@ void printStats(Solver& solver)
     printf("c LCM                   : %" PRIu64" / %" PRIu64" \n", solver.stats[lcmreduced],solver.stats[lcmtested]);
     if (mem_used != 0) printf("Memory used           : %.2f MB\n", mem_used);
     printf("c CPU time              : %g s\n", cpu_time);
+    if(solver.collectEvents)
+        solver.printEventStats();
 }
 
 
@@ -135,6 +137,7 @@ int main(int argc, char** argv)
         BoolOption   pre    ("MAIN", "pre",    "Completely turn on/off any preprocessing.", true);
         StringOption dimacs ("MAIN", "dimacs", "If given, stop after preprocessing and write the result to this file.");
         IntOption    cpu_lim("MAIN", "cpu-lim","Limit on CPU time allowed in seconds.\n", INT32_MAX, IntRange(0, INT32_MAX));
+        IntOption    conf_lim("MAIN", "conf-lim","Limit on conflicts allowed before returning INDETERMINATE.\n", INT32_MAX, IntRange(0, INT32_MAX));
         IntOption    mem_lim("MAIN", "mem-lim","Limit on memory usage in megabytes.\n", INT32_MAX, IntRange(0, INT32_MAX));
  //       BoolOption opt_incremental ("MAIN","incremental", "Use incremental SAT solving",false);
 
@@ -260,6 +263,8 @@ int main(int argc, char** argv)
         }
 
         vec<Lit> dummy;
+        if (conf_lim != INT32_MAX)
+            S.setConfBudget(conf_lim);
         lbool ret = S.solveLimited(dummy);
 
         if (S.verbosity > 0){

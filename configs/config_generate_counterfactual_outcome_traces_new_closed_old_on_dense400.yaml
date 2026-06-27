@@ -1,0 +1,18 @@
+# @package _global_
+
+defaults:
+  - config_generate_counterfactual_outcome_traces_new_closed_old_on_boundary400
+  - _self_
+
+# 对 new_closed_old_on 边界做加密时间证据采样。
+# 最终 intervention 仍固定为 2000 conflicts，保证与既有 paired labels
+# 的决策时点一致；新增中间点只用于识别 early decision/event drift。
+
+counterfactual:
+  output_path: "data/counterfactual_trace/new_closed_old_on_dense400_traces.pt"
+  output_csv: "data/counterfactual_trace/new_closed_old_on_dense400_outcomes.csv"
+  warmup_stats_csv: "data/counterfactual_trace/new_closed_old_on_dense400_warmup_stats.csv"
+  base_stats_csv: "data/counterfactual_trace/new_closed_old_on_dense400_base_branch_stats.csv"
+  adapter_stats_csv: "data/counterfactual_trace/new_closed_old_on_dense400_adapter_branch_stats.csv"
+  doc_path: "docs/counterfactual_outcome_trace_new_closed_old_on_dense400.md"
+  intervention_conflicts: [250, 500, 750, 1000, 1500, 2000]

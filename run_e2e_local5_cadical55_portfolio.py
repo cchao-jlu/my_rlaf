@@ -395,7 +395,14 @@ def write_rows(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
-def write_analysis_tables(rows: list[dict[str, Any]], mode: str) -> dict[str, Any]:
+def output_stem(mode: str, repeat: int | None) -> str:
+    if repeat is None:
+        return mode
+    return f"{mode}_repeat{repeat}"
+
+
+def write_analysis_tables(rows: list[dict[str, Any]], mode: str, repeat: int | None = None) -> dict[str, Any]:
+    stem = output_stem(mode, repeat)
     frame = pd.DataFrame(rows)
     baseline = pd.read_csv(ROOT / "runs/analysis/cadical_neural_overlap/combined.csv")
     baseline["file_key"] = baseline["file_key"].astype(str)
@@ -450,6 +457,7 @@ def write_analysis_tables(rows: list[dict[str, Any]], mode: str) -> dict[str, An
     ].sort_values("file_key")
     summary = {
         "mode": mode,
+        "repeat": "" if repeat is None else int(repeat),
         "instances": int(len(merged)),
         "portfolio_solved": int(merged["portfolio_solved"].sum()),
         "local_first_stage_solved": int(merged["local_solved"].sum()),
@@ -464,9 +472,9 @@ def write_analysis_tables(rows: list[dict[str, Any]], mode: str) -> dict[str, An
         "mean_portfolio_time": float(pd.to_numeric(merged["portfolio_time"], errors="coerce").mean()),
         "median_portfolio_time": float(pd.to_numeric(merged["portfolio_time"], errors="coerce").median()),
     }
-    pd.DataFrame([summary]).to_csv(OUT_DIR / f"{mode}_summary.csv", index=False)
-    portfolio_only.to_csv(OUT_DIR / f"{mode}_portfolio_only_vs_cadical.csv", index=False)
-    cadical_only.to_csv(OUT_DIR / f"{mode}_cadical_only_vs_portfolio.csv", index=False)
+    pd.DataFrame([summary]).to_csv(OUT_DIR / f"{stem}_summary.csv", index=False)
+    portfolio_only.to_csv(OUT_DIR / f"{stem}_portfolio_only_vs_cadical.csv", index=False)
+    cadical_only.to_csv(OUT_DIR / f"{stem}_cadical_only_vs_portfolio.csv", index=False)
     return summary
 
 
@@ -484,6 +492,12 @@ def run_cadical_stage(rows: list[dict[str, Any]], second_cap: float, workers: in
             row["cadical_time"] = cad["time"]
             row["cadical_wall_time"] = cad["wall_time"]
             row["cadical_solved"] = str(cad["Result"]) in SOLVED_RESULTS
+            done = sum("cadical_result" in item for item in pending)
+            print(
+                f"[cadical {done}/{len(pending)}] {Path(row['file']).name} "
+                f"{row['cadical_result']} time={float(row['cadical_time']):.3f}",
+                flush=True,
+            )
     for row in rows:
         if bool(row["local_solved"]):
             row["cadical_result"] = ""
@@ -499,9 +513,16 @@ def run_cadical_stage(rows: list[dict[str, Any]], second_cap: float, workers: in
     return rows
 
 
-def write_doc(rows: list[dict[str, Any]], mode: str, raw_name: str, summary: dict[str, Any]) -> None:
-    portfolio_only = pd.read_csv(OUT_DIR / f"{mode}_portfolio_only_vs_cadical.csv", dtype={"pattern": str})
-    cadical_only = pd.read_csv(OUT_DIR / f"{mode}_cadical_only_vs_portfolio.csv", dtype={"pattern": str})
+def write_doc(
+    rows: list[dict[str, Any]],
+    mode: str,
+    raw_name: str,
+    summary: dict[str, Any],
+    repeat: int | None = None,
+) -> None:
+    stem = output_stem(mode, repeat)
+    portfolio_only = pd.read_csv(OUT_DIR / f"{stem}_portfolio_only_vs_cadical.csv", dtype={"pattern": str})
+    cadical_only = pd.read_csv(OUT_DIR / f"{stem}_cadical_only_vs_portfolio.csv", dtype={"pattern": str})
     for frame in [portfolio_only, cadical_only]:
         if "pattern" in frame.columns:
             frame["pattern"] = frame["pattern"].astype(str).str.zfill(4)
@@ -509,6 +530,7 @@ def write_doc(rows: list[dict[str, Any]], mode: str, raw_name: str, summary: dic
         "# End-to-End Local-5s / CaDiCaL-55s Portfolio Evaluation",
         "",
         f"Mode: `{mode}`.",
+        f"Repeat: `{'' if repeat is None else repeat}`.",
         "",
         "This runner loads the Local Boundary Correction checkpoint once, then",
         "executes the Local workflow per instance under a 5s wall-clock budget.",
@@ -610,9 +632,9 @@ def write_doc(rows: list[dict[str, Any]], mode: str, raw_name: str, summary: dic
             "",
             "```text",
             f"runs/analysis/portfolio_e2e_local5_cadical55/{raw_name}",
-            f"runs/analysis/portfolio_e2e_local5_cadical55/{mode}_summary.csv",
-            f"runs/analysis/portfolio_e2e_local5_cadical55/{mode}_portfolio_only_vs_cadical.csv",
-            f"runs/analysis/portfolio_e2e_local5_cadical55/{mode}_cadical_only_vs_portfolio.csv",
+            f"runs/analysis/portfolio_e2e_local5_cadical55/{stem}_summary.csv",
+            f"runs/analysis/portfolio_e2e_local5_cadical55/{stem}_portfolio_only_vs_cadical.csv",
+            f"runs/analysis/portfolio_e2e_local5_cadical55/{stem}_cadical_only_vs_portfolio.csv",
             "```",
         ]
     )
@@ -649,11 +671,13 @@ def main() -> None:
     parser.add_argument("--first-cap", type=float, default=5.0)
     parser.add_argument("--second-cap", type=float, default=55.0)
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--repeat", type=int, default=None)
     args = parser.parse_args()
 
     files = smoke_files() if args.mode == "smoke" else full400_files()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    raw_name = f"{args.mode}_raw.csv"
+    stem = output_stem(args.mode, args.repeat)
+    raw_name = f"{stem}_raw.csv"
     raw_path = OUT_DIR / raw_name
     runner = ResidentLocalRunner(first_cap=args.first_cap)
     runner.warm_model(files[0])
@@ -668,8 +692,8 @@ def main() -> None:
         )
     rows = run_cadical_stage(rows, second_cap=args.second_cap, workers=args.workers)
     write_rows(raw_path, rows)
-    summary = write_analysis_tables(rows, mode=args.mode)
-    write_doc(rows, mode=args.mode, raw_name=raw_name, summary=summary)
+    summary = write_analysis_tables(rows, mode=args.mode, repeat=args.repeat)
+    write_doc(rows, mode=args.mode, raw_name=raw_name, summary=summary, repeat=args.repeat)
     print(pd.DataFrame(rows).to_string(index=False))
     print(DOC_PATH.relative_to(ROOT))
 

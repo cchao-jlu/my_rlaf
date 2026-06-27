@@ -733,6 +733,8 @@ int march_solve_rec()
 	if( (int) clock() > CLOCKS_PER_SEC * TIMEOUT )
 	    return UNKNOWN;
 #endif
+	if( runtime_timeout_enabled && ((double) clock()) / CLOCKS_PER_SEC > runtime_cpu_lim )
+	    return UNKNOWN;
 #ifdef SUBTREE_SIZE
 	path_length++;
 #endif
@@ -1187,6 +1189,8 @@ int DPLL_update_datastructures( const int nrval )
 	if( (int) clock() > CLOCKS_PER_SEC * TIMEOUT )
 	    return SAT;
 #endif
+	if( runtime_timeout_enabled && ((double) clock()) / CLOCKS_PER_SEC > runtime_cpu_lim )
+	    return SAT;
 	unitResolveCount++;
 	reduce_freevars( nrval );
 

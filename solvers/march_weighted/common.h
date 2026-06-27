@@ -486,6 +486,8 @@ struct treeNode *treeArray;
 
 /* accounting */
 int nodeCount;
+int runtime_timeout_enabled;
+double runtime_cpu_lim;
 int lookAheadCount;
 int unitResolveCount;
 int necessary_assignments;

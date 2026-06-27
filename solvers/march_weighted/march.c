@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include <time.h>
 
 #include "march.h"
@@ -43,6 +44,7 @@ void handleUNSAT()
 int main( int argc, char** argv )
 {
 	int i, result, exitcode;
+	char* input_file;
 
 	/* let's not be too optimistic... :) */
 	result   = UNKNOWN;
@@ -50,9 +52,25 @@ int main( int argc, char** argv )
 
         if( argc < 2 )
         {
-                printf( "input file missing, usage: ./march_cc < DIMACS-file.cnf >\n" );
+                printf( "input file missing, usage: ./march_cc < DIMACS-file.cnf > [--cpu-lim seconds]\n" );
                 return EXIT_CODE_ERROR;
         }
+	input_file = argv[ 1 ];
+	runtime_timeout_enabled = 0;
+	runtime_cpu_lim = 0.0;
+	for( i = 2; i < argc; i++ )
+	{
+	    if( strncmp( argv[ i ], "--cpu-lim=", 10 ) == 0 )
+	    {
+		runtime_cpu_lim = atof( argv[ i ] + 10 );
+		runtime_timeout_enabled = runtime_cpu_lim > 0.0;
+	    }
+	    else if( strcmp( argv[ i ], "--cpu-lim" ) == 0 && i + 1 < argc )
+	    {
+		runtime_cpu_lim = atof( argv[ ++i ] );
+		runtime_timeout_enabled = runtime_cpu_lim > 0.0;
+	    }
+	}
 #ifdef CUBE
 	if( argc > 2 )
 	{
@@ -77,7 +95,7 @@ int main( int argc, char** argv )
 	/*
 		Parsing...
 	*/
-	runParser( argv[ 1 ] );
+	runParser( input_file );
 	/*
 		Preprocessing...
 	*/

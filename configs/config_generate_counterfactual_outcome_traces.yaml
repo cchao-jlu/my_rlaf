@@ -1,0 +1,59 @@
+# @package _global_
+
+defaults:
+  - config_train_trace_distill_gated_small_residual
+  - _self_
+
+checkpoint: runs/GNN_Glucose_3SAT_TraceAdapter_GatedConflict_Scale025Clip05/best.pt
+
+dataset:
+  path: "data/training/3sat/*/*.cnf"
+  lazy: True
+
+counterfactual:
+  output_path: "data/counterfactual_trace/counterfactual_outcome_traces.pt"
+  output_csv: "data/counterfactual_trace/counterfactual_outcomes.csv"
+  warmup_stats_csv: "data/counterfactual_trace/warmup_stats.csv"
+  base_stats_csv: "data/counterfactual_trace/base_branch_stats.csv"
+  adapter_stats_csv: "data/counterfactual_trace/adapter_branch_stats.csv"
+  doc_path: "docs/counterfactual_outcome_trace_run.md"
+  max_num_batches: -1
+  use_cuda: True
+  event_state_features: enhanced
+  state_momentum: 0.5
+  warmup_budget_type: conflicts
+  warmup_conflicts: 500
+  intervention_conflicts: null
+  multi_point_feature_names:
+    - base_rho_mean
+    - delta_abs_mean
+    - delta_mu_abs_mean
+    - event_gate_mean
+    - event_entropy_norm
+    - event_top05_mass
+    - event_top10_mass
+    - rho_event_corr
+    - rho_event_top10_overlap
+  warmup_cpu_lim: 10
+  final_cpu_lim: 60
+  # Generate raw intervention labels unless explicitly evaluating a gated policy.
+  disable_adapter_selector: True
+  disable_adapter_base_rho_gate: True
+  disable_adapter_graph_gate: True
+  label:
+    positive_speedup_ratio: 0.8
+    negative_slowdown_ratio: 1.1
+    positive_weight: 4.0
+    negative_weight: 8.0
+
+solver:
+  solver: glucose
+  num_workers: 8
+  params:
+    cpu-lim: 60
+    rnd-freq: 0.0
+    K: 0.1
+
+loader:
+  batch_size: 20
+  num_workers: 0

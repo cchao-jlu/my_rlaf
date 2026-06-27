@@ -1,0 +1,49 @@
+\documentclass{article}
+\usepackage[paperwidth=14in,paperheight=3.8in,margin=0.15in]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+\pagestyle{empty}
+
+\begin{document}
+\begin{tikzpicture}[
+    font=\small,
+    node distance=8mm and 11mm,
+    block/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, minimum width=25mm, fill=blue!5},
+    state/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, minimum width=24mm, fill=orange!10},
+    out/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, minimum width=28mm, fill=green!8},
+    data/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, minimum width=24mm, fill=gray!8},
+    arrow/.style={-{Latex[length=2.2mm]}, thick},
+    dashedarrow/.style={-{Latex[length=2.2mm]}, thick, dashed}
+]
+
+\node[data] (litx) {Literal features\\$x_{\mathrm{lit}}$};
+\node[data, below=of litx] (clsx) {Clause features\\$x_{\mathrm{cls}}$};
+
+\node[block, right=of litx] (litenc) {Literal\\encoder};
+\node[block, right=of clsx] (clsenc) {Clause\\encoder};
+
+\node[block, right=16mm of $(litenc)!0.5!(clsenc)$, minimum width=37mm, minimum height=24mm] (gnn) {
+SAT GNN layers\\[1mm]
+$\mathrm{lit}\rightarrow\mathrm{clause}\rightarrow\mathrm{lit}$\\
+$L$ message passing steps
+};
+
+\node[block, right=18mm of gnn, minimum width=34mm] (pair) {Variable pairing\\$[h_{v^-},h_{v^+}]$};
+\node[state, above=10mm of pair] (global) {Graph-level state\\$z\in\mathbb{R}^{6}$};
+\node[block, right=of pair, minimum width=32mm] (readout) {Readout MLP\\$[h_{v^-},h_{v^+},z]$};
+\node[out, right=of readout] (guidance) {Solver guidance\\phase and weight};
+
+\draw[arrow] (litx) -- (litenc);
+\draw[arrow] (clsx) -- (clsenc);
+\draw[arrow] (litenc.east) -- ++(5mm,0) |- (gnn.west);
+\draw[arrow] (clsenc.east) -- ++(5mm,0) |- (gnn.west);
+\draw[arrow] (gnn) -- (pair);
+\draw[arrow] (pair) -- (readout);
+\draw[arrow] (readout) -- (guidance);
+\draw[arrow] (global) -- node[right, xshift=1mm] {concat} (readout);
+
+\node[draw, rounded corners=2pt, fit=(litx)(clsx), inner sep=4mm, label={[font=\small]above:Static SAT graph}] {};
+\node[draw, rounded corners=2pt, fit=(pair)(readout)(global), inner sep=4mm, label={[font=\small]below:Feedback-conditioned readout}] {};
+
+\end{tikzpicture}
+\end{document}

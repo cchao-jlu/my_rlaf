@@ -21,7 +21,10 @@ def distributions(y_var: Tensor, scale_sigma: float = 0.1) -> tuple[Distribution
     rho, mu, sigma = _distribution_params(y_var, scale_sigma)
 
     # clamp rho at |rho| == 8
-    rho = rho.clamp(-8, 8)
+    rho = torch.nan_to_num(rho, nan=0.0, posinf=8.0, neginf=-8.0).clamp(-8, 8)
+    mu = torch.nan_to_num(mu, nan=0.0, posinf=8.0, neginf=-8.0).clamp(-8, 8)
+    sigma = torch.nan_to_num(sigma, nan=scale_sigma, posinf=scale_sigma, neginf=scale_sigma)
+    sigma = sigma.clamp_min(1.0e-6)
 
     phase_dist = torch.distributions.Binomial(logits=rho, total_count=1)
     scale_dist = torch.distributions.LogNormal(mu, sigma)

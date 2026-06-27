@@ -1,0 +1,52 @@
+# @package _global_
+
+defaults:
+  - config_generate_counterfactual_outcome_traces_hard_recovery_400
+  - _self_
+
+# full400 boundary 子集的 online-consistent counterfactual trace。
+# 子集由 build_online_consistent_boundary_subset.py 从正式 full400 online
+# feature cache / audit 中抽取，优先包含 recovered/lost/slowdown/near-threshold。
+
+checkpoint: runs/GNN_Glucose_3SAT_TwoStageRiskControllerBoundaryPairwiseRecoveryPositiveFloorSlowdownVeto/best.pt
+
+dataset:
+  path: "data/online_consistent_boundary/3sat/400/*.cnf"
+  lazy: True
+
+counterfactual:
+  output_path: "data/counterfactual_trace/online_consistent_boundary400_traces.pt"
+  output_csv: "data/counterfactual_trace/online_consistent_boundary400_outcomes.csv"
+  warmup_stats_csv: "data/counterfactual_trace/online_consistent_boundary400_warmup_stats.csv"
+  base_stats_csv: "data/counterfactual_trace/online_consistent_boundary400_base_branch_stats.csv"
+  adapter_stats_csv: "data/counterfactual_trace/online_consistent_boundary400_adapter_branch_stats.csv"
+  doc_path: "docs/counterfactual_outcome_trace_online_consistent_boundary400.md"
+  max_num_batches: -1
+  use_cuda: True
+  warmup_conflicts: 2000
+  intervention_conflicts: [500, 1000, 2000]
+  multi_point_feature_names:
+    - base_rho_mean
+    - base_rho_std
+    - base_rho_range
+    - delta_abs_mean
+    - delta_mu_abs_mean
+    - event_entropy_norm
+    - event_top05_mass
+    - event_top10_mass
+    - rho_event_corr
+    - rho_event_top10_overlap
+    - event_conf_learnt_log_max
+  warmup_cpu_lim: 15
+  final_cpu_lim: 60
+  disable_adapter_selector: True
+  preserve_selector_feature_names: True
+  disable_adapter_base_rho_gate: True
+  disable_adapter_graph_gate: True
+
+loader:
+  batch_size: 10
+  num_workers: 0
+
+solver:
+  num_workers: 8

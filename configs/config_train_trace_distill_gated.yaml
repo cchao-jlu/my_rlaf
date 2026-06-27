@@ -1,0 +1,29 @@
+# @package _global_
+
+defaults:
+  - config_train_trace_distill
+  - _self_
+
+model_name: GNN_Glucose_3SAT_TraceAdapter_GatedConflict
+model_dir: runs/${model_name}
+
+model:
+  event_adapter:
+    enabled: True
+    hidden_dim: 128
+    delta_scale: 1.0
+    delta_clip: null
+    # Enhanced event-state indices for conflict/learnt evidence:
+    # cumulative: 2,3; delta: 7,8; rate: 12,13; rank: 17,18.
+    gate_indices: [2, 3, 7, 8, 12, 13, 17, 18]
+
+trace:
+  label:
+    target_scale: 2.0
+    target_delta_clip: null
+
+training:
+  # Full trace distillation can run on CPU, but it is slow for the 9.6G trace file.
+  # Override to true only on a machine with a working CUDA driver.
+  use_cuda: False
+  use_amp: False
